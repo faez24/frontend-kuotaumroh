@@ -1,0 +1,230 @@
+/**
+ * Shared Utility Functions
+ * Kuotaumroh.id Agent Portal
+ */
+
+/* ===========================
+   Number Formatting
+   =========================== */
+
+/**
+ * Format number to Indonesian Rupiah format
+ * @param {number} amount - Amount to format
+ * @returns {string} Formatted rupiah string
+ */
+function formatRupiah(amount) {
+  return `Rp ${amount.toLocaleString('id-ID')}`;
+}
+
+/* ===========================
+   Date Formatting
+   =========================== */
+
+/**
+ * Format date to Indonesian format (dd MMM yyyy)
+ * @param {Date|string} date - Date to format
+ * @returns {string} Formatted date string
+ */
+function formatDate(date) {
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+  const d = new Date(date);
+  return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+/**
+ * Format date and time to Indonesian format
+ * @param {Date|string} date - Date to format
+ * @returns {string} Formatted date and time string
+ */
+function formatDateTime(date) {
+  const d = new Date(date);
+  const hours = String(d.getHours()).padStart(2, '0');
+  const minutes = String(d.getMinutes()).padStart(2, '0');
+  return `${formatDate(d)} ${hours}:${minutes}`;
+}
+
+/* ===========================
+   Phone Number (MSISDN) Utilities
+   =========================== */
+
+const PROVIDER_PREFIXES = {
+  'Telkomsel': ['0811', '0812', '0813', '0821', '0822', '0823', '0851', '0852', '0853'],
+  'Indosat': ['0814', '0815', '0816', '0855', '0856', '0857', '0858'],
+  'XL': ['0817', '0818', '0819', '0859', '0877', '0878'],
+  'Axis': ['0831', '0832', '0833', '0838'],
+  'Tri': ['0895', '0896', '0897', '0898', '0899'],
+  'Smartfren': ['0881', '0882', '0883', '0884', '0885', '0886', '0887', '0888', '0889'],
+};
+
+/**
+ * Detect mobile provider from phone number
+ * @param {string} msisdn - Phone number
+ * @returns {string|null} Provider name or null
+ */
+function detectProvider(msisdn) {
+  const normalized = normalizeMsisdn(msisdn);
+
+  for (const [provider, prefixes] of Object.entries(PROVIDER_PREFIXES)) {
+    if (prefixes.some(prefix => normalized.startsWith(prefix))) {
+      return provider;
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Validate phone number format
+ * @param {string} msisdn - Phone number to validate
+ * @returns {boolean} True if valid
+ */
+function validateMsisdn(msisdn) {
+  const normalized = normalizeMsisdn(msisdn);
+  return /^0\d{9,12}$/.test(normalized);
+}
+
+/**
+ * Normalize phone number format
+ * @param {string} msisdn - Phone number to normalize
+ * @returns {string} Normalized phone number
+ */
+function normalizeMsisdn(msisdn) {
+  return msisdn
+    .replace(/^62/, '0')
+    .replace(/^\+62/, '0')
+    .replace(/\s+/g, '');
+}
+
+/**
+ * Normalize provider name for API calls
+ * @param {string} detectedProvider - Detected provider name
+ * @returns {string} API-compatible provider name
+ */
+function normalizeProviderForApi(detectedProvider) {
+  const providerMap = {
+    'telkomsel': 'SIMPATI',
+    'indosat': 'INDOSAT',
+    'xl': 'XL',
+    'axis': 'AXIS',
+    'tri': 'TRI',
+    'smartfren': 'SMARTFREN',
+  };
+
+  return providerMap[detectedProvider.toLowerCase()] || detectedProvider.toUpperCase();
+}
+
+/* ===========================
+   String Utilities
+   =========================== */
+
+/**
+ * Truncate string with ellipsis
+ * @param {string} str - String to truncate
+ * @param {number} maxLength - Maximum length
+ * @returns {string} Truncated string
+ */
+function truncate(str, maxLength) {
+  if (str.length <= maxLength) return str;
+  return str.substring(0, maxLength - 3) + '...';
+}
+
+/**
+ * Capitalize first letter of string
+ * @param {string} str - String to capitalize
+ * @returns {string} Capitalized string
+ */
+function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
+/* ===========================
+   Array Utilities
+   =========================== */
+
+/**
+ * Group array of objects by key
+ * @param {Array} array - Array to group
+ * @param {string} key - Key to group by
+ * @returns {Object} Grouped object
+ */
+function groupBy(array, key) {
+  return array.reduce((result, item) => {
+    const groupKey = item[key];
+    if (!result[groupKey]) {
+      result[groupKey] = [];
+    }
+    result[groupKey].push(item);
+    return result;
+  }, {});
+}
+
+/* ===========================
+   Validation
+   =========================== */
+
+/**
+ * Check if email is valid
+ * @param {string} email - Email to validate
+ * @returns {boolean} True if valid
+ */
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+/* ===========================
+   Local Storage Helpers
+   =========================== */
+
+/**
+ * Get user data from localStorage
+ * @returns {Object} User data or empty object
+ */
+function getUser() {
+  try {
+    return JSON.parse(localStorage.getItem('user') || '{}');
+  } catch {
+    return {};
+  }
+}
+
+/**
+ * Set user data in localStorage
+ * @param {Object} userData - User data to save
+ */
+function setUser(userData) {
+  localStorage.setItem('user', JSON.stringify(userData));
+}
+
+/**
+ * Clear user data (logout)
+ */
+function clearUser() {
+  localStorage.removeItem('user');
+}
+
+/**
+ * Check if user is logged in
+ * @returns {boolean} True if logged in
+ */
+function isLoggedIn() {
+  const user = getUser();
+  return user && user.agentCode;
+}
+
+/* ===========================
+   Business Logic
+   =========================== */
+
+/**
+ * Calculate profit from base price
+ * @param {number} basePrice - Base price
+ * @param {number} marginPercent - Margin percentage (default 30)
+ * @returns {Object} Object with sellPrice and profit
+ */
+function calculateProfit(basePrice, marginPercent = 30) {
+  const profit = Math.round(basePrice * (marginPercent / 100));
+  return {
+    sellPrice: basePrice + profit,
+    profit,
+  };
+}

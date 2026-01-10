@@ -1,0 +1,17 @@
+# Development and documentation files
+docs/walkthrough.md
+conversion_plan.md
+CONVERSION_COMPARISON.md
+ORDER_PAGE_COMPARISON.md
+ORDER_PAGE_REFINEMENTS.md
+ORDER_REFINEMENTS_APPLIED.md
+TASK_LIST.md
+TASK_LIST_UPDATE.txt
+
+# System files
+.DS_Store
+.vscode/
+*.log
+
+# Node modules (if any)
+node_modules/
