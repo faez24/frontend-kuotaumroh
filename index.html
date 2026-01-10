@@ -492,7 +492,7 @@
 
           // Store in localStorage and redirect to payment
           localStorage.setItem('pendingOrder', JSON.stringify(orderData));
-          window.location.href = 'payment.html';
+          window.location.href = 'checkout.html';
         },
 
         showToast(title, message) {
@@ -505,9 +505,5 @@
     }
   </script>
 
-<!-- WUUNU SNIPPET - DON'T CHANGE THIS (START) -->
-<script>window.__WUUNU_WS__ = "http://127.0.0.1:53948/?token=fd2593a903940808c14fe666980a4d1b36163c154479be92";</script>
-<script id="wuunu-widget-script" data-wuunu-widget src="https://cdn.jsdelivr.net/npm/@wuunu/widget@0.1" defer crossOrigin="anonymous"></script>
-<!-- WUUNU SNIPPET - DON'T CHANGE THIS (END) -->
 </body>
 </html>

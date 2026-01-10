@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 - Halaman Tidak Ditemukan | Kuotaumroh.id</title>
+
+  <!-- Favicon -->
+  <link rel="apple-touch-icon" sizes="57x57" href="public/favicon/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="public/favicon/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="public/favicon/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="public/favicon/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="public/favicon/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="public/favicon/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="public/favicon/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="public/favicon/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="public/favicon/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="public/favicon/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="public/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="public/favicon/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="public/favicon/favicon-16x16.png">
+  <link rel="manifest" href="public/favicon/manifest.json">
+  <meta name="msapplication-TileColor" content="#10b981">
+  <meta name="msapplication-TileImage" content="public/favicon/ms-icon-144x144.png">
+  <meta name="theme-color" content="#10b981">
+
+  <!-- Google Fonts - Figtree -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Shared CSS -->
+  <link rel="stylesheet" href="shared/styles.css">
+
+  <!-- Tailwind Config -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            border: "hsl(var(--border))",
+            input: "hsl(var(--input))",
+            ring: "hsl(var(--ring))",
+            background: "hsl(var(--background))",
+            foreground: "hsl(var(--foreground))",
+            primary: {
+              DEFAULT: "hsl(var(--primary))",
+              foreground: "hsl(var(--primary-foreground))",
+            },
+            secondary: {
+              DEFAULT: "hsl(var(--secondary))",
+              foreground: "hsl(var(--secondary-foreground))",
+            },
+            destructive: {
+              DEFAULT: "hsl(var(--destructive))",
+              foreground: "hsl(var(--destructive-foreground))",
+            },
+            muted: {
+              DEFAULT: "hsl(var(--muted))",
+              foreground: "hsl(var(--muted-foreground))",
+            },
+            accent: {
+              DEFAULT: "hsl(var(--accent))",
+              foreground: "hsl(var(--accent-foreground))",
+            },
+            card: {
+              DEFAULT: "hsl(var(--card))",
+              foreground: "hsl(var(--card-foreground))",
+            },
+          },
+          fontFamily: {
+            sans: ['Figtree', 'ui-sans-serif', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+          borderRadius: {
+            lg: "var(--radius)",
+            md: "calc(var(--radius) - 2px)",
+            sm: "calc(var(--radius) - 4px)",
+          },
+        },
+      },
+    }
+  </script>
+</head>
+
+<body class="min-h-screen bg-background">
+  
+  <!-- Header -->
+  <header class="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
+    <div class="container mx-auto flex h-16 items-center justify-between px-4">
+      <a href="index.html" class="flex items-center gap-2">
+        <img src="public/images/kabah.png" alt="Kuotaumroh.id" class="h-9 w-9 object-contain">
+        <span class="text-xl font-semibold">Kuotaumroh.id</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 py-16">
+    <div class="flex flex-col items-center justify-center text-center max-w-2xl mx-auto space-y-8">
+      
+      <!-- Cat Image -->
+      <div class="w-full max-w-md animate-fade-in">
+        <img 
+          src="public/images/catsorry.png" 
+          alt="404 Cat Sorry" 
+          class="w-full h-auto object-contain"
+        >
+      </div>
+
+      <!-- 404 Text -->
+      <div class="space-y-4">
+        <h1 class="text-6xl font-bold text-primary">404</h1>
+        <h2 class="text-3xl font-semibold">Halaman Tidak Ditemukan</h2>
+        <p class="text-lg text-muted-foreground max-w-md mx-auto">
+          Maaf, halaman yang Anda cari tidak dapat ditemukan. Halaman mungkin telah dipindahkan atau tidak tersedia.
+        </p>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-col sm:flex-row gap-3 pt-4">
+        <a 
+          href="index.html"
+          class="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground h-11 px-8 font-medium hover:bg-primary/90 transition-colors"
+        >
+          <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+          </svg>
+          Kembali ke Beranda
+        </a>
+        <button 
+          onclick="history.back()"
+          class="inline-flex items-center justify-center rounded-md border border-input bg-background h-11 px-8 font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
+        >
+          <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Halaman Sebelumnya
+        </button>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="pt-8 border-t w-full max-w-md">
+        <p class="text-sm text-muted-foreground mb-4">Atau coba halaman lain:</p>
+        <div class="grid grid-cols-2 gap-3 text-sm">
+          <a href="index.html" class="text-primary hover:underline">Beli Paket</a>
+          <a href="login.html" class="text-primary hover:underline">Login Agen</a>
+          <a href="catalog.html" class="text-primary hover:underline">Katalog Harga</a>
+          <a href="referrals.html" class="text-primary hover:underline">Referral</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t mt-16 py-8">
+    <div class="container mx-auto px-4 text-center text-sm text-muted-foreground">
+      <p>© 2026 Kuotaumroh.id. All rights reserved.</p>
+    </div>
+  </footer>
+
+</body>
+</html>
