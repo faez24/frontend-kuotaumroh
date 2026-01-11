@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profil - Kuotaumroh.id</title>
+
+  <!-- Favicon -->
+  <link rel="apple-touch-icon" sizes="57x57" href="public/favicon/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="public/favicon/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="public/favicon/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="public/favicon/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="public/favicon/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="public/favicon/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="public/favicon/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="public/favicon/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="public/favicon/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="public/favicon/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="public/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="public/favicon/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="public/favicon/favicon-16x16.png">
+  <link rel="manifest" href="public/favicon/manifest.json">
+  <meta name="msapplication-TileColor" content="#10b981">
+  <meta name="msapplication-TileImage" content="public/favicon/ms-icon-144x144.png">
+  <meta name="theme-color" content="#10b981">
+
+  <!-- Google Fonts - Figtree -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Alpine.js -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+  <!-- Shared CSS -->
+  <link rel="stylesheet" href="shared/styles.css">
+
+  <!-- Shared JS -->
+  <script src="shared/utils.js"></script>
+  <script src="shared/header.js"></script>
+
+  <!-- Leaflet.js CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+
+  <!-- Leaflet.js JavaScript -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <!-- Tailwind Config -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            border: "hsl(var(--border))",
+            input: "hsl(var(--input))",
+            ring: "hsl(var(--ring))",
+            background: "hsl(var(--background))",
+            foreground: "hsl(var(--foreground))",
+            primary: {
+              DEFAULT: "hsl(var(--primary))",
+              foreground: "hsl(var(--primary-foreground))",
+            },
+            secondary: {
+              DEFAULT: "hsl(var(--secondary))",
+              foreground: "hsl(var(--secondary-foreground))",
+            },
+            destructive: {
+              DEFAULT: "hsl(var(--destructive))",
+              foreground: "hsl(var(--destructive-foreground))",
+            },
+            muted: {
+              DEFAULT: "hsl(var(--muted))",
+              foreground: "hsl(var(--muted-foreground))",
+            },
+            accent: {
+              DEFAULT: "hsl(var(--accent))",
+              foreground: "hsl(var(--accent-foreground))",
+            },
+            card: {
+              DEFAULT: "hsl(var(--card))",
+              foreground: "hsl(var(--card-foreground))",
+            },
+          },
+          fontFamily: {
+            sans: ['Figtree', 'ui-sans-serif', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+          borderRadius: {
+            lg: "var(--radius)",
+            md: "calc(var(--radius) - 2px)",
+            sm: "calc(var(--radius) - 4px)",
+          },
+        },
+      },
+    }
+  </script>
+</head>
+
+<body class="min-h-screen bg-background">
+  <!-- Shared Header Component (Auto-render) -->
+  <div id="app-header" data-auto-render data-current-page="profile"></div>
+
+  <!-- Alpine.js Main App -->
+  <div x-data="profileApp()">
+
+    <!-- Main Content -->
+    <main class="container py-8">
+      <div class="max-w-4xl mx-auto">
+        <!-- Page Header -->
+        <div class="mb-8">
+          <h1 class="text-3xl font-bold">Profil Saya</h1>
+          <p class="text-muted-foreground mt-2">Informasi akun dan data agent Anda</p>
+        </div>
+
+        <!-- Profile Card -->
+        <div class="rounded-lg border bg-card text-card-foreground shadow-sm">
+          <div class="p-6 space-y-6">
+            
+            <!-- Personal Information Section -->
+            <div class="space-y-4">
+              <h2 class="text-lg font-semibold border-b pb-2">Informasi Pribadi</h2>
+              
+              <div class="grid gap-4 md:grid-cols-2">
+                <!-- Email -->
+                <div class="space-y-2">
+                  <label class="text-sm font-medium text-muted-foreground">Email</label>
+                  <div class="flex h-10 w-full rounded-md border border-input bg-muted px-3 py-2 text-sm">
+                    <span x-text="user.email || '-'"></span>
+                  </div>
+                </div>
+
+                <!-- Phone Number -->
+                <div class="space-y-2">
+                  <label class="text-sm font-medium text-muted-foreground">No. HP</label>
+                  <div class="flex h-10 w-full rounded-md border border-input bg-muted px-3 py-2 text-sm">
+                    <span x-text="user.phone ? '+62' + user.phone : '-'"></span>
+                  </div>
+                </div>
+
+                <!-- Full Name -->
+                <div class="space-y-2 md:col-span-2">
+                  <label class="text-sm font-medium text-muted-foreground">Nama Lengkap</label>
+                  <div class="flex h-10 w-full rounded-md border border-input bg-muted px-3 py-2 text-sm">
+                    <span x-text="user.full_name || user.name || '-'"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Agent Information Section -->
+            <div class="space-y-4">
+              <h2 class="text-lg font-semibold border-b pb-2">Informasi Agent</h2>
+              
+              <div class="grid gap-4 md:grid-cols-2">
+                <!-- User Type -->
+                <div class="space-y-2">
+                  <label class="text-sm font-medium text-muted-foreground">Jenis Agent</label>
+                  <div class="flex h-10 w-full rounded-md border border-input bg-muted px-3 py-2 text-sm">
+                    <span x-text="user.user_type || '-'"></span>
+                  </div>
+                </div>
+
+                <!-- Travel Name -->
+                <div class="space-y-2">
+                  <label class="text-sm font-medium text-muted-foreground">Nama Travel</label>
+                  <div class="flex h-10 w-full rounded-md border border-input bg-muted px-3 py-2 text-sm">
+                    <span x-text="user.travel_name || '-'"></span>
+                  </div>
+                </div>
+
+                <!-- Travel Type -->
+                <div class="space-y-2">
+                  <label class="text-sm font-medium text-muted-foreground">Jenis Travel</label>
+                  <div class="flex h-10 w-full rounded-md border border-input bg-muted px-3 py-2 text-sm">
+                    <span x-text="user.travel_type || '-'"></span>
+                  </div>
+                </div>
+
+                <!-- Travel Member -->
+                <div class="space-y-2">
+                  <label class="text-sm font-medium text-muted-foreground">Total Traveller per Bulan</label>
+                  <div class="flex h-10 w-full rounded-md border border-input bg-muted px-3 py-2 text-sm">
+                    <span x-text="user.travel_member || '-'"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Address Information Section -->
+            <div class="space-y-4">
+              <h2 class="text-lg font-semibold border-b pb-2">Informasi Alamat</h2>
+              
+              <div class="grid gap-4 md:grid-cols-2">
+                <!-- Province -->
+                <div class="space-y-2">
+                  <label class="text-sm font-medium text-muted-foreground">Provinsi</label>
+                  <div class="flex h-10 w-full rounded-md border border-input bg-muted px-3 py-2 text-sm">
+                    <span x-text="user.province || '-'"></span>
+                  </div>
+                </div>
+
+                <!-- City -->
+                <div class="space-y-2">
+                  <label class="text-sm font-medium text-muted-foreground">Kota/Kabupaten</label>
+                  <div class="flex h-10 w-full rounded-md border border-input bg-muted px-3 py-2 text-sm">
+                    <span x-text="user.city || '-'"></span>
+                  </div>
+                </div>
+
+                <!-- Subdistrict -->
+                <div class="space-y-2">
+                  <label class="text-sm font-medium text-muted-foreground">Kecamatan</label>
+                  <div class="flex h-10 w-full rounded-md border border-input bg-muted px-3 py-2 text-sm">
+                    <span x-text="user.subdistrict || '-'"></span>
+                  </div>
+                </div>
+
+                <!-- RT/RW -->
+                <div class="space-y-2">
+                  <label class="text-sm font-medium text-muted-foreground">RT/RW</label>
+                  <div class="flex h-10 w-full rounded-md border border-input bg-muted px-3 py-2 text-sm">
+                    <span x-text="user.rt && user.rw ? user.rt + '/' + user.rw : '-'"></span>
+                  </div>
+                </div>
+
+                <!-- Full Address -->
+                <div class="space-y-2 md:col-span-2">
+                  <label class="text-sm font-medium text-muted-foreground">Alamat Lengkap</label>
+                  <div class="flex min-h-[80px] w-full rounded-md border border-input bg-muted px-3 py-2 text-sm">
+                    <span x-text="user.address || '-'"></span>
+                  </div>
+                </div>
+
+                <!-- Coordinates (if available) -->
+                <div class="space-y-2 md:col-span-2" x-show="user.latitude && user.longitude">
+                  <label class="text-sm font-medium text-muted-foreground">Lokasi Peta</label>
+                  
+                  <!-- Map Container -->
+                  <div id="map" class="w-full h-[300px] rounded-md border border-input z-0"></div>
+                  
+                  <div class="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
+                    <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span x-text="user.latitude + ', ' + user.longitude"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Info Note -->
+        <div class="mt-6 rounded-lg border border-muted bg-muted/50 p-4">
+          <div class="flex gap-3">
+            <svg class="h-5 w-5 text-muted-foreground flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div class="text-sm text-muted-foreground">
+              <p class="font-medium">Informasi Profil</p>
+              <p class="mt-1">Data profil Anda saat ini tidak dapat diubah melalui halaman ini. Jika Anda memerlukan perubahan data, silakan hubungi administrator.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Toast Notification -->
+    <div
+      x-show="toastVisible"
+      x-transition
+      class="toast"
+    >
+      <div class="font-semibold mb-1" x-text="toastTitle"></div>
+      <div class="text-sm text-muted-foreground" x-text="toastMessage"></div>
+    </div>
+  </div>
+
+  <!-- Alpine.js Application Logic -->
+  <script>
+    function profileApp() {
+      return {
+        // User data
+        user: {
+          name: '',
+          email: '',
+          initials: ''
+        },
+
+        // Toast
+        toastVisible: false,
+        toastTitle: '',
+        toastMessage: '',
+
+        // Get initials from name
+        getInitials(name) {
+          if (!name) return '';
+          const parts = name.trim().split(' ');
+          if (parts.length === 1) {
+            return parts[0].substring(0, 2).toUpperCase();
+          }
+          return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+        },
+
+        // Show toast notification
+        showToast(title, message) {
+          this.toastTitle = title;
+          this.toastMessage = message;
+          this.toastVisible = true;
+          setTimeout(() => {
+            this.toastVisible = false;
+          }, 3000);
+        },
+
+        // Logout
+        logout() {
+          localStorage.removeItem('user');
+          localStorage.removeItem('token');
+          window.location.href = 'login.html';
+        },
+
+        // Initialize map
+        initMap() {
+            if (!this.user.latitude || !this.user.longitude) return;
+
+            const lat = parseFloat(this.user.latitude);
+            const lng = parseFloat(this.user.longitude);
+
+            if (isNaN(lat) || isNaN(lng)) return;
+
+            // Initialize map if not already done
+            if (!this.mapInstance) {
+                // Create map with z-index 0 to avoid overlapping other UI elements
+                this.mapInstance = L.map('map').setView([lat, lng], 15);
+                
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; OpenStreetMap contributors'
+                }).addTo(this.mapInstance);
+
+                // Add marker
+                L.marker([lat, lng]).addTo(this.mapInstance)
+                    .bindPopup(this.user.address || 'Lokasi Anda')
+                    .openPopup();
+                
+                // Fix map rendering issues
+                setTimeout(() => {
+                    this.mapInstance.invalidateSize();
+                }, 100);
+            }
+        },
+
+        // Lifecycle
+        init() {
+          // Mock data for demonstration
+          const mockUser = {
+            name: 'Ahmad Zulfikar',
+            email: 'ahmad.zulfikar@kuotaumroh.id',
+            phone: '812345678901',
+            full_name: 'Ahmad Zulfikar Rahman',
+            user_type: 'Agent Travel Umroh',
+            travel_name: 'Cahaya Mekkah Travel',
+            travel_type: 'Travel Umroh & Haji',
+            travel_member: '150-200 orang',
+            province: 'DKI Jakarta',
+            city: 'Jakarta Selatan',
+            subdistrict: 'Kebayoran Baru',
+            rt: '005',
+            rw: '012',
+            address: 'Jl. Senopati Raya No. 45, Senayan',
+            latitude: '-6.2297',
+            longitude: '106.8117',
+            agentCode: 'AGT-JKT-2024-001'
+          };
+
+          // Always start with mock data as base, then merge with saved user if available
+          const savedUser = getUser();
+          this.user = {
+            ...mockUser,
+            ...(savedUser || {}),
+            initials: this.getInitials((savedUser && savedUser.name) ? savedUser.name : mockUser.name)
+          };
+
+          if (!isLoggedIn()) {
+            window.location.href = 'login.html';
+          }
+
+          // Note: Header is now auto-rendered via data-auto-render
+          
+          // Initialize map after Alpine renders the DOM
+          this.$nextTick(() => {
+            if (this.user.latitude && this.user.longitude) {
+               this.initMap();
+            }
+          });
+        }
+      }
+    }
+  </script>
+
+  <!-- Wuunu Tracking -->
+  <!-- Wuunu Code -->
+  <script data-wuunu-embed src="https://wuunu.io/embed/cm4tp4h590001jynqz3q51r27.js" async></script>
+  <!-- End Wuunu Code -->
+</body>
+</html>
