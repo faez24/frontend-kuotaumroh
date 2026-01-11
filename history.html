@@ -38,6 +38,90 @@
   <!-- Shared CSS -->
   <link rel="stylesheet" href="shared/styles.css">
 
+  <!-- Flatpickr CSS for date range picker -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  
+  <!-- Flatpickr JS -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+  <!-- Custom Flatpickr Styling -->
+  <style>
+    /* Match Flatpickr to project's green theme */
+    .flatpickr-calendar {
+      border-radius: 0.5rem;
+      box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      border: 1px solid hsl(var(--border));
+    }
+
+    .flatpickr-months {
+      border-radius: 0.5rem 0.5rem 0 0;
+    }
+
+    .flatpickr-current-month .flatpickr-monthDropdown-months,
+    .flatpickr-current-month .numInputWrapper {
+      font-weight: 600;
+    }
+
+    /* Selected and range dates - use project's primary green color */
+    .flatpickr-day.selected,
+    .flatpickr-day.startRange,
+    .flatpickr-day.endRange,
+    .flatpickr-day.selected.inRange,
+    .flatpickr-day.startRange.inRange,
+    .flatpickr-day.endRange.inRange,
+    .flatpickr-day.selected:focus,
+    .flatpickr-day.startRange:focus,
+    .flatpickr-day.endRange:focus,
+    .flatpickr-day.selected:hover,
+    .flatpickr-day.startRange:hover,
+    .flatpickr-day.endRange:hover,
+    .flatpickr-day.selected.prevMonthDay,
+    .flatpickr-day.startRange.prevMonthDay,
+    .flatpickr-day.endRange.prevMonthDay,
+    .flatpickr-day.selected.nextMonthDay,
+    .flatpickr-day.startRange.nextMonthDay,
+    .flatpickr-day.endRange.nextMonthDay {
+      background: #10b981;
+      border-color: #10b981;
+    }
+
+    .flatpickr-day.inRange {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: transparent;
+    }
+
+    .flatpickr-day:hover:not(.selected):not(.startRange):not(.endRange) {
+      background: hsl(var(--muted));
+      border-color: hsl(var(--border));
+    }
+
+    .flatpickr-day.today {
+      border-color: #10b981;
+    }
+
+    .flatpickr-day.today:hover,
+    .flatpickr-day.today:focus {
+      background: rgba(16, 185, 129, 0.1);
+      border-color: #10b981;
+    }
+
+    /* Month navigation arrows */
+    .flatpickr-months .flatpickr-prev-month:hover svg,
+    .flatpickr-months .flatpickr-next-month:hover svg {
+      fill: #10b981;
+    }
+
+    /* Weekday labels */
+    .flatpickr-weekdays {
+      background: hsl(var(--muted));
+    }
+
+    .flatpickr-weekday {
+      color: hsl(var(--muted-foreground));
+      font-weight: 600;
+    }
+  </style>
+
   <!-- Tailwind Config -->
   <script>
     tailwind.config = {
@@ -187,15 +271,28 @@
                   class="flex h-10 rounded-md border border-input bg-background pl-9 pr-3 py-2 text-sm w-full sm:w-[200px]"
                 >
               </div>
+              <!-- Date Range Filter -->
+              <div class="relative">
+                <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <input
+                  type="text"
+                  id="dateRangePicker"
+                  placeholder="Pilih Rentang Tanggal"
+                  class="flex h-10 rounded-md border border-input bg-background pl-9 pr-3 py-2 text-sm w-full sm:w-[250px]"
+                  readonly
+                >
+              </div>
               <!-- Status Filter -->
               <select
                 x-model="statusFilter"
                 class="flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm w-full sm:w-[150px]"
               >
                 <option value="all">Semua Status</option>
-                <option value="success">Berhasil</option>
-                <option value="processing">Diproses</option>
-                <option value="failed">Gagal</option>
+                <option value="pending">Menunggu Pembayaran</option>
+                <option value="processing">Proses Inject</option>
+                <option value="completed">Order Selesai</option>
               </select>
             </div>
           </div>
@@ -237,6 +334,7 @@
                       </svg>
                     </button>
                   </th>
+                  <th class="h-12 px-4 text-center align-middle font-medium text-muted-foreground">Proses Paket</th>
                   <th class="h-12 px-4 text-right align-middle font-medium text-muted-foreground">
                     <button @click="handleSort('totalAmount')" class="inline-flex items-center gap-2">
                       Total
@@ -262,7 +360,10 @@
                     <td class="p-4 align-middle font-mono text-sm" x-text="tx.batchId"></td>
                     <td class="p-4 align-middle font-medium" x-text="tx.batchName"></td>
                     <td class="p-4 align-middle" x-text="formatDateTime(tx.createdAt)"></td>
-                    <td class="p-4 align-middle text-center" x-text="tx.msisdnCount"></td>
+                    <td class="p-4 align-middle text-center" x-text="tx.items?.length || 0"></td>
+                    <td class="p-4 align-middle text-center">
+                      <span class="text-xs" x-html="getPackageStatusSummary(tx)"></span>
+                    </td>
                     <td class="p-4 align-middle text-right font-medium" x-text="formatRupiah(tx.totalAmount)"></td>
                     <td class="p-4 align-middle text-center">
                       <span
@@ -286,7 +387,7 @@
                 </template>
                 <template x-if="sortedTransactions.length === 0">
                   <tr>
-                    <td colspan="7" class="p-8 text-center text-muted-foreground">
+                    <td colspan="8" class="p-8 text-center text-muted-foreground">
                       Tidak ada transaksi yang ditemukan
                     </td>
                   </tr>
@@ -305,7 +406,7 @@
       class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
       @click.self="closeDetails()"
     >
-      <div class="relative bg-white rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-hidden animate-fade-in">
+      <div class="relative bg-white rounded-lg shadow-lg w-full max-w-4xl max-h-[90vh] overflow-hidden animate-fade-in">
         <!-- Modal Header -->
         <div class="p-6 border-b">
           <div class="flex items-start justify-between">
@@ -347,11 +448,30 @@
               </div>
               <div>
                 <p class="text-muted-foreground">Jumlah Nomor HP</p>
-                <p class="font-medium"><span x-text="selectedTransaction?.msisdnCount"></span> nomor</p>
+                <p class="font-medium"><span x-text="selectedTransaction?.items?.length || 0"></span> nomor</p>
               </div>
               <div>
                 <p class="text-muted-foreground">Total Pembayaran</p>
                 <p class="font-medium" x-text="selectedTransaction ? formatRupiah(selectedTransaction.totalAmount) : ''"></p>
+              </div>
+            </div>
+
+            <!-- Package Status Summary -->
+            <div class="border-t pt-4">
+              <p class="font-medium mb-3 text-sm">Proses Paket</p>
+              <div class="grid grid-cols-3 gap-3" x-show="selectedTransaction">
+                <div class="p-3 rounded-md border bg-muted/30">
+                  <p class="text-xs text-muted-foreground mb-1">Berhasil</p>
+                  <p class="text-2xl font-bold text-primary" x-text="getItemStatusCount(selectedTransaction, 'completed')">0</p>
+                </div>
+                <div class="p-3 rounded-md border bg-muted/30">
+                  <p class="text-xs text-muted-foreground mb-1">Diproses</p>
+                  <p class="text-2xl font-bold text-muted-foreground" x-text="getItemStatusCount(selectedTransaction, 'processing')">0</p>
+                </div>
+                <div class="p-3 rounded-md border bg-muted/30">
+                  <p class="text-xs text-muted-foreground mb-1">Gagal</p>
+                  <p class="text-2xl font-bold text-destructive" x-text="getItemStatusCount(selectedTransaction, 'pending')">0</p>
+                </div>
               </div>
             </div>
 
@@ -425,8 +545,8 @@
                         <td class="p-4 align-middle text-center">
                           <span
                             class="badge"
-                            :class="getStatusBadgeClass(item.status)"
-                            x-text="getStatusLabel(item.status)"
+                            :class="getItemStatusBadgeClass(item.status)"
+                            x-text="getItemStatusLabel(item.status)"
                           ></span>
                         </td>
                       </tr>
@@ -473,6 +593,8 @@
         // Search & filters
         search: '',
         statusFilter: 'all',
+        dateFrom: '',
+        dateTo: '',
 
         // Sorting
         sortKey: 'createdAt',
@@ -496,47 +618,103 @@
             batchId: 'ORD-2024-0115', 
             batchName: 'Batch Januari Group A',
             createdAt: new Date('2024-01-15T10:30:00'), 
-            msisdnCount: 25, 
-            totalAmount: 6250000, 
-            status: 'success',
+            totalAmount: 3250000, 
+            status: 'completed',
             items: [
-              { msisdn: '081234567890', provider: 'Telkomsel', packageName: 'Umroh Gold 10GB', price: 250000, status: 'success' },
-              { msisdn: '081234567891', provider: 'Telkomsel', packageName: 'Umroh Gold 10GB', price: 250000, status: 'success' },
-              { msisdn: '085234567892', provider: 'Indosat', packageName: 'Umroh Silver 5GB', price: 150000, status: 'success' },
+              { msisdn: '081234567890', provider: 'Telkomsel', packageName: 'Umroh Gold 10GB', price: 250000, status: 'completed' },
+              { msisdn: '081234567891', provider: 'Telkomsel', packageName: 'Umroh Gold 10GB', price: 250000, status: 'completed' },
+              { msisdn: '085234567892', provider: 'Indosat', packageName: 'Umroh Silver 5GB', price: 150000, status: 'completed' },
+              { msisdn: '08223456789', provider: 'XL', packageName: 'Umroh Premium 15GB', price: 350000, status: 'completed' },
+              { msisdn: '08523456790', provider: 'Indosat', packageName: 'Umroh Gold 10GB', price: 250000, status: 'completed' },
+              { msisdn: '08123456791', provider: 'Telkomsel', packageName: 'Umroh Silver 5GB', price: 150000, status: 'completed' },
+              { msisdn: '08783456792', provider: 'Smartfren', packageName: 'Umroh Basic 3GB', price: 100000, status: 'completed' },
+              { msisdn: '08123456793', provider: 'Telkomsel', packageName: 'Umroh Gold 10GB', price: 250000, status: 'completed' },
+              { msisdn: '08523456794', provider: 'Indosat', packageName: 'Umroh Premium 15GB', price: 350000, status: 'completed' },
+              { msisdn: '08123456795', provider: 'Telkomsel', packageName: 'Umroh Silver 5GB', price: 150000, status: 'completed' },
+              { msisdn: '08983456796', provider: 'Tri', packageName: 'Umroh Basic 3GB', price: 100000, status: 'completed' },
+              { msisdn: '08123456797', provider: 'Telkomsel', packageName: 'Umroh Gold 10GB', price: 250000, status: 'completed' },
+              { msisdn: '08223456798', provider: 'XL', packageName: 'Umroh Silver 5GB', price: 150000, status: 'completed' },
             ]
           },
           { 
             id: '2', 
             batchId: 'ORD-2024-0112', 
-            batchName: 'Pesanan Individual',
+            batchName: 'Pesanan Group B',
             createdAt: new Date('2024-01-12T14:15:00'), 
-            msisdnCount: 5, 
-            totalAmount: 1250000, 
+            totalAmount: 2150000, 
             status: 'processing',
             items: [
-              { msisdn: '081234567893', provider: 'Telkomsel', packageName: 'Umroh Gold 10GB', price: 250000, status: 'processing' },
+              { msisdn: '081234567893', provider: 'Telkomsel', packageName: 'Umroh Gold 10GB', price: 250000, status: 'completed' },
               { msisdn: '081234567894', provider: 'Telkomsel', packageName: 'Umroh Gold 10GB', price: 250000, status: 'processing' },
+              { msisdn: '085234567895', provider: 'Indosat', packageName: 'Umroh Silver 5GB', price: 150000, status: 'processing' },
+              { msisdn: '08223456896', provider: 'XL', packageName: 'Umroh Premium 15GB', price: 350000, status: 'processing' },
+              { msisdn: '08123456897', provider: 'Telkomsel', packageName: 'Umroh Silver 5GB', price: 150000, status: 'completed' },
+              { msisdn: '08523456898', provider: 'Indosat', packageName: 'Umroh Gold 10GB', price: 250000, status: 'processing' },
+              { msisdn: '08783456899', provider: 'Smartfren', packageName: 'Umroh Basic 3GB', price: 100000, status: 'completed' },
+              { msisdn: '08123456800', provider: 'Telkomsel', packageName: 'Umroh Gold 10GB', price: 250000, status: 'processing' },
+              { msisdn: '08523456801', provider: 'Indosat', packageName: 'Umroh Premium 15GB', price: 350000, status: 'completed' },
             ]
           },
           { 
             id: '3', 
             batchId: 'ORD-2024-0110', 
-            batchName: 'Batch Desember Group B',
+            batchName: 'Batch Desember Group C',
             createdAt: new Date('2024-01-10T09:00:00'), 
-            msisdnCount: 15, 
-            totalAmount: 3750000, 
-            status: 'success',
-            items: []
+            totalAmount: 2650000, 
+            status: 'completed',
+            items: [
+              { msisdn: '08123456802', provider: 'Telkomsel', packageName: 'Umroh Gold 10GB', price: 250000, status: 'completed' },
+              { msisdn: '08523456803', provider: 'Indosat', packageName: 'Umroh Silver 5GB', price: 150000, status: 'completed' },
+              { msisdn: '08223456804', provider: 'XL', packageName: 'Umroh Premium 15GB', price: 350000, status: 'completed' },
+              { msisdn: '08983456805', provider: 'Tri', packageName: 'Umroh Basic 3GB', price: 100000, status: 'completed' },
+              { msisdn: '08123456806', provider: 'Telkomsel', packageName: 'Umroh Gold 10GB', price: 250000, status: 'completed' },
+              { msisdn: '08523456807', provider: 'Indosat', packageName: 'Umroh Silver 5GB', price: 150000, status: 'completed' },
+              { msisdn: '08223456808', provider: 'XL', packageName: 'Umroh Gold 10GB', price: 250000, status: 'completed' },
+              { msisdn: '08123456809', provider: 'Telkomsel', packageName: 'Umroh Premium 15GB', price: 350000, status: 'completed' },
+              { msisdn: '08523456810', provider: 'Indosat', packageName: 'Umroh Gold 10GB', price: 250000, status: 'completed' },
+              { msisdn: '08783456811', provider: 'Smartfren', packageName: 'Umroh Basic 3GB', price: 100000, status: 'completed' },
+              { msisdn: '08123456812', provider: 'Telkomsel', packageName: 'Umroh Silver 5GB', price: 150000, status: 'completed' },
+            ]
           },
           { 
             id: '4', 
             batchId: 'ORD-2024-0108', 
-            batchName: 'Pesanan Gagal Test',
+            batchName: 'Pesanan Pending Group D',
             createdAt: new Date('2024-01-08T16:45:00'), 
-            msisdnCount: 3, 
-            totalAmount: 750000, 
-            status: 'failed',
-            items: []
+            totalAmount: 1800000, 
+            status: 'pending',
+            items: [
+              { msisdn: '08123456813', provider: 'Telkomsel', packageName: 'Umroh Gold 10GB', price: 250000, status: 'pending' },
+              { msisdn: '08523456814', provider: 'Indosat', packageName: 'Umroh Silver 5GB', price: 150000, status: 'pending' },
+              { msisdn: '08223456815', provider: 'XL', packageName: 'Umroh Premium 15GB', price: 350000, status: 'pending' },
+              { msisdn: '08123456816', provider: 'Telkomsel', packageName: 'Umroh Gold 10GB', price: 250000, status: 'pending' },
+              { msisdn: '08523456817', provider: 'Indosat', packageName: 'Umroh Basic 3GB', price: 100000, status: 'pending' },
+              { msisdn: '08983456818', provider: 'Tri', packageName: 'Umroh Silver 5GB', price: 150000, status: 'pending' },
+              { msisdn: '08123456819', provider: 'Telkomsel', packageName: 'Umroh Gold 10GB', price: 250000, status: 'pending' },
+              { msisdn: '08223456820', provider: 'XL', packageName: 'Umroh Gold 10GB', price: 250000, status: 'pending' },
+            ]
+          },
+          { 
+            id: '5', 
+            batchId: 'ORD-2024-0105', 
+            batchName: 'Batch Mixed Status',
+            createdAt: new Date('2024-01-05T11:20:00'), 
+            totalAmount: 2900000, 
+            status: 'processing',
+            items: [
+              { msisdn: '08123456821', provider: 'Telkomsel', packageName: 'Umroh Gold 10GB', price: 250000, status: 'completed' },
+              { msisdn: '08523456822', provider: 'Indosat', packageName: 'Umroh Silver 5GB', price: 150000, status: 'completed' },
+              { msisdn: '08223456823', provider: 'XL', packageName: 'Umroh Premium 15GB', price: 350000, status: 'processing' },
+              { msisdn: '08123456824', provider: 'Telkomsel', packageName: 'Umroh Gold 10GB', price: 250000, status: 'processing' },
+              { msisdn: '08523456825', provider: 'Indosat', packageName: 'Umroh Silver 5GB', price: 150000, status: 'pending' },
+              { msisdn: '08783456826', provider: 'Smartfren', packageName: 'Umroh Basic 3GB', price: 100000, status: 'completed' },
+              { msisdn: '08123456827', provider: 'Telkomsel', packageName: 'Umroh Premium 15GB', price: 350000, status: 'processing' },
+              { msisdn: '08523456828', provider: 'Indosat', packageName: 'Umroh Gold 10GB', price: 250000, status: 'completed' },
+              { msisdn: '08223456829', provider: 'XL', packageName: 'Umroh Silver 5GB', price: 150000, status: 'pending' },
+              { msisdn: '08983456830', provider: 'Tri', packageName: 'Umroh Basic 3GB', price: 100000, status: 'processing' },
+              { msisdn: '08123456831', provider: 'Telkomsel', packageName: 'Umroh Gold 10GB', price: 250000, status: 'completed' },
+              { msisdn: '08523456832', provider: 'Indosat', packageName: 'Umroh Premium 15GB', price: 350000, status: 'processing' },
+            ]
           },
         ],
 
@@ -553,6 +731,36 @@
           if (!isLoggedIn()) {
             window.location.href = 'login.html';
           }
+
+          // Initialize Flatpickr for date range picker
+          this.$nextTick(() => {
+            flatpickr('#dateRangePicker', {
+              mode: 'range',
+              dateFormat: 'd M Y',
+              locale: {
+                rangeSeparator: ' - '
+              },
+              onChange: (selectedDates) => {
+                if (selectedDates.length === 2) {
+                  // Format dates as YYYY-MM-DD for filtering
+                  this.dateFrom = selectedDates[0].toISOString().split('T')[0];
+                  this.dateTo = selectedDates[1].toISOString().split('T')[0];
+                } else if (selectedDates.length === 0) {
+                  // Clear the filter
+                  this.dateFrom = '';
+                  this.dateTo = '';
+                }
+              },
+              onClose: (selectedDates, dateStr, instance) => {
+                // If only one date is selected, clear both
+                if (selectedDates.length === 1) {
+                  instance.clear();
+                  this.dateFrom = '';
+                  this.dateTo = '';
+                }
+              }
+            });
+          });
         },
 
         // Computed: Filtered Transactions
@@ -561,6 +769,28 @@
             // Status filter
             if (this.statusFilter !== 'all' && tx.status !== this.statusFilter) {
               return false;
+            }
+
+            // Date range filter
+            if (this.dateFrom || this.dateTo) {
+              const txDate = new Date(tx.createdAt);
+              txDate.setHours(0, 0, 0, 0); // Reset time to start of day for comparison
+              
+              if (this.dateFrom) {
+                const fromDate = new Date(this.dateFrom);
+                fromDate.setHours(0, 0, 0, 0);
+                if (txDate < fromDate) {
+                  return false;
+                }
+              }
+              
+              if (this.dateTo) {
+                const toDate = new Date(this.dateTo);
+                toDate.setHours(23, 59, 59, 999); // End of day
+                if (txDate > toDate) {
+                  return false;
+                }
+              }
             }
 
             // Search filter
@@ -597,7 +827,7 @@
                 comparison = a.createdAt.getTime() - b.createdAt.getTime();
                 break;
               case 'msisdnCount':
-                comparison = a.msisdnCount - b.msisdnCount;
+                comparison = (a.items?.length || 0) - (b.items?.length || 0);
                 break;
               case 'totalAmount':
                 comparison = a.totalAmount - b.totalAmount;
@@ -693,18 +923,74 @@
 
         getStatusLabel(status) {
           switch (status) {
-            case 'success': return 'Berhasil';
-            case 'processing': return 'Diproses';
-            case 'failed': return 'Gagal';
+            case 'pending': return 'Menunggu Pembayaran';
+            case 'processing': return 'Proses Inject';
+            case 'completed': return 'Order Selesai';
             default: return status;
           }
         },
 
         getStatusBadgeClass(status) {
           switch (status) {
-            case 'success': return 'badge-primary';
+            case 'pending': return 'badge-secondary';
             case 'processing': return 'badge-secondary';
-            case 'failed': return 'badge-destructive';
+            case 'completed': return 'badge-primary';
+            default: return 'badge-outline';
+          }
+        },
+
+        getPackageStatusSummary(transaction) {
+          if (!transaction.items || transaction.items.length === 0) {
+            return '<span class="text-muted-foreground">0 Berhasil | 0 Diproses | 0 Gagal</span>';
+          }
+          
+          // Count each status type
+          const counts = {
+            completed: 0,
+            processing: 0,
+            pending: 0
+          };
+          
+          transaction.items.forEach(item => {
+            if (counts.hasOwnProperty(item.status)) {
+              counts[item.status]++;
+            }
+          });
+          
+          // Build HTML with color coding - always show all statuses
+          const parts = [];
+          
+          // Always show Berhasil
+          parts.push(`<span class="${counts.completed > 0 ? 'text-primary font-medium' : 'text-muted-foreground'}">${counts.completed} Berhasil</span>`);
+          
+          // Always show Diproses
+          parts.push(`<span class="text-muted-foreground">${counts.processing} Diproses</span>`);
+          
+          // Always show Gagal
+          parts.push(`<span class="${counts.pending > 0 ? 'text-destructive' : 'text-muted-foreground'}">${counts.pending} Gagal</span>`);
+          
+          return parts.join(' <span class="text-muted-foreground">|</span> ');
+        },
+
+        getItemStatusCount(transaction, status) {
+          if (!transaction || !transaction.items) return 0;
+          return transaction.items.filter(item => item.status === status).length;
+        },
+
+        getItemStatusLabel(status) {
+          switch (status) {
+            case 'completed': return 'Berhasil';
+            case 'processing': return 'Diproses';
+            case 'pending': return 'Gagal';
+            default: return status;
+          }
+        },
+
+        getItemStatusBadgeClass(status) {
+          switch (status) {
+            case 'completed': return 'badge-primary';
+            case 'processing': return 'badge-secondary';
+            case 'pending': return 'badge-destructive';
             default: return 'badge-outline';
           }
         },

@@ -546,6 +546,52 @@
       <div>pickerProvider: <span x-text="pickerProvider"></span></div>
     </div> -->
 
+    <!-- Leave Page Confirmation Dialog -->
+    <div
+      x-show="showLeaveConfirmation"
+      x-cloak
+      class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50"
+      @click.self="showLeaveConfirmation = false"
+    >
+      <div class="relative bg-white rounded-lg shadow-lg w-full max-w-md animate-fade-in">
+        <!-- Dialog Header -->
+        <div class="p-6">
+          <div class="flex items-start gap-4">
+            <div class="rounded-full bg-destructive/10 p-3">
+              <svg class="h-6 w-6 text-destructive" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <div class="flex-1">
+              <h2 class="text-lg font-semibold mb-1">Batal membuat order?</h2>
+              <p class="text-sm text-muted-foreground">
+                Nomor dan paket terpilih tidak akan tersimpan
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dialog Footer -->
+        <div class="p-6 border-t flex gap-3">
+          <button
+            type="button"
+            @click="cancelLeave()"
+            class="flex-1 inline-flex items-center justify-center rounded-md border bg-background h-10 px-4 py-2 hover:bg-muted transition-colors font-medium"
+          >
+            Kembali
+          </button>
+          <button
+            type="button"
+            @click="confirmLeave()"
+            class="flex-1 inline-flex items-center justify-center rounded-md bg-destructive text-destructive-foreground h-10 px-4 py-2 hover:bg-destructive/90 transition-colors font-medium"
+          >
+            Batalkan Order
+          </button>
+        </div>
+      </div>
+    </div>
+
+
     <!-- Edit Batch Name Dialog -->
     <div
       x-show="editBatchNameDialog"
@@ -972,6 +1018,10 @@
         // Processing
         isProcessing: false,
 
+        // Leave confirmation
+        showLeaveConfirmation: false,
+        pendingNavigation: null,
+
         // Toast
         toastVisible: false,
         toastTitle: '',
@@ -1146,6 +1196,43 @@
             window.location.href = 'login.html';
           }
           await this.loadPackages();
+          
+          // Intercept all navigation attempts
+          const checkUnsavedData = () => {
+            return this.mode === 'bulk' 
+              ? (this.parsedNumbers.length > 0 || this.bulkInput.trim().length > 0)
+              : (this.individualItems.some(item => item.msisdn.trim().length > 0));
+          };
+
+          // Intercept link clicks
+          document.addEventListener('click', (e) => {
+            const link = e.target.closest('a');
+            if (link && link.href && !link.target && checkUnsavedData()) {
+              e.preventDefault();
+              this.pendingNavigation = link.href;
+              this.showLeaveConfirmation = true;
+            }
+          });
+
+          // Intercept browser back/forward/refresh
+          window.addEventListener('beforeunload', (e) => {
+            if (checkUnsavedData()) {
+              e.preventDefault();
+              e.returnValue = '';
+            }
+          });
+        },
+
+        cancelLeave() {
+          this.showLeaveConfirmation = false;
+          this.pendingNavigation = null;
+        },
+
+        confirmLeave() {
+          this.showLeaveConfirmation = false;
+          if (this.pendingNavigation) {
+            window.location.href = this.pendingNavigation;
+          }
         },
 
         async loadPackages(retryCount = 0) {
