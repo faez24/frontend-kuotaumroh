@@ -216,8 +216,15 @@
                   placeholder="0"
                   x-model="amount"
                   @input="formatAmount()"
-                  class="flex h-10 w-full rounded-md border border-input bg-background pl-10 pr-3 py-2 text-lg font-medium"
+                  class="flex h-10 w-full rounded-md border border-input bg-background pl-10 pr-28 py-2 text-lg font-medium"
                 >
+                <button
+                  type="button"
+                  @click="withdrawAll()"
+                  class="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-medium text-primary hover:text-primary/80 px-2 py-1 rounded hover:bg-primary/10 transition-colors"
+                >
+                  Tarik semua
+                </button>
               </div>
               <template x-if="numericAmount > 0 && numericAmount < minWithdrawal">
                 <p class="text-sm text-destructive flex items-center gap-1">
@@ -514,6 +521,10 @@
           } else {
             this.amount = '';
           }
+        },
+
+        withdrawAll() {
+          this.amount = this.walletBalance.toLocaleString('id-ID');
         },
 
         handleSubmit() {
