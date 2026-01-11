@@ -246,6 +246,62 @@
             <div class="space-y-4">
               <h2 class="text-lg font-semibold border-b pb-2">Informasi Alamat</h2>
               
+              <!-- Province (Searchable) -->
+              <div class="space-y-2" x-data="{ provinceDropdownOpen: false, provinceSearch: '' }" x-init="$watch('provinceDropdownOpen', value => { if (value) $nextTick(() => $refs.provinceSearchInput.focus()) })">
+                <label for="province" class="text-sm font-medium">Pilih Provinsi</label>
+                
+                <!-- Custom Searchable Dropdown -->
+                <div class="relative" @click.away="provinceDropdownOpen = false">
+                  <!-- Trigger Button -->
+                  <button
+                    type="button"
+                    @click="provinceDropdownOpen = !provinceDropdownOpen"
+                    class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                  >
+                    <span :class="!formData.province && 'text-muted-foreground'" x-text="formData.province || 'Pilih provinsi'"></span>
+                    <svg class="h-4 w-4 transition-transform" :class="provinceDropdownOpen && 'rotate-180'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+
+                  <!-- Dropdown Panel -->
+                  <div
+                    x-show="provinceDropdownOpen"
+                    x-transition
+                    class="absolute z-50 mt-1 w-full rounded-md border border-input bg-white shadow-lg"
+                  >
+                    <!-- Search Input -->
+                    <div class="p-2 border-b">
+                      <input
+                        type="text"
+                        x-ref="provinceSearchInput"
+                        x-model="provinceSearch"
+                        @click.stop
+                        placeholder="Cari provinsi..."
+                        class="w-full rounded-md border border-input px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                      >
+                    </div>
+                    
+                    <!-- Options List -->
+                    <div class="max-h-60 overflow-y-auto">
+                      <template x-for="province in provinces.filter(p => p.toLowerCase().includes(provinceSearch.toLowerCase()))" :key="province">
+                        <button
+                          type="button"
+                          @click="formData.province = province; handleProvinceChange(); provinceDropdownOpen = false; provinceSearch = ''"
+                          class="w-full px-3 py-2 text-left text-sm hover:bg-muted transition-colors"
+                          :class="formData.province === province && 'bg-muted'"
+                          x-text="province"
+                        ></button>
+                      </template>
+                      <!-- No results -->
+                      <div x-show="provinces.filter(p => p.toLowerCase().includes(provinceSearch.toLowerCase())).length === 0" class="px-3 py-2 text-sm text-muted-foreground">
+                        Tidak ada provinsi ditemukan
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <!-- City (Searchable) -->
               <div class="space-y-2" x-data="{ cityDropdownOpen: false, citySearch: '' }" x-init="$watch('cityDropdownOpen', value => { if (value) $nextTick(() => $refs.citySearchInput.focus()) })">
                 <label for="city" class="text-sm font-medium">Pilih Kota/Kab</label>
@@ -364,10 +420,20 @@
 
               <!-- Full Address -->
               <div class="space-y-2">
-                <label for="address" class="text-sm font-medium">Alamat Lengkap</label>
+                <div class="flex justify-between items-center">
+                  <label for="address" class="text-sm font-medium">Alamat Lengkap</label>
+                  <span x-show="isGeocodingAddress" x-transition class="text-xs text-muted-foreground flex items-center gap-1">
+                    <svg class="animate-spin h-3 w-3" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Mencari lokasi...
+                  </span>
+                </div>
                 <textarea
                   id="address"
                   x-model="formData.address"
+                  @blur="geocodeAddress()"
                   rows="3"
                   class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                 ></textarea>
@@ -402,6 +468,51 @@
                 <label class="text-sm font-medium">Tandai Lokasi di Peta</label>
                 <p class="text-xs text-muted-foreground">Klik pada peta untuk menandai lokasi Anda</p>
                 
+                <!-- Map Search -->
+                <div class="relative mb-2">
+                  <div class="relative">
+                    <input
+                      type="text"
+                      x-model="mapSearchQuery"
+                      @input="handleMapSearch()"
+                      @keydown.enter.prevent="handleMapEnter()"
+                      placeholder="Cari lokasi (contoh: Monas, Jalan Sudirman)"
+                      class="flex h-10 w-full rounded-md border border-input bg-background pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                    >
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-muted-foreground">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                    </div>
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-3" x-show="isSearchingMap">
+                      <svg class="animate-spin h-4 w-4 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                    </div>
+                  </div>
+                  
+                  <!-- Search Results Dropdown -->
+                  <div
+                    x-show="mapSearchResults.length > 0"
+                    @click.away="mapSearchResults = []"
+                    class="absolute z-10 w-full mt-1 bg-popover text-popover-foreground rounded-md border shadow-md max-h-60 overflow-y-auto"
+                    style="display: none;"
+                  >
+                    <ul>
+                      <template x-for="(result, index) in mapSearchResults" :key="index">
+                        <li
+                          @click="selectMapLocation(result)"
+                          class="px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground cursor-pointer border-b last:border-0"
+                        >
+                          <div class="font-medium" x-text="result.display_name.split(',')[0]"></div>
+                          <div class="text-xs text-muted-foreground truncate" x-text="result.display_name"></div>
+                        </li>
+                      </template>
+                    </ul>
+                  </div>
+                </div>
+
                 <!-- Map Container -->
                 <div 
                   id="map" 
@@ -558,6 +669,7 @@
           travel_name: '',
           travel_type: '',
           travel_member: '',
+          province: '',
           city: '',
           subdistrict: '',
           address: '',
@@ -580,16 +692,24 @@
         toastTitle: '',
         toastMessage: '',
 
-        // Regional data from CSV
-        regionData: [],
+        // Regional data from wilayah.id API
+        provinces: [],
+        provinceCodes: new Map(),
         cities: [],
+        cityCodes: new Map(),
         subdistricts: [],
-        allSubdistricts: [],
 
         // Map state
         mapInstance: null,
         marker: null,
         mapInitialized: false,
+        
+        // Map Search
+        mapSearchQuery: '',
+        mapSearchResults: [],
+        isSearchingMap: false,
+        isGeocodingAddress: false,
+        mapSearchDebounce: null,
 
         async init() {
           // Get email from URL params (passed after Google auth)
@@ -606,78 +726,93 @@
             }, 2000);
           }
           
-          // Load CSV data
-          await this.loadRegionalData();
+          // Load provinces from API
+          await this.loadProvinces();
           
           console.log('Signup form initialized with email:', this.formData.email);
         },
 
-        async loadRegionalData() {
+        async loadProvinces() {
           try {
-            const response = await fetch('public/kodewilayah.csv');
-            const csvText = await response.text();
+            const response = await fetch('public/wilayah/provinces.json');
+            const data = await response.json();
             
-            // Parse CSV
-            const lines = csvText.trim().split('\n');
-            const citiesSet = new Set();
-            const subdistrictsMap = new Map();
-            
-            lines.forEach(line => {
-              const [code, name] = line.split(',');
-              if (!code || !name) return;
+            if (data && data.data) {
+              // Store provinces and their codes
+              this.provinces = data.data.map(p => p.name).sort();
+              data.data.forEach(p => {
+                this.provinceCodes.set(p.name, p.code);
+              });
               
-              // Count dots to determine level
-              const dotCount = (code.match(/\./g) || []).length;
-              
-              // Level 1 (e.g., 11.01) = Kabupaten/Kota
-              if (dotCount === 1) {
-                citiesSet.add(name);
-              }
-              
-              // Level 2 (e.g., 11.01.01) = Kecamatan
-              if (dotCount === 2) {
-                // Extract kabupaten code (e.g., "11.01" from "11.01.01")
-                const cityCode = code.split('.').slice(0, 2).join('.');
-                
-                if (!subdistrictsMap.has(cityCode)) {
-                  subdistrictsMap.set(cityCode, {
-                    cityName: '',
-                    subdistricts: []
-                  });
-                }
-                subdistrictsMap.get(cityCode).subdistricts.push(name);
-              }
-            });
-            
-            // Second pass to map city codes to city names
-            lines.forEach(line => {
-              const [code, name] = line.split(',');
-              if (!code || !name) return;
-              
-              const dotCount = (code.match(/\./g) || []).length;
-              if (dotCount === 1) {
-                if (subdistrictsMap.has(code)) {
-                  subdistrictsMap.get(code).cityName = name;
-                }
-              }
-            });
-            
-            // Convert to arrays
-            this.cities = Array.from(citiesSet).sort();
-            
-            // Create a map from city name to subdistricts
-            this.allSubdistricts = new Map();
-            subdistrictsMap.forEach((value, code) => {
-              if (value.cityName && value.subdistricts.length > 0) {
-                this.allSubdistricts.set(value.cityName, value.subdistricts);
-              }
-            });
-            
-            console.log('Loaded', this.cities.length, 'cities');
-            console.log('Loaded subdistricts for', this.allSubdistricts.size, 'cities');
+              console.log('Loaded', this.provinces.length, 'provinces');
+            }
           } catch (error) {
-            console.error('Error loading regional data:', error);
-            this.showToast('Error', 'Gagal memuat data wilayah');
+            console.error('Error loading provinces:', error);
+            this.showToast('Error', 'Gagal memuat data provinsi');
+          }
+        },
+
+
+        async loadCities(provinceCode) {
+          try {
+            // Try to load from local cache first, then fall back to API with CORS proxy
+            let response;
+            const localPath = `public/wilayah/regencies-${provinceCode}.json`;
+            
+            try {
+              // Try local cache first
+              response = await fetch(localPath);
+              if (!response.ok) throw new Error('Not in cache');
+            } catch {
+              // If not in cache, try API directly (may fail due to CORS)
+              // Note: In production, this should work from a proper domain
+              response = await fetch(`https://wilayah.id/api/regencies/${provinceCode}.json`);
+            }
+            
+            const data = await response.json();
+            
+            if (data && data.data) {
+              // Store cities and their codes
+              this.cities = data.data.map(c => c.name).sort();
+              this.cityCodes.clear();
+              data.data.forEach(c => {
+                this.cityCodes.set(c.name, c.code);
+              });
+              
+              console.log('Loaded', this.cities.length, 'cities for province', provinceCode);
+            }
+          } catch (error) {
+            console.error('Error loading cities:', error);
+            this.showToast('Error', 'Gagal memuat data kota/kabupaten. Silakan coba lagi.');
+            this.cities = [];
+          }
+        },
+
+        async loadSubdistricts(cityCode) {
+          try {
+            // Try to load from local cache first, then fall back to API
+            let response;
+            const localPath = `public/wilayah/districts-${cityCode}.json`;
+            
+            try {
+              // Try local cache first
+              response = await fetch(localPath);
+              if (!response.ok) throw new Error('Not in cache');
+            } catch {
+              // If not in cache, try API directly
+              response = await fetch(`https://wilayah.id/api/districts/${cityCode}.json`);
+            }
+            
+            const data = await response.json();
+            
+            if (data && data.data) {
+              this.subdistricts = data.data.map(d => d.name).sort();
+              console.log('Loaded', this.subdistricts.length, 'subdistricts for city', cityCode);
+            }
+          } catch (error) {
+            console.error('Error loading subdistricts:', error);
+            this.showToast('Error', 'Gagal memuat data kecamatan. Silakan coba lagi.');
+            this.subdistricts = [];
           }
         },
 
@@ -698,15 +833,31 @@
           );
         },
 
+        async handleProvinceChange() {
+          // Reset city and subdistrict when province changes
+          this.formData.city = '';
+          this.formData.subdistrict = '';
+          this.cities = [];
+          this.subdistricts = [];
+          
+          const provinceCode = this.provinceCodes.get(this.formData.province);
+          if (provinceCode) {
+            await this.loadCities(provinceCode);
+            console.log('Province changed to:', this.formData.province, `(${provinceCode})`);
+          }
+        },
+
         async handleCityChange() {
           // Reset subdistrict when city changes
           this.formData.subdistrict = '';
+          this.subdistricts = [];
           
           // Load subdistricts for selected city
-          this.subdistricts = this.allSubdistricts.get(this.formData.city) || [];
-          
-          console.log('City changed to:', this.formData.city);
-          console.log('Loaded', this.subdistricts.length, 'subdistricts');
+          const cityCode = this.cityCodes.get(this.formData.city);
+          if (cityCode) {
+            await this.loadSubdistricts(cityCode);
+            console.log('City changed to:', this.formData.city, `(${cityCode})`);
+          }
           
           // Initialize map if not already initialized
           this.$nextTick(async () => {
@@ -723,8 +874,10 @@
           if (!this.mapInstance || !this.formData.city) return;
           
           try {
-            // Use Nominatim API to geocode the city
-            const searchQuery = `${this.formData.city}, Indonesia`;
+            // Use Nominatim API to geocode the city with province for better accuracy
+            const searchQuery = this.formData.province 
+              ? `${this.formData.city}, ${this.formData.province}, Indonesia`
+              : `${this.formData.city}, Indonesia`;
             const geocodeUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&limit=1`;
             
             const response = await fetch(geocodeUrl);
@@ -759,8 +912,10 @@
             // If we have a selected city, geocode it to get coordinates
             if (this.formData.city) {
               try {
-                // Use Nominatim API to geocode the city
-                const searchQuery = `${this.formData.city}, Indonesia`;
+                // Use Nominatim API to geocode the city with province for better accuracy
+                const searchQuery = this.formData.province 
+                  ? `${this.formData.city}, ${this.formData.province}, Indonesia`
+                  : `${this.formData.city}, Indonesia`;
                 const geocodeUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&limit=1`;
                 
                 const response = await fetch(geocodeUrl);
@@ -783,54 +938,178 @@
             // Add OpenStreetMap tile layer
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
               attribution: '© OpenStreetMap contributors',
-              maxZoom: 19,
+              maxZoom: 19
             }).addTo(this.mapInstance);
             
-            // Create custom green icon for marker
-            const greenIcon = L.icon({
-              iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
-              shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
-              iconSize: [25, 41],
-              iconAnchor: [12, 41],
-              popupAnchor: [1, -34],
-              shadowSize: [41, 41]
-            });
+            // Add initial marker if coordinates exist
+            if (this.formData.latitude && this.formData.longitude) {
+              this.updateMarker(this.formData.latitude, this.formData.longitude);
+            }
             
-            // Add click event to drop/move marker
+            // Add click event handler
             this.mapInstance.on('click', (e) => {
               const { lat, lng } = e.latlng;
-              
-              // Update form data
-              this.formData.latitude = lat;
-              this.formData.longitude = lng;
-              
-              // Remove existing marker if any
-              if (this.marker) {
-                this.mapInstance.removeLayer(this.marker);
-              }
-              
-              // Add new marker with green icon
-              this.marker = L.marker([lat, lng], {
-                draggable: true,
-                icon: greenIcon
-              }).addTo(this.mapInstance);
-              
-              // Update coordinates when marker is dragged
-              this.marker.on('dragend', (event) => {
-                const position = event.target.getLatLng();
-                this.formData.latitude = position.lat;
-                this.formData.longitude = position.lng;
-              });
-              
-              console.log('Pin dropped at:', lat, lng);
+              this.updateMarker(lat, lng);
             });
             
             this.mapInitialized = true;
-            console.log('Map initialized successfully');
+            
+            // Fix map size check after render
+            setTimeout(() => {
+              this.mapInstance.invalidateSize();
+            }, 100);
+            
           } catch (error) {
             console.error('Error initializing map:', error);
             this.showToast('Error', 'Gagal memuat peta');
           }
+        },
+
+        handleMapSearch() {
+          if (!this.mapSearchQuery || this.mapSearchQuery.length < 3) {
+            this.mapSearchResults = [];
+            return;
+          }
+          
+          // Debounce search
+          if (this.mapSearchDebounce) clearTimeout(this.mapSearchDebounce);
+          
+          this.mapSearchDebounce = setTimeout(async () => {
+            this.isSearchingMap = true;
+            try {
+              // Search predominantly within Indonesia
+              const query = `${this.mapSearchQuery}, Indonesia`;
+              const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1`);
+              
+              if (response.ok) {
+                this.mapSearchResults = await response.json();
+              }
+            } catch (error) {
+              console.error('Map search error:', error);
+            } finally {
+              this.isSearchingMap = false;
+            }
+          }, 500); // 500ms debounce
+        },
+
+        async handleMapEnter() {
+          // If results are already showing, select the first one
+          if (this.mapSearchResults.length > 0) {
+            this.selectMapLocation(this.mapSearchResults[0]);
+            return;
+          }
+          
+          // If no results yet, perform immediate search and select first result
+          if (!this.mapSearchQuery || this.mapSearchQuery.length < 3) return;
+          
+          if (this.mapSearchDebounce) clearTimeout(this.mapSearchDebounce);
+          this.isSearchingMap = true;
+          
+          try {
+            const query = `${this.mapSearchQuery}, Indonesia`;
+            const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1&addressdetails=1`);
+            
+            if (response.ok) {
+              const data = await response.json();
+              if (data && data.length > 0) {
+                // Select the first result immediately
+                this.selectMapLocation(data[0]);
+              } else {
+                 this.showToast('Info', 'Lokasi tidak ditemukan');
+              }
+            }
+          } catch (error) {
+            console.error('Instant search error:', error);
+          } finally {
+            this.isSearchingMap = false;
+          }
+        },
+
+        selectMapLocation(result) {
+          const lat = parseFloat(result.lat);
+          const lon = parseFloat(result.lon);
+          
+          // Update Form Data
+          this.formData.latitude = lat;
+          this.formData.longitude = lon;
+          
+          // Update Address field if empty or user wants to replace
+          // Ideally, we might append or confirm, but for now let's auto-fill if empty
+          // or just append street name if available
+          if (result.address && (result.address.road || result.address.village)) {
+             const street = result.address.road || result.address.village || result.display_name.split(',')[0];
+             if (!this.formData.address) {
+                this.formData.address = street;
+             }
+          }
+          
+          // Update Map View
+          this.mapInstance.flyTo([lat, lon], 16);
+          this.updateMarker(lat, lon);
+          
+          // Clear Search
+          this.mapSearchResults = [];
+          this.mapSearchQuery = result.display_name;
+        },
+
+        async geocodeAddress() {
+          if (!this.formData.address || this.formData.address.length < 5) return;
+          
+          this.isGeocodingAddress = true;
+          
+          // Construct query with full hierarchy for better accuracy
+          let queryItems = [this.formData.address];
+          
+          if (this.formData.subdistrict) queryItems.push(this.formData.subdistrict);
+          if (this.formData.city) queryItems.push(this.formData.city);
+          if (this.formData.province) queryItems.push(this.formData.province);
+          
+          const query = queryItems.join(', ');
+          
+          try {
+            const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`);
+            const data = await response.json();
+            
+            if (data && data.length > 0) {
+              const lat = parseFloat(data[0].lat);
+              const lon = parseFloat(data[0].lon);
+              
+              // Fly to location
+              this.mapInstance.flyTo([lat, lon], 18); // Higher zoom for specific address
+              this.updateMarker(lat, lon);
+              console.log('Map updated from address:', query);
+            }
+          } catch (error) {
+            console.error('Address geocoding failed:', error);
+          } finally {
+            this.isGeocodingAddress = false;
+          }
+        },
+
+        updateMarker(lat, lng) {
+          // Remove existing marker
+          if (this.marker) {
+            this.mapInstance.removeLayer(this.marker);
+          }
+          
+          // Define custom green icon
+          const greenIcon = L.icon({
+            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+          });
+          
+          // Add new marker
+          this.marker = L.marker([lat, lng], { icon: greenIcon }).addTo(this.mapInstance);
+          
+          // Update form data
+          this.formData.latitude = lat;
+          this.formData.longitude = lng;
+          
+          console.log('Location set to:', lat, lng);
         },
 
         handleFileUpload(event) {

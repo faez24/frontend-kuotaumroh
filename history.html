@@ -259,6 +259,29 @@
           <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
             <h3 class="text-lg font-semibold">Daftar Transaksi</h3>
             <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+              <!-- Date Range Filter -->
+              <div class="relative">
+                <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <input
+                  type="text"
+                  id="dateRangePicker"
+                  placeholder="Pilih Rentang Tanggal"
+                  class="flex h-10 rounded-md border border-input bg-background pl-9 pr-8 py-2 text-sm w-full sm:w-[250px]"
+                  readonly
+                >
+                <button
+                  type="button"
+                  x-show="dateFrom || dateTo"
+                  @click="clearDateFilter()"
+                  class="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground rounded-full hover:bg-muted transition-colors"
+                >
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
               <!-- Search Input -->
               <div class="relative">
                 <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -269,19 +292,6 @@
                   placeholder="Cari batch/tanggal/nominal"
                   x-model="search"
                   class="flex h-10 rounded-md border border-input bg-background pl-9 pr-3 py-2 text-sm w-full sm:w-[200px]"
-                >
-              </div>
-              <!-- Date Range Filter -->
-              <div class="relative">
-                <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <input
-                  type="text"
-                  id="dateRangePicker"
-                  placeholder="Pilih Rentang Tanggal"
-                  class="flex h-10 rounded-md border border-input bg-background pl-9 pr-3 py-2 text-sm w-full sm:w-[250px]"
-                  readonly
                 >
               </div>
               <!-- Status Filter -->
@@ -717,6 +727,16 @@
             ]
           },
         ],
+
+        // Actions
+        clearDateFilter() {
+          this.dateFrom = '';
+          this.dateTo = '';
+          const picker = document.querySelector('#dateRangePicker')._flatpickr;
+          if (picker) {
+            picker.clear();
+          }
+        },
 
         // Lifecycle
         init() {
