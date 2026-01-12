@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reward Claims - Admin</title>
+
+  <link rel="apple-touch-icon" sizes="180x180" href="../public/favicon/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../public/favicon/favicon-32x32.png">
+  <meta name="theme-color" content="#10b981">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <link rel="stylesheet" href="../shared/styles.css">
+  <script src="../shared/utils.js"></script>
+  <script src="../shared/header.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            border: "hsl(var(--border))",
+            input: "hsl(var(--input))",
+            background: "hsl(var(--background))",
+            foreground: "hsl(var(--foreground))",
+            primary: { DEFAULT: "hsl(var(--primary))", foreground: "hsl(var(--primary-foreground))" },
+            muted: { DEFAULT: "hsl(var(--muted))", foreground: "hsl(var(--muted-foreground))" },
+            destructive: { DEFAULT: "hsl(var(--destructive))", foreground: "hsl(var(--destructive-foreground))" },
+          },
+          fontFamily: { sans: ['Figtree', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+        },
+      },
+    }
+  </script>
+</head>
+
+<body class="min-h-screen bg-background">
+  <div x-data="rewardClaimsPage()">
+    <div id="app-header"></div>
+
+    <main class="container mx-auto py-6 px-4">
+      <div class="mb-6">
+        <h1 class="text-3xl font-bold tracking-tight">Reward Claims</h1>
+        <p class="text-muted-foreground mt-2">Kelola klaim hadiah dari affiliate</p>
+      </div>
+
+      <div class="rounded-lg border bg-white shadow-sm">
+        <div class="p-6">
+          <!-- Tabs -->
+          <div class="flex flex-wrap gap-2 mb-6">
+            <button @click="filterStatus = 'pending'" class="h-9 px-4 rounded-md text-sm font-medium" :class="filterStatus === 'pending' ? 'bg-primary text-white' : 'border hover:bg-muted'">
+              Pending <span class="ml-1 bg-white/20 rounded px-1.5" x-text="claims.filter(c => c.status === 'pending').length"></span>
+            </button>
+            <button @click="filterStatus = 'approved'" class="h-9 px-4 rounded-md text-sm font-medium" :class="filterStatus === 'approved' ? 'bg-primary text-white' : 'border hover:bg-muted'">Approved</button>
+            <button @click="filterStatus = 'rejected'" class="h-9 px-4 rounded-md text-sm font-medium" :class="filterStatus === 'rejected' ? 'bg-primary text-white' : 'border hover:bg-muted'">Rejected</button>
+            <button @click="filterStatus = 'all'" class="h-9 px-4 rounded-md text-sm font-medium" :class="filterStatus === 'all' ? 'bg-primary text-white' : 'border hover:bg-muted'">Semua</button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr class="border-b">
+                  <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Affiliate</th>
+                  <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Hadiah</th>
+                  <th class="h-12 px-4 text-center align-middle font-medium text-muted-foreground">Poin</th>
+                  <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Tanggal</th>
+                  <th class="h-12 px-4 text-center align-middle font-medium text-muted-foreground">Status</th>
+                  <th class="h-12 px-4 text-center align-middle font-medium text-muted-foreground">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template x-for="c in filteredClaims" :key="c.id">
+                  <tr class="border-b transition-colors hover:bg-muted/50">
+                    <td class="p-4 align-middle">
+                      <p class="font-medium" x-text="c.affiliateName"></p>
+                      <p class="text-xs text-muted-foreground" x-text="c.affiliateEmail"></p>
+                    </td>
+                    <td class="p-4 align-middle" x-text="c.rewardName"></td>
+                    <td class="p-4 align-middle text-center font-semibold" x-text="c.pointsCost.toLocaleString('id-ID')"></td>
+                    <td class="p-4 align-middle" x-text="formatDate(c.claimDate)"></td>
+                    <td class="p-4 align-middle text-center">
+                      <span class="badge" :class="{'badge-warning': c.status === 'pending', 'badge-success': c.status === 'approved', 'badge-destructive': c.status === 'rejected'}" x-text="c.status"></span>
+                    </td>
+                    <td class="p-4 align-middle text-center">
+                      <div x-show="c.status === 'pending'" class="flex justify-center gap-2">
+                        <button @click="approve(c)" class="h-8 px-3 bg-primary text-white rounded text-xs hover:bg-primary/90">Approve</button>
+                        <button @click="reject(c)" class="h-8 px-3 border border-red-200 text-red-600 rounded text-xs hover:bg-red-50">Reject</button>
+                      </div>
+                      <span x-show="c.status !== 'pending'" class="text-xs text-muted-foreground" x-text="formatDate(c.processDate)"></span>
+                    </td>
+                  </tr>
+                </template>
+                <template x-if="filteredClaims.length === 0">
+                  <tr><td colspan="6" class="p-8 text-center text-muted-foreground">Tidak ada data</td></tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div x-show="toastVisible" x-transition class="toast">
+      <div class="font-semibold mb-1" x-text="toastTitle"></div>
+      <div class="text-sm text-muted-foreground" x-text="toastMessage"></div>
+    </div>
+  </div>
+
+  <script>
+    function rewardClaimsPage() {
+      return {
+        filterStatus: 'pending', claims: [],
+        toastVisible: false, toastTitle: '', toastMessage: '',
+
+        get filteredClaims() {
+          if (this.filterStatus === 'all') return this.claims;
+          return this.claims.filter(c => c.status === this.filterStatus);
+        },
+
+        formatDate(dateStr) { return dateStr ? new Date(dateStr).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'; },
+        showToast(title, message) { this.toastTitle = title; this.toastMessage = message; this.toastVisible = true; setTimeout(() => { this.toastVisible = false; }, 3000); },
+
+        approve(c) { c.status = 'approved'; c.processDate = new Date().toISOString(); this.showToast('Approved!', c.rewardName); },
+        reject(c) { c.status = 'rejected'; c.processDate = new Date().toISOString(); this.showToast('Rejected', 'Claim rejected'); },
+
+        init() {
+          if (!requireRole(['admin'], true)) return;
+          renderHeader('reward-claims');
+          this.claims = [
+            { id: 1, affiliateName: 'Jane Doe', affiliateEmail: 'jane@example.com', rewardName: 'Samsung A55 (5000 poin)', pointsCost: 5000, claimDate: '2026-01-11', status: 'pending', processDate: null },
+            { id: 2, affiliateName: 'John Smith', affiliateEmail: 'john@example.com', rewardName: 'Voucher OVO 500k (2000 poin)', pointsCost: 2000, claimDate: '2026-01-10', status: 'pending', processDate: null },
+            { id: 3, affiliateName: 'Anna Lee', affiliateEmail: 'anna@example.com', rewardName: 'Voucher OVO 100k (500 poin)', pointsCost: 500, claimDate: '2026-01-08', status: 'approved', processDate: '2026-01-09' },
+          ];
+        }
+      }
+    }
+  </script>
+</body>
+</html>

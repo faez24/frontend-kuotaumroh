@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Withdrawals - Admin</title>
+
+  <link rel="apple-touch-icon" sizes="180x180" href="../public/favicon/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../public/favicon/favicon-32x32.png">
+  <meta name="theme-color" content="#10b981">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <link rel="stylesheet" href="../shared/styles.css">
+  <script src="../shared/utils.js"></script>
+  <script src="../shared/header.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            border: "hsl(var(--border))",
+            input: "hsl(var(--input))",
+            background: "hsl(var(--background))",
+            foreground: "hsl(var(--foreground))",
+            primary: { DEFAULT: "hsl(var(--primary))", foreground: "hsl(var(--primary-foreground))" },
+            muted: { DEFAULT: "hsl(var(--muted))", foreground: "hsl(var(--muted-foreground))" },
+            destructive: { DEFAULT: "hsl(var(--destructive))", foreground: "hsl(var(--destructive-foreground))" },
+          },
+          fontFamily: { sans: ['Figtree', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+        },
+      },
+    }
+  </script>
+</head>
+
+<body class="min-h-screen bg-background">
+  <div x-data="withdrawalsPage()">
+    <div id="app-header"></div>
+
+    <main class="container mx-auto py-6 px-4">
+      <div class="mb-6">
+        <h1 class="text-3xl font-bold tracking-tight">Withdrawals</h1>
+        <p class="text-muted-foreground mt-2">Kelola permintaan penarikan dari agent</p>
+      </div>
+
+      <div class="rounded-lg border bg-white shadow-sm">
+        <div class="p-6">
+          <!-- Tabs -->
+          <div class="flex flex-wrap gap-2 mb-6">
+            <button @click="filterStatus = 'pending'" class="h-9 px-4 rounded-md text-sm font-medium" :class="filterStatus === 'pending' ? 'bg-primary text-white' : 'border hover:bg-muted'">
+              Pending <span class="ml-1 bg-white/20 rounded px-1.5" x-text="withdrawals.filter(w => w.status === 'pending').length"></span>
+            </button>
+            <button @click="filterStatus = 'approved'" class="h-9 px-4 rounded-md text-sm font-medium" :class="filterStatus === 'approved' ? 'bg-primary text-white' : 'border hover:bg-muted'">Approved</button>
+            <button @click="filterStatus = 'rejected'" class="h-9 px-4 rounded-md text-sm font-medium" :class="filterStatus === 'rejected' ? 'bg-primary text-white' : 'border hover:bg-muted'">Rejected</button>
+            <button @click="filterStatus = 'all'" class="h-9 px-4 rounded-md text-sm font-medium" :class="filterStatus === 'all' ? 'bg-primary text-white' : 'border hover:bg-muted'">Semua</button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr class="border-b">
+                  <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Agent</th>
+                  <th class="h-12 px-4 text-right align-middle font-medium text-muted-foreground">Jumlah</th>
+                  <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Bank</th>
+                  <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Tanggal</th>
+                  <th class="h-12 px-4 text-center align-middle font-medium text-muted-foreground">Status</th>
+                  <th class="h-12 px-4 text-center align-middle font-medium text-muted-foreground">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template x-for="w in filteredWithdrawals" :key="w.id">
+                  <tr class="border-b transition-colors hover:bg-muted/50">
+                    <td class="p-4 align-middle">
+                      <p class="font-medium" x-text="w.agentName"></p>
+                      <p class="text-xs text-muted-foreground" x-text="w.agentEmail"></p>
+                    </td>
+                    <td class="p-4 align-middle text-right font-semibold" x-text="formatRupiah(w.amount)"></td>
+                    <td class="p-4 align-middle">
+                      <p x-text="w.bankName"></p>
+                      <p class="text-xs text-muted-foreground" x-text="w.accountNumber"></p>
+                    </td>
+                    <td class="p-4 align-middle" x-text="formatDate(w.requestDate)"></td>
+                    <td class="p-4 align-middle text-center">
+                      <span class="badge" :class="{'badge-warning': w.status === 'pending', 'badge-success': w.status === 'approved', 'badge-destructive': w.status === 'rejected'}" x-text="w.status"></span>
+                    </td>
+                    <td class="p-4 align-middle text-center">
+                      <div x-show="w.status === 'pending'" class="flex justify-center gap-2">
+                        <button @click="approve(w)" class="h-8 px-3 bg-primary text-white rounded text-xs hover:bg-primary/90">Approve</button>
+                        <button @click="reject(w)" class="h-8 px-3 border border-red-200 text-red-600 rounded text-xs hover:bg-red-50">Reject</button>
+                      </div>
+                      <span x-show="w.status !== 'pending'" class="text-xs text-muted-foreground" x-text="formatDate(w.processDate)"></span>
+                    </td>
+                  </tr>
+                </template>
+                <template x-if="filteredWithdrawals.length === 0">
+                  <tr><td colspan="6" class="p-8 text-center text-muted-foreground">Tidak ada data</td></tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div x-show="toastVisible" x-transition class="toast">
+      <div class="font-semibold mb-1" x-text="toastTitle"></div>
+      <div class="text-sm text-muted-foreground" x-text="toastMessage"></div>
+    </div>
+  </div>
+
+  <script>
+    function withdrawalsPage() {
+      return {
+        filterStatus: 'pending', withdrawals: [],
+        toastVisible: false, toastTitle: '', toastMessage: '',
+
+        get filteredWithdrawals() {
+          if (this.filterStatus === 'all') return this.withdrawals;
+          return this.withdrawals.filter(w => w.status === this.filterStatus);
+        },
+
+        formatDate(dateStr) { return dateStr ? new Date(dateStr).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'; },
+        formatRupiah(amount) { return `Rp ${amount.toLocaleString('id-ID')}`; },
+        showToast(title, message) { this.toastTitle = title; this.toastMessage = message; this.toastVisible = true; setTimeout(() => { this.toastVisible = false; }, 3000); },
+
+        approve(w) { w.status = 'approved'; w.processDate = new Date().toISOString(); this.showToast('Approved!', `Withdrawal ${this.formatRupiah(w.amount)}`); },
+        reject(w) { w.status = 'rejected'; w.processDate = new Date().toISOString(); this.showToast('Rejected', 'Withdrawal request rejected'); },
+
+        init() {
+          if (!requireRole(['admin'], true)) return;
+          renderHeader('withdrawals');
+          this.withdrawals = [
+            { id: 1, agentName: 'Ahmad Fauzi', agentEmail: 'ahmad@example.com', amount: 500000, bankName: 'BCA', accountNumber: '1234567890', requestDate: '2026-01-11', status: 'pending', processDate: null },
+            { id: 2, agentName: 'Siti Rahmah', agentEmail: 'siti@example.com', amount: 750000, bankName: 'Mandiri', accountNumber: '0987654321', requestDate: '2026-01-10', status: 'pending', processDate: null },
+            { id: 3, agentName: 'Budi Santoso', agentEmail: 'budi@example.com', amount: 1000000, bankName: 'BRI', accountNumber: '1122334455', requestDate: '2026-01-10', status: 'pending', processDate: null },
+            { id: 4, agentName: 'Dewi Lestari', agentEmail: 'dewi@example.com', amount: 250000, bankName: 'BCA', accountNumber: '5544332211', requestDate: '2026-01-08', status: 'approved', processDate: '2026-01-09' },
+          ];
+        }
+      }
+    }
+  </script>
+</body>
+</html>

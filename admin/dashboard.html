@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Kuotaumroh.id</title>
+
+  <!-- Favicon -->
+  <link rel="apple-touch-icon" sizes="180x180" href="../public/favicon/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../public/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="../public/favicon/favicon-16x16.png">
+  <meta name="theme-color" content="#10b981">
+
+  <!-- Google Fonts - Figtree -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Alpine.js -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+  <!-- Shared CSS -->
+  <link rel="stylesheet" href="../shared/styles.css">
+
+  <!-- Shared JS -->
+  <script src="../shared/utils.js"></script>
+  <script src="../shared/header.js"></script>
+
+  <!-- Tailwind Config -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            border: "hsl(var(--border))",
+            input: "hsl(var(--input))",
+            ring: "hsl(var(--ring))",
+            background: "hsl(var(--background))",
+            foreground: "hsl(var(--foreground))",
+            primary: {
+              DEFAULT: "hsl(var(--primary))",
+              foreground: "hsl(var(--primary-foreground))",
+            },
+            secondary: {
+              DEFAULT: "hsl(var(--secondary))",
+              foreground: "hsl(var(--secondary-foreground))",
+            },
+            muted: {
+              DEFAULT: "hsl(var(--muted))",
+              foreground: "hsl(var(--muted-foreground))",
+            },
+            destructive: {
+              DEFAULT: "hsl(var(--destructive))",
+              foreground: "hsl(var(--destructive-foreground))",
+            },
+          },
+          fontFamily: {
+            sans: ['Figtree', 'ui-sans-serif', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+          borderRadius: {
+            lg: "var(--radius)",
+            md: "calc(var(--radius) - 2px)",
+            sm: "calc(var(--radius) - 4px)",
+          },
+          container: {
+            center: true,
+            padding: "2rem",
+            screens: {
+              "2xl": "1400px",
+            },
+          },
+        },
+      },
+    }
+  </script>
+</head>
+
+<body class="min-h-screen bg-slate-50">
+  <!-- Alpine.js App -->
+  <div x-data="adminDashboard()">
+    <!-- Shared Header Component -->
+    <div id="app-header"></div>
+
+    <!-- Main Content -->
+    <main class="container mx-auto py-10 animate-fade-in px-4">
+      <!-- Stats Grid -->
+      <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-12 mb-12">
+        <!-- Revenue Card (Primary) -->
+        <div class="lg:col-span-7">
+          <div class="relative overflow-hidden rounded-2xl border-slate-200 bg-white shadow-sm h-full">
+            <!-- Background Decoration -->
+            <div class="pointer-events-none absolute right-0 top-0 h-40 w-40 -translate-y-1/3 translate-x-1/3 rounded-full bg-primary/5"></div>
+
+            <!-- Header -->
+            <div class="relative z-10 flex flex-row items-center justify-between p-6 pb-4">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                Total Revenue
+              </h3>
+              <div class="rounded-lg p-2 bg-primary/10 text-primary">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+            </div>
+
+            <!-- Content -->
+            <div class="relative z-10 p-6 pt-0">
+              <div class="text-4xl font-extrabold text-primary tracking-tight" x-text="formatRupiah(stats.totalRevenue)"></div>
+
+              <!-- Summary Bar -->
+              <div class="mt-6 flex items-center justify-between border-t border-slate-100 pt-4">
+                <div>
+                  <p class="text-xs font-bold uppercase text-slate-400">Total Orders</p>
+                  <p class="text-xl font-extrabold text-primary" x-text="stats.totalOrders.toLocaleString('id-ID')"></p>
+                </div>
+                <!-- Mini Chart -->
+                <div class="flex items-end gap-1 opacity-70">
+                  <div class="h-4 w-2 rounded-t-sm bg-primary/20"></div>
+                  <div class="h-6 w-2 rounded-t-sm bg-primary/30"></div>
+                  <div class="h-5 w-2 rounded-t-sm bg-primary/40"></div>
+                  <div class="h-8 w-2 rounded-t-sm bg-primary/60"></div>
+                  <div class="h-10 w-2 rounded-t-sm bg-primary/80"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Users Card -->
+        <div class="lg:col-span-5">
+          <div class="rounded-2xl border-slate-200 bg-white shadow-sm h-full">
+            <!-- Header -->
+            <div class="flex flex-row items-center justify-between p-6 pb-4">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">
+                Total Pengguna
+              </h3>
+            </div>
+
+            <!-- Content -->
+            <div class="p-6 pt-0">
+              <div class="flex items-center gap-6">
+                <div class="text-center">
+                  <div class="text-3xl font-bold text-slate-900" x-text="stats.totalAgents"></div>
+                  <p class="text-xs text-slate-500 mt-1">Agents</p>
+                </div>
+                <div class="h-10 w-px bg-slate-200"></div>
+                <div class="text-center">
+                  <div class="text-3xl font-bold text-slate-900" x-text="stats.totalAffiliates"></div>
+                  <p class="text-xs text-slate-500 mt-1">Affiliates</p>
+                </div>
+              </div>
+
+              <div class="mt-4 flex gap-4 text-sm text-slate-500">
+                <div class="flex items-center gap-2">
+                  <span class="h-2 w-2 rounded-full bg-amber-500"></span>
+                  <span>Pending WD: <strong class="text-slate-900" x-text="stats.pendingWithdrawals"></strong></span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="h-2 w-2 rounded-full bg-purple-500"></span>
+                  <span>Pending Claims: <strong class="text-slate-900" x-text="stats.pendingClaims"></strong></span>
+                </div>
+              </div>
+
+              <!-- Action Button -->
+              <a href="users.html" class="mt-6 inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground hover:bg-primary/90 w-full h-11 text-base font-medium transition-colors">
+                Kelola Pengguna
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Menu Grid -->
+      <div class="space-y-8">
+        <div class="flex items-center gap-4">
+          <h2 class="text-sm font-bold uppercase tracking-wider text-slate-900">Menu Admin</h2>
+          <div class="h-px flex-1 bg-slate-200"></div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-6">
+          <template x-for="item in menuItems" :key="item.id">
+            <a :href="item.href">
+              <div
+                class="group flex h-40 cursor-pointer items-center justify-center rounded-2xl border shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md relative"
+                :class="item.variant === 'primary'
+                  ? 'border-primary bg-primary text-primary-foreground hover:bg-primary/90'
+                  : 'border-slate-200 bg-white'"
+              >
+                <!-- Badge for pending items -->
+                <div x-show="item.badge > 0" class="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-red-500 text-white text-xs font-bold flex items-center justify-center" x-text="item.badge"></div>
+                
+                <div class="flex flex-col items-center justify-center gap-3 p-4 text-center">
+                  <div 
+                    class="h-12 w-12 rounded-full flex items-center justify-center transition-transform group-hover:scale-110"
+                    :class="item.variant === 'primary' ? 'bg-white/20' : 'bg-primary/10'"
+                  >
+                    <svg class="h-6 w-6" :class="item.variant === 'primary' ? 'text-white' : 'text-primary'" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-html="item.iconSvg"></svg>
+                  </div>
+                  <h3
+                    class="text-xs font-bold uppercase tracking-wide leading-tight"
+                    :class="item.variant === 'primary' ? 'text-primary-foreground' : 'text-slate-700'"
+                    x-text="item.title"
+                  ></h3>
+                </div>
+              </div>
+            </a>
+          </template>
+        </div>
+      </div>
+    </main>
+
+    <!-- Toast Notification -->
+    <div x-show="toastVisible" x-transition class="toast">
+      <div class="font-semibold mb-1" x-text="toastTitle"></div>
+      <div class="text-sm text-muted-foreground" x-text="toastMessage"></div>
+    </div>
+  </div>
+
+  <!-- Page Script -->
+  <script>
+    function adminDashboard() {
+      return {
+        user: {
+          name: '',
+          phone: '',
+          initials: ''
+        },
+        stats: {
+          totalAgents: 0,
+          totalAffiliates: 0,
+          totalOrders: 0,
+          totalRevenue: 0,
+          pendingWithdrawals: 0,
+          pendingClaims: 0
+        },
+        menuItems: [],
+        toastVisible: false,
+        toastTitle: '',
+        toastMessage: '',
+
+        getInitials(name) {
+          return name
+            .split(' ')
+            .map(n => n[0])
+            .join('')
+            .toUpperCase()
+            .slice(0, 2);
+        },
+
+        formatRupiah(amount) {
+          return `Rp ${amount.toLocaleString('id-ID')}`;
+        },
+
+        showToast(title, message) {
+          this.toastTitle = title;
+          this.toastMessage = message;
+          this.toastVisible = true;
+          setTimeout(() => {
+            this.toastVisible = false;
+          }, 3000);
+        },
+
+        logout() {
+          clearUser();
+          localStorage.removeItem('token');
+          window.location.href = '../login.html';
+        },
+
+        init() {
+          // Check role access (demo mode enabled)
+          if (!requireRole(['admin'], true)) return;
+
+          // Load user data
+          const savedUser = getUser();
+          if (savedUser) {
+            this.user = {
+              name: savedUser.name || 'Admin',
+              phone: savedUser.phone || '',
+              initials: this.getInitials(savedUser.name || 'Admin')
+            };
+          }
+
+          // Render shared header
+          renderHeader('dashboard');
+
+          // Mock data for demonstration
+          this.stats = {
+            totalAgents: 156,
+            totalAffiliates: 24,
+            totalOrders: 1843,
+            totalRevenue: 245750000,
+            pendingWithdrawals: 3,
+            pendingClaims: 2
+          };
+
+          // Build menu items with badges
+          this.menuItems = [
+            {
+              id: 'users',
+              title: 'Users',
+              href: 'users.html',
+              variant: 'primary',
+              badge: 0,
+              iconSvg: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />'
+            },
+            {
+              id: 'transactions',
+              title: 'Transaksi',
+              href: 'transactions.html',
+              variant: 'default',
+              badge: 0,
+              iconSvg: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />'
+            },
+            {
+              id: 'withdrawals',
+              title: 'Withdrawals',
+              href: 'withdrawals.html',
+              variant: 'default',
+              badge: this.stats.pendingWithdrawals,
+              iconSvg: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />'
+            },
+            {
+              id: 'claims',
+              title: 'Reward Claims',
+              href: 'reward-claims.html',
+              variant: 'default',
+              badge: this.stats.pendingClaims,
+              iconSvg: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />'
+            },
+            {
+              id: 'packages',
+              title: 'Paket',
+              href: 'packages.html',
+              variant: 'default',
+              badge: 0,
+              iconSvg: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />'
+            },
+            {
+              id: 'analytics',
+              title: 'Analytics',
+              href: 'analytics.html',
+              variant: 'default',
+              badge: 0,
+              iconSvg: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />'
+            }
+          ];
+        }
+      }
+    }
+  </script>
+</body>
+</html>

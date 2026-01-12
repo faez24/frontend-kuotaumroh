@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Kuotaumroh.id</title>
+  <!-- Favicon -->
+  <link rel="apple-touch-icon" sizes="57x57" href="../public/favicon/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="../public/favicon/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="../public/favicon/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="../public/favicon/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="../public/favicon/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="../public/favicon/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="../public/favicon/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="../public/favicon/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../public/favicon/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="../public/favicon/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../public/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="../public/favicon/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="../public/favicon/favicon-16x16.png">
+  <link rel="manifest" href="../public/favicon/manifest.json">
+  <meta name="msapplication-TileColor" content="#10b981">
+  <meta name="msapplication-TileImage" content="public/favicon/ms-icon-144x144.png">
+  <meta name="theme-color" content="#10b981">
+
+
+  <!-- Google Fonts - Figtree -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Alpine.js for reactivity -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+  <!-- Shared CSS -->
+  <link rel="stylesheet" href="../shared/styles.css">
+
+  <!-- Shared JS -->
+  <script src="../shared/header.js"></script>
+
+  <!-- Tailwind Config -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            border: "hsl(var(--border))",
+            input: "hsl(var(--input))",
+            ring: "hsl(var(--ring))",
+            background: "hsl(var(--background))",
+            foreground: "hsl(var(--foreground))",
+            primary: {
+              DEFAULT: "hsl(var(--primary))",
+              foreground: "hsl(var(--primary-foreground))",
+            },
+            secondary: {
+              DEFAULT: "hsl(var(--secondary))",
+              foreground: "hsl(var(--secondary-foreground))",
+            },
+            muted: {
+              DEFAULT: "hsl(var(--muted))",
+              foreground: "hsl(var(--muted-foreground))",
+            },
+          },
+          fontFamily: {
+            sans: ['Figtree', 'ui-sans-serif', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+          borderRadius: {
+            lg: "var(--radius)",
+            md: "calc(var(--radius) - 2px)",
+            sm: "calc(var(--radius) - 4px)",
+          },
+          container: {
+            center: true,
+            padding: "2rem",
+            screens: {
+              "2xl": "1400px",
+            },
+          },
+        },
+      },
+    }
+  </script>
+</head>
+
+<body class="min-h-screen bg-slate-50">
+  <!-- Alpine.js App -->
+  <div x-data="dashboardApp()">
+    <!-- Shared Header Component -->
+    <div id="app-header"></div>
+
+    <!-- Main Content -->
+    <main class="container mx-auto py-10 animate-fade-in px-4">
+      <!-- Stats Grid -->
+      <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-12 mb-12">
+        <!-- Profit Card -->
+        <div class="lg:col-span-7">
+          <div class="relative overflow-hidden rounded-2xl border-slate-200 bg-white shadow-sm h-full">
+            <!-- Background Decoration -->
+            <div class="pointer-events-none absolute right-0 top-0 h-40 w-40 -translate-y-1/3 translate-x-1/3 rounded-full bg-primary/5"></div>
+
+            <!-- Header -->
+            <div class="relative z-10 flex flex-row items-center justify-between p-6 pb-4">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                Profit Bulan Ini
+              </h3>
+              <div class="rounded-lg p-2 bg-primary/10 text-primary">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+              </div>
+            </div>
+
+            <!-- Content -->
+            <div class="relative z-10 p-6 pt-0">
+              <div class="text-4xl font-extrabold text-primary tracking-tight" x-text="formatRupiah(stats.monthlyProfit)"></div>
+
+              <!-- Summary Bar -->
+              <div class="mt-6 flex items-center justify-between border-t border-slate-100 pt-4">
+                <div>
+                  <p class="text-xs font-bold uppercase text-slate-400">Total akumulasi</p>
+                  <p class="text-xl font-extrabold text-primary" x-text="formatRupiah(stats.totalProfit)"></p>
+                </div>
+                <!-- Mini Chart -->
+                <div class="flex items-end gap-1 opacity-70">
+                  <div class="h-4 w-2 rounded-t-sm bg-primary/20"></div>
+                  <div class="h-6 w-2 rounded-t-sm bg-primary/30"></div>
+                  <div class="h-5 w-2 rounded-t-sm bg-primary/40"></div>
+                  <div class="h-8 w-2 rounded-t-sm bg-primary/60"></div>
+                  <div class="h-10 w-2 rounded-t-sm bg-primary/80"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Wallet Card -->
+        <div class="lg:col-span-5">
+          <div class="rounded-2xl border-slate-200 bg-white shadow-sm h-full">
+            <!-- Header -->
+            <div class="flex flex-row items-center justify-between p-6 pb-4">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">
+                Saldo Dompet Saat Ini
+              </h3>
+            </div>
+
+            <!-- Content -->
+            <div class="p-6 pt-0">
+              <div class="flex items-center gap-3">
+                <img
+                  src="../public/images/wallet.png"
+                  alt="Wallet"
+                  class="h-12 w-12 object-contain"
+                  onerror="this.style.display='none'"
+                />
+                <div class="text-3xl font-bold text-slate-900 tracking-tight" x-text="formatRupiah(stats.walletBalance)"></div>
+              </div>
+
+              <div class="mt-2 text-sm text-slate-500">
+                <span>Pending penarikan</span>
+                <span class="ml-2 font-semibold text-slate-900" x-text="formatRupiah(stats.pendingWithdrawal)"></span>
+              </div>
+
+              <!-- Action Button -->
+              <a href="withdraw.html" class="mt-6 inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground hover:bg-primary/90 w-full h-11 text-base font-medium transition-colors">
+                Tarik Saldo
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Menu Grid -->
+      <div class="space-y-8">
+        <div class="flex items-center gap-4">
+          <h2 class="text-sm font-bold uppercase tracking-wider text-slate-900">Menu Utama</h2>
+          <div class="h-px flex-1 bg-slate-200"></div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-5">
+          <template x-for="item in menuItems" :key="item.id">
+            <a :href="item.href">
+              <div
+                class="group flex h-48 cursor-pointer items-center justify-center rounded-2xl border shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+                :class="item.variant === 'primary'
+                  ? 'border-primary bg-primary text-primary-foreground hover:bg-primary/90'
+                  : 'border-slate-200 bg-white'"
+              >
+                <div class="flex flex-col items-center justify-center gap-3 p-6 text-center">
+                  <img
+                    :src="`../public/images/${item.icon}.png`"
+                    :alt="item.title"
+                    class="h-24 w-24 object-contain transition-transform group-hover:scale-110"
+                    onerror="this.src='../public/images/kabah.png'"
+                  />
+                  <h3
+                    class="text-xs font-bold uppercase tracking-wide leading-tight"
+                    :class="item.variant === 'primary' ? 'text-primary-foreground' : 'text-slate-700'"
+                    x-text="item.title"
+                  ></h3>
+                </div>
+              </div>
+            </a>
+          </template>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Shared Scripts -->
+  <script src="../shared/utils.js"></script>
+  <script src="../shared/api.js"></script>
+  <script src="../shared/components.js"></script>
+
+  <!-- Page Script -->
+  <script>
+    function dashboardApp() {
+      return {
+        // User data
+        user: {
+          name: 'Ahmad Fauzi',
+          email: 'ahmad.fauzi@email.com',
+          agentCode: 'AGN-2024-001',
+          initials: 'AF'
+        },
+
+        // Stats data
+        stats: {
+          monthlyProfit: 2450000,
+          totalProfit: 15750000,
+          walletBalance: 3250000,
+          pendingWithdrawal: 500000,
+        },
+
+        // Menu items
+        menuItems: [
+          {
+            id: 'new-order',
+            title: 'Pesanan Baru',
+            href: 'order.html',
+            icon: 'order',
+            variant: 'primary',
+          },
+          {
+            id: 'history',
+            title: 'Riwayat Transaksi',
+            href: 'history.html',
+            icon: 'history',
+            variant: 'default',
+          },
+          {
+            id: 'wallet',
+            title: 'Dompet Saya',
+            href: 'wallet.html',
+            icon: 'wallet',
+            variant: 'default',
+          },
+          {
+            id: 'referrals',
+            title: 'Program Referral',
+            href: 'referrals.html',
+            icon: 'referral',
+            variant: 'default',
+          },
+          {
+            id: 'catalog',
+            title: 'Katalog Harga',
+            href: 'catalog.html',
+            icon: 'catalog',
+            variant: 'default',
+          },
+        ],
+
+        // Lifecycle
+        init() {
+          // Load user data from localStorage
+          const savedUser = getUser();
+          if (savedUser && savedUser.name) {
+            this.user = {
+              ...savedUser,
+              initials: this.getInitials(savedUser.name)
+            };
+          }
+
+          // Check if user is logged in
+          if (!isLoggedIn()) {
+            window.location.href = '../login.html';
+          }
+
+          // Render shared header component
+          renderHeader('dashboard');
+
+          // Load stats from API (currently using mock data)
+          this.loadStats();
+        },
+
+        // Methods
+        getInitials(name) {
+          return name
+            .split(' ')
+            .map(n => n[0])
+            .join('')
+            .toUpperCase()
+            .slice(0, 2);
+        },
+
+        async loadStats() {
+          try {
+            const data = await fetchDashboardStats();
+            this.stats = data;
+          } catch (error) {
+            console.error('Failed to load stats:', error);
+          }
+        },
+
+        logout() {
+          clearUser();
+          window.location.href = 'login.html';
+        }
+      }
+    }
+  </script>
+</body>
+</html>

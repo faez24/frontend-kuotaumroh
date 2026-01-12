@@ -208,7 +208,8 @@ function clearUser() {
  */
 function isLoggedIn() {
   const user = getUser();
-  return user && user.agentCode;
+  // Check if user has any role (agent, freelance, admin) or legacy agentCode
+  return user && (user.role || user.agentCode || user.email);
 }
 
 /* ===========================
@@ -227,4 +228,99 @@ function calculateProfit(basePrice, marginPercent = 30) {
     sellPrice: basePrice + profit,
     profit,
   };
+}
+
+/* ===========================
+   Role Management
+   =========================== */
+
+/**
+ * Save user with role to localStorage
+ * @param {Object} userData - User data including role
+ */
+function saveUser(userData) {
+  localStorage.setItem('user', JSON.stringify({
+    ...userData,
+    role: userData.role || 'agent' // 'admin', 'freelance', 'agent'
+  }));
+  if (userData.token) {
+    localStorage.setItem('token', userData.token);
+  }
+}
+
+/**
+ * Get user role
+ * @returns {string|null} User role or null
+ */
+function getUserRole() {
+  const user = getUser();
+  return user?.role || null;
+}
+
+/**
+ * Role-based redirect after login
+ */
+function redirectToDashboard() {
+  const role = getUserRole();
+  const dashboards = {
+    'admin': '/admin/dashboard.html',
+    'freelance': '/freelance/dashboard.html',
+    'agent': '/agent/dashboard.html'
+  };
+  window.location.href = dashboards[role] || '/login.html';
+}
+
+/**
+ * Check role access (use in each page's init)
+ * @param {Array} allowedRoles - Array of allowed roles
+ * @param {boolean} demoMode - If true, auto-create/update demo user instead of redirecting
+ */
+function requireRole(allowedRoles, demoMode = false) {
+  const isDemoMode = demoMode || window.location.search.includes('demo');
+  
+  // In demo mode, auto-set or update user to the required role
+  if (isDemoMode) {
+    const currentRole = getUserRole();
+    // If not logged in OR logged in with wrong role, set the demo user
+    if (!isLoggedIn() || !allowedRoles.includes(currentRole)) {
+      const demoRole = allowedRoles[0];
+      saveUser({
+        name: demoRole === 'admin' ? 'Admin Demo' : (demoRole === 'freelance' ? 'Affiliate Demo' : 'Agent Demo'),
+        email: `demo@${demoRole}.com`,
+        role: demoRole,
+        referralCode: demoRole === 'freelance' ? 'demo-ref' : undefined,
+        agentCode: demoRole === 'agent' ? 'AGT-DEMO' : undefined
+      });
+    }
+    return true;
+  }
+  
+  if (!isLoggedIn()) {
+    window.location.href = '/login.html';
+    return false;
+  }
+  
+  const userRole = getUserRole();
+  if (!allowedRoles.includes(userRole)) {
+    // Redirect to their proper dashboard or login
+    redirectToDashboard();
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Check if user has specific permission
+ * @param {string} permission - Permission to check
+ * @returns {boolean} True if user has permission
+ */
+function hasPermission(permission) {
+  const role = getUserRole();
+  const permissions = {
+    'admin': ['all'],
+    'freelance': ['view_downlines', 'view_points', 'claim_rewards', 'view_profile'],
+    'agent': ['create_orders', 'view_own_orders', 'manage_wallet', 'view_referrals', 'view_profile']
+  };
+  
+  return permissions[role]?.includes(permission) || permissions[role]?.includes('all');
 }

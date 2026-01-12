@@ -37,6 +37,9 @@
   <!-- Shared CSS -->
   <link rel="stylesheet" href="shared/styles.css">
 
+  <!-- Shared JS -->
+  <script src="shared/utils.js"></script>
+
   <!-- Tailwind Config -->
   <script>
     tailwind.config = {
@@ -226,15 +229,18 @@
             const response = await login('user@example.com', 'password');
 
             if (response.success) {
-              // Save user data to localStorage
-              setUser(response.user);
+              // Save user data with role to localStorage
+              saveUser({
+                ...response.user,
+                role: response.user.role || 'agent' // Default to agent if no role
+              });
 
               // Show success message
               this.toast.success('Login Berhasil', 'Selamat datang kembali!');
 
-              // Redirect to dashboard
+              // Redirect to role-specific dashboard
               setTimeout(() => {
-                window.location.href = 'dashboard.html';
+                redirectToDashboard();
               }, 500);
             } else {
               throw new Error('Login failed');

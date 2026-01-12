@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daftar Agent - Kuotaumroh.id</title>
+
+  <link rel="apple-touch-icon" sizes="180x180" href="../public/favicon/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../public/favicon/favicon-32x32.png">
+  <meta name="theme-color" content="#10b981">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <link rel="stylesheet" href="../shared/styles.css">
+  <script src="../shared/utils.js"></script>
+  <script src="../shared/header.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            border: "hsl(var(--border))",
+            input: "hsl(var(--input))",
+            background: "hsl(var(--background))",
+            foreground: "hsl(var(--foreground))",
+            primary: { DEFAULT: "hsl(var(--primary))", foreground: "hsl(var(--primary-foreground))" },
+            muted: { DEFAULT: "hsl(var(--muted))", foreground: "hsl(var(--muted-foreground))" },
+          },
+          fontFamily: { sans: ['Figtree', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+        },
+      },
+    }
+  </script>
+</head>
+
+<body class="min-h-screen bg-background">
+  <div x-data="downlinesPage()">
+    <!-- Shared Header -->
+    <div id="app-header"></div>
+
+    <main class="container mx-auto py-6 px-4">
+      <!-- Page Header -->
+      <div class="mb-6">
+        <h1 class="text-3xl font-bold tracking-tight">Daftar Agent</h1>
+        <p class="text-muted-foreground mt-2">Agent yang terdaftar melalui referral Anda</p>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="grid gap-4 md:grid-cols-3 mb-6">
+        <div class="rounded-lg border bg-white shadow-sm p-6">
+          <p class="text-sm text-muted-foreground">Total Agent</p>
+          <p class="text-3xl font-bold mt-1" x-text="stats.total"></p>
+        </div>
+        <div class="rounded-lg border bg-white shadow-sm p-6">
+          <p class="text-sm text-muted-foreground">Aktif Bulan Ini</p>
+          <p class="text-3xl font-bold mt-1 text-primary" x-text="stats.activeThisMonth"></p>
+        </div>
+        <div class="rounded-lg border bg-white shadow-sm p-6">
+          <p class="text-sm text-muted-foreground">Poin Diperoleh</p>
+          <p class="text-3xl font-bold mt-1" x-text="stats.pointsEarned"></p>
+        </div>
+      </div>
+
+      <!-- Table Card -->
+      <div class="rounded-lg border bg-white shadow-sm">
+        <div class="p-6">
+          <!-- Filters -->
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+            <h3 class="text-lg font-semibold">Daftar Agent Terekrut</h3>
+            <div class="flex gap-2 w-full sm:w-auto">
+              <div class="relative flex-1 sm:flex-none">
+                <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input type="text" x-model="search" placeholder="Cari nama/email" class="flex h-10 rounded-md border border-input bg-background pl-9 pr-3 py-2 text-sm w-full sm:w-[200px]">
+              </div>
+              <select x-model="statusFilter" class="h-10 rounded-md border border-input bg-background px-3 text-sm">
+                <option value="all">Semua Status</option>
+                <option value="active">Aktif</option>
+                <option value="inactive">Tidak Aktif</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Table -->
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr class="border-b">
+                  <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Nama</th>
+                  <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Email</th>
+                  <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Tanggal Daftar</th>
+                  <th class="h-12 px-4 text-center align-middle font-medium text-muted-foreground">Total Order</th>
+                  <th class="h-12 px-4 text-center align-middle font-medium text-muted-foreground">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template x-for="agent in filteredAgents" :key="agent.id">
+                  <tr class="border-b transition-colors hover:bg-muted/50">
+                    <td class="p-4 align-middle font-medium" x-text="agent.name"></td>
+                    <td class="p-4 align-middle text-muted-foreground" x-text="agent.email"></td>
+                    <td class="p-4 align-middle" x-text="formatDate(agent.joinDate)"></td>
+                    <td class="p-4 align-middle text-center" x-text="agent.totalOrders"></td>
+                    <td class="p-4 align-middle text-center">
+                      <span class="badge" :class="agent.status === 'active' ? 'badge-success' : 'badge-secondary'" x-text="agent.status === 'active' ? 'Aktif' : 'Tidak Aktif'"></span>
+                    </td>
+                  </tr>
+                </template>
+                <template x-if="filteredAgents.length === 0">
+                  <tr>
+                    <td colspan="5" class="p-8 text-center text-muted-foreground">Tidak ada agent ditemukan</td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Toast -->
+    <div x-show="toastVisible" x-transition class="toast">
+      <div class="font-semibold mb-1" x-text="toastTitle"></div>
+      <div class="text-sm text-muted-foreground" x-text="toastMessage"></div>
+    </div>
+  </div>
+
+  <script>
+    function downlinesPage() {
+      return {
+        search: '',
+        statusFilter: 'all',
+        agents: [],
+        stats: { total: 0, activeThisMonth: 0, pointsEarned: 0 },
+        toastVisible: false, toastTitle: '', toastMessage: '',
+
+        get filteredAgents() {
+          return this.agents.filter(a => {
+            const matchSearch = !this.search || a.name.toLowerCase().includes(this.search.toLowerCase()) || a.email.toLowerCase().includes(this.search.toLowerCase());
+            const matchStatus = this.statusFilter === 'all' || a.status === this.statusFilter;
+            return matchSearch && matchStatus;
+          });
+        },
+
+        formatDate(dateStr) {
+          const date = new Date(dateStr);
+          return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+        },
+
+        init() {
+          if (!requireRole(['freelance'], true)) return;
+          renderHeader('downlines');
+          
+          this.stats = { total: 15, activeThisMonth: 8, pointsEarned: 750 };
+          this.agents = [
+            { id: 1, name: 'Ahmad Fauzi', email: 'ahmad@example.com', joinDate: '2026-01-10', totalOrders: 12, status: 'active' },
+            { id: 2, name: 'Siti Rahmah', email: 'siti@example.com', joinDate: '2026-01-08', totalOrders: 8, status: 'active' },
+            { id: 3, name: 'Budi Santoso', email: 'budi@example.com', joinDate: '2026-01-05', totalOrders: 5, status: 'active' },
+            { id: 4, name: 'Dewi Lestari', email: 'dewi@example.com', joinDate: '2025-12-20', totalOrders: 3, status: 'inactive' },
+            { id: 5, name: 'Rudi Hartono', email: 'rudi@example.com', joinDate: '2025-12-15', totalOrders: 0, status: 'inactive' },
+          ];
+        }
+      }
+    }
+  </script>
+</body>
+</html>

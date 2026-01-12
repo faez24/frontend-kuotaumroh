@@ -13,13 +13,63 @@
  */
 
 function renderHeader(currentPage = '') {
+  // Detect if we're in a subdirectory (agent/, freelance/, admin/)
+  const pathSegments = window.location.pathname.split('/').filter(s => s);
+  const isInSubdir = ['agent', 'freelance', 'admin'].some(dir => pathSegments.includes(dir));
+  const basePath = isInSubdir ? '../' : '';
+  
+  // Get user role to determine dashboard link
+  const userRole = typeof getUserRole === 'function' ? getUserRole() : 'agent';
+  let dashboardLink = 'dashboard.html';
+  
+  // Determine the correct dashboard path based on user role
+  if (isInSubdir) {
+    // We're in a subfolder, link to current role's dashboard
+    if (userRole === 'admin') {
+      dashboardLink = '../admin/dashboard.html';
+    } else if (userRole === 'freelance') {
+      dashboardLink = '../freelance/dashboard.html';
+    } else {
+      dashboardLink = '../agent/dashboard.html';
+    }
+  } else {
+    // We're at root, link to role-specific folder
+    if (userRole === 'admin') {
+      dashboardLink = 'admin/dashboard.html';
+    } else if (userRole === 'freelance') {
+      dashboardLink = 'freelance/dashboard.html';
+    } else {
+      dashboardLink = 'agent/dashboard.html';
+    }
+  }
+  
+  // Determine profile link based on role
+  let profileLink = 'profile.html';
+  if (isInSubdir) {
+    profileLink = 'profile.html'; // Stay in same folder
+  } else {
+    if (userRole === 'admin') profileLink = 'admin/profile.html';
+    else if (userRole === 'freelance') profileLink = 'freelance/profile.html';
+    else profileLink = 'agent/profile.html';
+  }
+
+  // Determine login link based on role
+  let loginLink = '../login.html';
+  if (isInSubdir) {
+    if (userRole === 'admin') loginLink = 'login.html'; // admin/login.html
+    else if (userRole === 'freelance') loginLink = 'login.html'; // freelance/login.html
+    else loginLink = '../login.html'; // root login.html for agent
+  } else {
+    loginLink = 'login.html';
+  }
+
   const headerHTML = `
-    <header class="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur" x-data="headerComponent('${currentPage}')">
+    <header class="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur" x-data="headerComponent('${currentPage}', '${loginLink}')">
       <div class="container mx-auto flex h-16 items-center justify-between px-4">
         <!-- Logo -->
-        <a href="dashboard.html" class="flex items-center gap-2">
+        <a href="${dashboardLink}" class="flex items-center gap-2">
           <img
-            src="public/images/kabah.png"
+            src="${basePath}public/images/kabah.png"
             alt="Kuotaumroh.id Logo"
             class="h-9 w-9 object-contain"
           >
@@ -51,7 +101,7 @@ function renderHeader(currentPage = '') {
               <p class="text-xs text-primary font-medium pt-1" x-text="headerUser.agentCode"></p>
             </div>
             <div class="h-px bg-border"></div>
-            <a href="profile.html" class="flex w-full items-center px-3 py-2 text-sm hover:bg-muted ${currentPage === 'profile' ? 'bg-muted/50' : ''}">
+            <a href="${profileLink}" class="flex w-full items-center px-3 py-2 text-sm hover:bg-muted ${currentPage === 'profile' ? 'bg-muted/50' : ''}">
               <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
@@ -88,9 +138,10 @@ function renderHeader(currentPage = '') {
 }
 
 // Header Alpine.js component
-function headerComponent(currentPage) {
+function headerComponent(currentPage, loginLink = 'login.html') {
   return {
     currentPage: currentPage,
+    loginLink: loginLink,
     headerUser: {
       name: '',
       email: '',
@@ -110,7 +161,7 @@ function headerComponent(currentPage) {
     handleLogout() {
       localStorage.removeItem('user');
       localStorage.removeItem('token');
-      window.location.href = 'login.html';
+      window.location.href = this.loginLink;
     },
 
     init() {

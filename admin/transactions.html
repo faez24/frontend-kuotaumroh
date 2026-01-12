@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transaksi - Admin</title>
+
+  <link rel="apple-touch-icon" sizes="180x180" href="../public/favicon/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../public/favicon/favicon-32x32.png">
+  <meta name="theme-color" content="#10b981">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <link rel="stylesheet" href="../shared/styles.css">
+  <script src="../shared/utils.js"></script>
+  <script src="../shared/header.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            border: "hsl(var(--border))",
+            input: "hsl(var(--input))",
+            background: "hsl(var(--background))",
+            foreground: "hsl(var(--foreground))",
+            primary: { DEFAULT: "hsl(var(--primary))", foreground: "hsl(var(--primary-foreground))" },
+            muted: { DEFAULT: "hsl(var(--muted))", foreground: "hsl(var(--muted-foreground))" },
+          },
+          fontFamily: { sans: ['Figtree', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+        },
+      },
+    }
+  </script>
+</head>
+
+<body class="min-h-screen bg-background">
+  <div x-data="transactionsPage()">
+    <div id="app-header"></div>
+
+    <main class="container mx-auto py-6 px-4">
+      <div class="mb-6">
+        <h1 class="text-3xl font-bold tracking-tight">Transaksi</h1>
+        <p class="text-muted-foreground mt-2">Lihat semua transaksi platform</p>
+      </div>
+
+      <div class="rounded-lg border bg-white shadow-sm">
+        <div class="p-6">
+          <!-- Tabs -->
+          <div class="mb-6 flex gap-2 border-b">
+            <button @click="viewMode = 'batch'" class="px-4 py-2 text-sm font-medium border-b-2 transition-colors" :class="viewMode === 'batch' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground'">Per Batch</button>
+            <button @click="viewMode = 'number'" class="px-4 py-2 text-sm font-medium border-b-2 transition-colors" :class="viewMode === 'number' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground'">Per Nomor</button>
+          </div>
+
+          <!-- Filters -->
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+            <h3 class="text-lg font-semibold" x-text="viewMode === 'batch' ? 'Daftar Batch' : 'Daftar Nomor'"></h3>
+            <div class="relative w-full sm:w-auto">
+              <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input type="text" x-model="search" placeholder="Cari..." class="flex h-10 rounded-md border border-input bg-background pl-9 pr-3 py-2 text-sm w-full sm:w-[250px]">
+            </div>
+          </div>
+
+          <!-- Batch View -->
+          <div x-show="viewMode === 'batch'" class="overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr class="border-b">
+                  <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Batch ID</th>
+                  <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Agent</th>
+                  <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Tanggal</th>
+                  <th class="h-12 px-4 text-center align-middle font-medium text-muted-foreground">Jumlah Nomor</th>
+                  <th class="h-12 px-4 text-right align-middle font-medium text-muted-foreground">Total</th>
+                  <th class="h-12 px-4 text-center align-middle font-medium text-muted-foreground">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template x-for="tx in filteredBatches" :key="tx.id">
+                  <tr class="border-b transition-colors hover:bg-muted/50">
+                    <td class="p-4 align-middle font-mono text-sm" x-text="tx.batchId"></td>
+                    <td class="p-4 align-middle" x-text="tx.agentName"></td>
+                    <td class="p-4 align-middle" x-text="formatDate(tx.createdAt)"></td>
+                    <td class="p-4 align-middle text-center" x-text="tx.msisdnCount"></td>
+                    <td class="p-4 align-middle text-right font-medium" x-text="formatRupiah(tx.totalAmount)"></td>
+                    <td class="p-4 align-middle text-center">
+                      <span class="badge" :class="tx.status === 'completed' ? 'badge-success' : 'badge-warning'" x-text="tx.status === 'completed' ? 'Selesai' : 'Proses'"></span>
+                    </td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Number View -->
+          <div x-show="viewMode === 'number'" x-cloak class="overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr class="border-b">
+                  <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Nomor HP</th>
+                  <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Provider</th>
+                  <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Paket</th>
+                  <th class="h-12 px-4 text-right align-middle font-medium text-muted-foreground">Harga</th>
+                  <th class="h-12 px-4 text-center align-middle font-medium text-muted-foreground">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template x-for="item in filteredNumbers" :key="item.id">
+                  <tr class="border-b transition-colors hover:bg-muted/50">
+                    <td class="p-4 align-middle font-mono text-sm" x-text="item.msisdn"></td>
+                    <td class="p-4 align-middle" x-text="item.provider"></td>
+                    <td class="p-4 align-middle" x-text="item.packageName"></td>
+                    <td class="p-4 align-middle text-right font-medium" x-text="formatRupiah(item.price)"></td>
+                    <td class="p-4 align-middle text-center">
+                      <span class="badge badge-success">Sukses</span>
+                    </td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div x-show="toastVisible" x-transition class="toast">
+      <div class="font-semibold mb-1" x-text="toastTitle"></div>
+      <div class="text-sm text-muted-foreground" x-text="toastMessage"></div>
+    </div>
+  </div>
+
+  <script>
+    function transactionsPage() {
+      return {
+        viewMode: 'batch', search: '', batches: [], numbers: [],
+        toastVisible: false, toastTitle: '', toastMessage: '',
+
+        get filteredBatches() {
+          if (!this.search) return this.batches;
+          return this.batches.filter(b => b.batchId.toLowerCase().includes(this.search.toLowerCase()) || b.agentName.toLowerCase().includes(this.search.toLowerCase()));
+        },
+
+        get filteredNumbers() {
+          if (!this.search) return this.numbers;
+          return this.numbers.filter(n => n.msisdn.includes(this.search) || n.provider.toLowerCase().includes(this.search.toLowerCase()));
+        },
+
+        formatDate(dateStr) { return new Date(dateStr).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }); },
+        formatRupiah(amount) { return `Rp ${amount.toLocaleString('id-ID')}`; },
+
+        init() {
+          if (!requireRole(['admin'], true)) return;
+          renderHeader('transactions');
+          
+          this.batches = [
+            { id: 1, batchId: 'ORD-2026-0115', agentName: 'Ahmad Fauzi', createdAt: '2026-01-15', msisdnCount: 13, totalAmount: 3250000, status: 'completed' },
+            { id: 2, batchId: 'ORD-2026-0112', agentName: 'Siti Rahmah', createdAt: '2026-01-12', msisdnCount: 8, totalAmount: 1600000, status: 'completed' },
+            { id: 3, batchId: 'ORD-2026-0110', agentName: 'Budi Santoso', createdAt: '2026-01-10', msisdnCount: 5, totalAmount: 750000, status: 'processing' },
+          ];
+          
+          this.numbers = [
+            { id: 1, msisdn: '081234567890', provider: 'Telkomsel', packageName: 'Umroh Gold 10GB', price: 250000 },
+            { id: 2, msisdn: '085234567892', provider: 'Indosat', packageName: 'Umroh Silver 5GB', price: 150000 },
+            { id: 3, msisdn: '08223456789', provider: 'XL', packageName: 'Umroh Premium 15GB', price: 350000 },
+          ];
+        }
+      }
+    }
+  </script>
+</body>
+</html>

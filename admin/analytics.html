@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analytics - Admin</title>
+
+  <link rel="apple-touch-icon" sizes="180x180" href="../public/favicon/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../public/favicon/favicon-32x32.png">
+  <meta name="theme-color" content="#10b981">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <link rel="stylesheet" href="../shared/styles.css">
+  <script src="../shared/utils.js"></script>
+  <script src="../shared/header.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            border: "hsl(var(--border))",
+            input: "hsl(var(--input))",
+            background: "hsl(var(--background))",
+            foreground: "hsl(var(--foreground))",
+            primary: { DEFAULT: "hsl(var(--primary))", foreground: "hsl(var(--primary-foreground))" },
+            muted: { DEFAULT: "hsl(var(--muted))", foreground: "hsl(var(--muted-foreground))" },
+          },
+          fontFamily: { sans: ['Figtree', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+        },
+      },
+    }
+  </script>
+</head>
+
+<body class="min-h-screen bg-background">
+  <div x-data="analyticsPage()">
+    <div id="app-header"></div>
+
+    <main class="container mx-auto py-6 px-4">
+      <div class="mb-6">
+        <h1 class="text-3xl font-bold tracking-tight">Analytics</h1>
+        <p class="text-muted-foreground mt-2">Insights dan statistik platform</p>
+      </div>
+
+      <!-- Key Metrics -->
+      <div class="grid gap-4 md:grid-cols-4 mb-6">
+        <div class="rounded-lg border bg-white shadow-sm p-6">
+          <p class="text-sm text-muted-foreground">Revenue Bulan Ini</p>
+          <p class="text-2xl font-bold mt-1 text-primary" x-text="formatRupiah(metrics.monthlyRevenue)"></p>
+          <p class="text-xs text-muted-foreground mt-1">↑ 12% dari bulan lalu</p>
+        </div>
+        <div class="rounded-lg border bg-white shadow-sm p-6">
+          <p class="text-sm text-muted-foreground">Total Orders</p>
+          <p class="text-2xl font-bold mt-1" x-text="metrics.totalOrders"></p>
+        </div>
+        <div class="rounded-lg border bg-white shadow-sm p-6">
+          <p class="text-sm text-muted-foreground">Agent Aktif</p>
+          <p class="text-2xl font-bold mt-1" x-text="metrics.activeAgents"></p>
+        </div>
+        <div class="rounded-lg border bg-white shadow-sm p-6">
+          <p class="text-sm text-muted-foreground">Rata-rata Order/Hari</p>
+          <p class="text-2xl font-bold mt-1" x-text="metrics.avgOrdersPerDay"></p>
+        </div>
+      </div>
+
+      <div class="grid gap-6 lg:grid-cols-2">
+        <!-- Top Agents -->
+        <div class="rounded-lg border bg-white shadow-sm">
+          <div class="p-6">
+            <h3 class="text-lg font-semibold mb-4">Top 5 Agent Bulan Ini</h3>
+            <div class="overflow-x-auto">
+              <table class="w-full">
+                <thead>
+                  <tr class="border-b">
+                    <th class="h-10 px-4 text-left align-middle font-medium text-muted-foreground">#</th>
+                    <th class="h-10 px-4 text-left align-middle font-medium text-muted-foreground">Agent</th>
+                    <th class="h-10 px-4 text-center align-middle font-medium text-muted-foreground">Orders</th>
+                    <th class="h-10 px-4 text-right align-middle font-medium text-muted-foreground">Revenue</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <template x-for="(agent, idx) in topAgents" :key="agent.id">
+                    <tr class="border-b transition-colors hover:bg-muted/50">
+                      <td class="p-4 align-middle font-medium" x-text="idx + 1"></td>
+                      <td class="p-4 align-middle" x-text="agent.name"></td>
+                      <td class="p-4 align-middle text-center" x-text="agent.orders"></td>
+                      <td class="p-4 align-middle text-right font-semibold text-primary" x-text="formatRupiah(agent.revenue)"></td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Monthly Trends -->
+        <div class="rounded-lg border bg-white shadow-sm">
+          <div class="p-6">
+            <h3 class="text-lg font-semibold mb-4">Tren Bulanan</h3>
+            <div class="space-y-4">
+              <template x-for="month in monthlyData" :key="month.name">
+                <div>
+                  <div class="flex justify-between text-sm mb-1">
+                    <span x-text="month.name"></span>
+                    <span class="font-medium" x-text="formatRupiah(month.revenue)"></span>
+                  </div>
+                  <div class="h-3 bg-muted rounded-full overflow-hidden">
+                    <div class="h-full bg-primary rounded-full" :style="`width: ${(month.revenue / metrics.maxMonthlyRevenue) * 100}%`"></div>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </div>
+        </div>
+
+        <!-- Provider Breakdown -->
+        <div class="rounded-lg border bg-white shadow-sm">
+          <div class="p-6">
+            <h3 class="text-lg font-semibold mb-4">Breakdown per Provider</h3>
+            <div class="overflow-x-auto">
+              <table class="w-full">
+                <thead>
+                  <tr class="border-b">
+                    <th class="h-10 px-4 text-left align-middle font-medium text-muted-foreground">Provider</th>
+                    <th class="h-10 px-4 text-center align-middle font-medium text-muted-foreground">Orders</th>
+                    <th class="h-10 px-4 text-right align-middle font-medium text-muted-foreground">Revenue</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <template x-for="p in providerBreakdown" :key="p.provider">
+                    <tr class="border-b transition-colors hover:bg-muted/50">
+                      <td class="p-4 align-middle font-medium" x-text="p.provider"></td>
+                      <td class="p-4 align-middle text-center" x-text="p.orders"></td>
+                      <td class="p-4 align-middle text-right font-semibold" x-text="formatRupiah(p.revenue)"></td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="rounded-lg border bg-white shadow-sm">
+          <div class="p-6">
+            <h3 class="text-lg font-semibold mb-4">Aktivitas Terbaru</h3>
+            <div class="space-y-4">
+              <template x-for="activity in recentActivity" :key="activity.id">
+                <div class="flex items-start gap-3 pb-3 border-b last:border-0">
+                  <div class="h-8 w-8 rounded-full flex items-center justify-center text-xs font-medium" :class="activity.type === 'order' ? 'bg-primary/10 text-primary' : 'bg-amber-100 text-amber-600'" x-text="activity.type === 'order' ? '📦' : '💰'"></div>
+                  <div>
+                    <p class="text-sm font-medium" x-text="activity.description"></p>
+                    <p class="text-xs text-muted-foreground" x-text="activity.time"></p>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div x-show="toastVisible" x-transition class="toast">
+      <div class="font-semibold mb-1" x-text="toastTitle"></div>
+      <div class="text-sm text-muted-foreground" x-text="toastMessage"></div>
+    </div>
+  </div>
+
+  <script>
+    function analyticsPage() {
+      return {
+        metrics: { monthlyRevenue: 0, totalOrders: 0, activeAgents: 0, avgOrdersPerDay: 0, maxMonthlyRevenue: 0 },
+        topAgents: [], monthlyData: [], providerBreakdown: [], recentActivity: [],
+        toastVisible: false, toastTitle: '', toastMessage: '',
+
+        formatRupiah(amount) { return `Rp ${Number(amount).toLocaleString('id-ID')}`; },
+
+        init() {
+          if (!requireRole(['admin'], true)) return;
+          renderHeader('analytics');
+          
+          this.metrics = { monthlyRevenue: 85750000, totalOrders: 1843, activeAgents: 156, avgOrdersPerDay: 62, maxMonthlyRevenue: 100000000 };
+          
+          this.topAgents = [
+            { id: 1, name: 'Ahmad Fauzi', orders: 45, revenue: 11250000 },
+            { id: 2, name: 'Siti Rahmah', orders: 38, revenue: 9500000 },
+            { id: 3, name: 'Budi Santoso', orders: 32, revenue: 8000000 },
+            { id: 4, name: 'Dewi Lestari', orders: 28, revenue: 7000000 },
+            { id: 5, name: 'Rudi Hartono', orders: 25, revenue: 6250000 },
+          ];
+          
+          this.monthlyData = [
+            { name: 'Oktober', revenue: 65000000 },
+            { name: 'November', revenue: 78000000 },
+            { name: 'Desember', revenue: 92000000 },
+            { name: 'Januari', revenue: 85750000 },
+          ];
+          
+          this.providerBreakdown = [
+            { provider: 'Telkomsel', orders: 720, revenue: 35000000 },
+            { provider: 'Indosat', orders: 480, revenue: 22000000 },
+            { provider: 'XL', orders: 350, revenue: 16000000 },
+            { provider: 'Smartfren', orders: 180, revenue: 8000000 },
+            { provider: 'Tri', orders: 113, revenue: 4750000 },
+          ];
+          
+          this.recentActivity = [
+            { id: 1, type: 'order', description: 'Ahmad Fauzi completed order #ORD-2026-0115', time: '5 min ago' },
+            { id: 2, type: 'withdrawal', description: 'Withdrawal Rp 500.000 approved for Siti Rahmah', time: '15 min ago' },
+            { id: 3, type: 'order', description: 'New agent Rudi registered', time: '30 min ago' },
+            { id: 4, type: 'order', description: 'Budi Santoso completed order #ORD-2026-0114', time: '1 hour ago' },
+          ];
+        }
+      }
+    }
+  </script>
+</body>
+</html>

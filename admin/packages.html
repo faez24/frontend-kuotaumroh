@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kelola Paket - Admin</title>
+
+  <link rel="apple-touch-icon" sizes="180x180" href="../public/favicon/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../public/favicon/favicon-32x32.png">
+  <meta name="theme-color" content="#10b981">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <link rel="stylesheet" href="../shared/styles.css">
+  <script src="../shared/utils.js"></script>
+  <script src="../shared/header.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            border: "hsl(var(--border))",
+            input: "hsl(var(--input))",
+            background: "hsl(var(--background))",
+            foreground: "hsl(var(--foreground))",
+            primary: { DEFAULT: "hsl(var(--primary))", foreground: "hsl(var(--primary-foreground))" },
+            muted: { DEFAULT: "hsl(var(--muted))", foreground: "hsl(var(--muted-foreground))" },
+            destructive: { DEFAULT: "hsl(var(--destructive))", foreground: "hsl(var(--destructive-foreground))" },
+          },
+          fontFamily: { sans: ['Figtree', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+        },
+      },
+    }
+  </script>
+</head>
+
+<body class="min-h-screen bg-background">
+  <div x-data="packagesPage()">
+    <div id="app-header"></div>
+
+    <main class="container mx-auto py-6 px-4">
+      <div class="mb-6 flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold tracking-tight">Kelola Paket</h1>
+          <p class="text-muted-foreground mt-2">Kelola paket kuota umroh dari berbagai provider</p>
+        </div>
+        <button @click="showAddModal = true" class="h-10 px-4 bg-primary text-white rounded-md text-sm font-medium hover:bg-primary/90">
+          + Tambah Paket
+        </button>
+      </div>
+
+      <div class="rounded-lg border bg-white shadow-sm">
+        <div class="p-6">
+          <!-- Filters -->
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+            <div class="flex flex-wrap gap-2">
+              <button @click="providerFilter = 'all'" class="h-9 px-4 rounded-md text-sm font-medium" :class="providerFilter === 'all' ? 'bg-primary text-white' : 'border hover:bg-muted'">Semua</button>
+              <template x-for="provider in providers" :key="provider">
+                <button @click="providerFilter = provider" class="h-9 px-4 rounded-md text-sm font-medium" :class="providerFilter === provider ? 'bg-primary text-white' : 'border hover:bg-muted'" x-text="provider"></button>
+              </template>
+            </div>
+            <div class="relative w-full sm:w-auto">
+              <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input type="text" x-model="search" placeholder="Cari paket..." class="flex h-10 rounded-md border border-input bg-background pl-9 pr-3 py-2 text-sm w-full sm:w-[200px]">
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr class="border-b">
+                  <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Provider</th>
+                  <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Nama Paket</th>
+                  <th class="h-12 px-4 text-center align-middle font-medium text-muted-foreground">Kuota</th>
+                  <th class="h-12 px-4 text-right align-middle font-medium text-muted-foreground">Harga Modal</th>
+                  <th class="h-12 px-4 text-right align-middle font-medium text-muted-foreground">Harga Jual</th>
+                  <th class="h-12 px-4 text-center align-middle font-medium text-muted-foreground">Status</th>
+                  <th class="h-12 px-4 text-center align-middle font-medium text-muted-foreground">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template x-for="pkg in filteredPackages" :key="pkg.id">
+                  <tr class="border-b transition-colors hover:bg-muted/50">
+                    <td class="p-4 align-middle font-medium" x-text="pkg.provider"></td>
+                    <td class="p-4 align-middle" x-text="pkg.name"></td>
+                    <td class="p-4 align-middle text-center" x-text="pkg.quota"></td>
+                    <td class="p-4 align-middle text-right" x-text="formatRupiah(pkg.costPrice)"></td>
+                    <td class="p-4 align-middle text-right font-semibold" x-text="formatRupiah(pkg.sellPrice)"></td>
+                    <td class="p-4 align-middle text-center">
+                      <span class="badge" :class="pkg.active ? 'badge-success' : 'badge-secondary'" x-text="pkg.active ? 'Aktif' : 'Nonaktif'"></span>
+                    </td>
+                    <td class="p-4 align-middle text-center">
+                      <div class="flex justify-center gap-2">
+                        <button @click="editPackage(pkg)" class="h-8 px-3 border rounded text-xs hover:bg-muted">Edit</button>
+                        <button @click="toggleActive(pkg)" class="h-8 px-3 border rounded text-xs" :class="pkg.active ? 'border-red-200 text-red-600 hover:bg-red-50' : 'border-green-200 text-green-600 hover:bg-green-50'" x-text="pkg.active ? 'Nonaktifkan' : 'Aktifkan'"></button>
+                      </div>
+                    </td>
+                  </tr>
+                </template>
+                <template x-if="filteredPackages.length === 0">
+                  <tr><td colspan="7" class="p-8 text-center text-muted-foreground">Tidak ada paket ditemukan</td></tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Add/Edit Modal -->
+    <div x-show="showAddModal || editingPackage" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" @click.self="closeModal()">
+      <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+        <h3 class="text-lg font-semibold mb-4" x-text="editingPackage ? 'Edit Paket' : 'Tambah Paket Baru'"></h3>
+        <form @submit.prevent="savePackage()">
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium mb-1">Provider</label>
+              <select x-model="formData.provider" class="w-full h-10 rounded-md border px-3">
+                <template x-for="p in providers" :key="p"><option :value="p" x-text="p"></option></template>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Nama Paket</label>
+              <input type="text" x-model="formData.name" class="w-full h-10 rounded-md border px-3" required>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Kuota</label>
+              <input type="text" x-model="formData.quota" placeholder="e.g. 10GB" class="w-full h-10 rounded-md border px-3" required>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium mb-1">Harga Modal</label>
+                <input type="number" x-model="formData.costPrice" class="w-full h-10 rounded-md border px-3" required>
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-1">Harga Jual</label>
+                <input type="number" x-model="formData.sellPrice" class="w-full h-10 rounded-md border px-3" required>
+              </div>
+            </div>
+          </div>
+          <div class="flex justify-end gap-2 mt-6">
+            <button type="button" @click="closeModal()" class="h-10 px-4 border rounded-md">Batal</button>
+            <button type="submit" class="h-10 px-4 bg-primary text-white rounded-md">Simpan</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div x-show="toastVisible" x-transition class="toast">
+      <div class="font-semibold mb-1" x-text="toastTitle"></div>
+      <div class="text-sm text-muted-foreground" x-text="toastMessage"></div>
+    </div>
+  </div>
+
+  <script>
+    function packagesPage() {
+      return {
+        search: '', providerFilter: 'all', packages: [], providers: ['Telkomsel', 'Indosat', 'XL', 'Smartfren', 'Tri'],
+        showAddModal: false, editingPackage: null,
+        formData: { provider: 'Telkomsel', name: '', quota: '', costPrice: '', sellPrice: '' },
+        toastVisible: false, toastTitle: '', toastMessage: '',
+
+        get filteredPackages() {
+          return this.packages.filter(p => {
+            const matchSearch = !this.search || p.name.toLowerCase().includes(this.search.toLowerCase());
+            const matchProvider = this.providerFilter === 'all' || p.provider === this.providerFilter;
+            return matchSearch && matchProvider;
+          });
+        },
+
+        formatRupiah(amount) { return `Rp ${Number(amount).toLocaleString('id-ID')}`; },
+        showToast(title, message) { this.toastTitle = title; this.toastMessage = message; this.toastVisible = true; setTimeout(() => { this.toastVisible = false; }, 3000); },
+
+        editPackage(pkg) { this.editingPackage = pkg; this.formData = { ...pkg }; },
+        toggleActive(pkg) { pkg.active = !pkg.active; this.showToast('Updated', `${pkg.name} is now ${pkg.active ? 'active' : 'inactive'}`); },
+        closeModal() { this.showAddModal = false; this.editingPackage = null; this.formData = { provider: 'Telkomsel', name: '', quota: '', costPrice: '', sellPrice: '' }; },
+        
+        savePackage() {
+          if (this.editingPackage) {
+            Object.assign(this.editingPackage, this.formData);
+            this.showToast('Updated', this.formData.name);
+          } else {
+            this.packages.push({ id: Date.now(), ...this.formData, active: true });
+            this.showToast('Added', this.formData.name);
+          }
+          this.closeModal();
+        },
+
+        init() {
+          if (!requireRole(['admin'], true)) return;
+          renderHeader('packages');
+          this.packages = [
+            { id: 1, provider: 'Telkomsel', name: 'Umroh Gold 10GB', quota: '10GB', costPrice: 200000, sellPrice: 250000, active: true },
+            { id: 2, provider: 'Telkomsel', name: 'Umroh Silver 5GB', quota: '5GB', costPrice: 100000, sellPrice: 150000, active: true },
+            { id: 3, provider: 'Indosat', name: 'Umroh Premium 15GB', quota: '15GB', costPrice: 280000, sellPrice: 350000, active: true },
+            { id: 4, provider: 'XL', name: 'Umroh Basic 3GB', quota: '3GB', costPrice: 70000, sellPrice: 100000, active: false },
+          ];
+        }
+      }
+    }
+  </script>
+</body>
+</html>

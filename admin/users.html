@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kelola Users - Admin</title>
+
+  <link rel="apple-touch-icon" sizes="180x180" href="../public/favicon/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../public/favicon/favicon-32x32.png">
+  <meta name="theme-color" content="#10b981">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <link rel="stylesheet" href="../shared/styles.css">
+  <script src="../shared/utils.js"></script>
+  <script src="../shared/header.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            border: "hsl(var(--border))",
+            input: "hsl(var(--input))",
+            background: "hsl(var(--background))",
+            foreground: "hsl(var(--foreground))",
+            primary: { DEFAULT: "hsl(var(--primary))", foreground: "hsl(var(--primary-foreground))" },
+            muted: { DEFAULT: "hsl(var(--muted))", foreground: "hsl(var(--muted-foreground))" },
+            destructive: { DEFAULT: "hsl(var(--destructive))", foreground: "hsl(var(--destructive-foreground))" },
+          },
+          fontFamily: { sans: ['Figtree', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+        },
+      },
+    }
+  </script>
+</head>
+
+<body class="min-h-screen bg-background">
+  <div x-data="usersPage()">
+    <!-- Shared Header -->
+    <div id="app-header"></div>
+
+    <main class="container mx-auto py-6 px-4">
+      <!-- Page Header -->
+      <div class="mb-6">
+        <h1 class="text-3xl font-bold tracking-tight">Kelola Users</h1>
+        <p class="text-muted-foreground mt-2">Lihat dan kelola semua pengguna platform</p>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="grid gap-4 md:grid-cols-3 mb-6">
+        <div class="rounded-lg border bg-white shadow-sm p-6">
+          <p class="text-sm text-muted-foreground">Total Agents</p>
+          <p class="text-3xl font-bold mt-1" x-text="stats.agents"></p>
+        </div>
+        <div class="rounded-lg border bg-white shadow-sm p-6">
+          <p class="text-sm text-muted-foreground">Total Affiliates</p>
+          <p class="text-3xl font-bold mt-1" x-text="stats.affiliates"></p>
+        </div>
+        <div class="rounded-lg border bg-white shadow-sm p-6">
+          <p class="text-sm text-muted-foreground">Banned Users</p>
+          <p class="text-3xl font-bold mt-1 text-destructive" x-text="stats.banned"></p>
+        </div>
+      </div>
+
+      <!-- Table Card -->
+      <div class="rounded-lg border bg-white shadow-sm">
+        <div class="p-6">
+          <!-- Filters -->
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+            <h3 class="text-lg font-semibold">Daftar Users</h3>
+            <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+              <div class="relative flex-1 sm:flex-none">
+                <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input type="text" x-model="search" placeholder="Cari nama/email" class="flex h-10 rounded-md border border-input bg-background pl-9 pr-3 py-2 text-sm w-full sm:w-[200px]">
+              </div>
+              <select x-model="roleFilter" class="h-10 rounded-md border border-input bg-background px-3 text-sm">
+                <option value="all">Semua Role</option>
+                <option value="agent">Agent</option>
+                <option value="freelance">Affiliate</option>
+              </select>
+              <select x-model="statusFilter" class="h-10 rounded-md border border-input bg-background px-3 text-sm">
+                <option value="all">Semua Status</option>
+                <option value="active">Aktif</option>
+                <option value="banned">Banned</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Table -->
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr class="border-b">
+                  <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Nama</th>
+                  <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Email</th>
+                  <th class="h-12 px-4 text-center align-middle font-medium text-muted-foreground">Role</th>
+                  <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Tanggal Daftar</th>
+                  <th class="h-12 px-4 text-center align-middle font-medium text-muted-foreground">Status</th>
+                  <th class="h-12 px-4 text-center align-middle font-medium text-muted-foreground">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template x-for="user in filteredUsers" :key="user.id">
+                  <tr class="border-b transition-colors hover:bg-muted/50">
+                    <td class="p-4 align-middle font-medium" x-text="user.name"></td>
+                    <td class="p-4 align-middle text-muted-foreground" x-text="user.email"></td>
+                    <td class="p-4 align-middle text-center">
+                      <span class="badge" :class="user.role === 'agent' ? 'badge-primary' : 'badge-secondary'" x-text="user.role === 'agent' ? 'Agent' : 'Affiliate'"></span>
+                    </td>
+                    <td class="p-4 align-middle" x-text="formatDate(user.joinDate)"></td>
+                    <td class="p-4 align-middle text-center">
+                      <span class="badge" :class="user.status === 'active' ? 'badge-success' : 'badge-destructive'" x-text="user.status === 'active' ? 'Aktif' : 'Banned'"></span>
+                    </td>
+                    <td class="p-4 align-middle text-center">
+                      <button @click="toggleBan(user)" class="h-8 px-3 rounded text-xs font-medium transition-colors" :class="user.status === 'active' ? 'border border-red-200 text-red-600 hover:bg-red-50' : 'border border-green-200 text-green-600 hover:bg-green-50'" x-text="user.status === 'active' ? 'Ban' : 'Unban'"></button>
+                    </td>
+                  </tr>
+                </template>
+                <template x-if="filteredUsers.length === 0">
+                  <tr><td colspan="6" class="p-8 text-center text-muted-foreground">Tidak ada user ditemukan</td></tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div x-show="toastVisible" x-transition class="toast">
+      <div class="font-semibold mb-1" x-text="toastTitle"></div>
+      <div class="text-sm text-muted-foreground" x-text="toastMessage"></div>
+    </div>
+  </div>
+
+  <script>
+    function usersPage() {
+      return {
+        search: '', roleFilter: 'all', statusFilter: 'all',
+        users: [], stats: { agents: 0, affiliates: 0, banned: 0 },
+        toastVisible: false, toastTitle: '', toastMessage: '',
+
+        get filteredUsers() {
+          return this.users.filter(u => {
+            const matchSearch = !this.search || u.name.toLowerCase().includes(this.search.toLowerCase()) || u.email.toLowerCase().includes(this.search.toLowerCase());
+            const matchRole = this.roleFilter === 'all' || u.role === this.roleFilter;
+            const matchStatus = this.statusFilter === 'all' || u.status === this.statusFilter;
+            return matchSearch && matchRole && matchStatus;
+          });
+        },
+
+        formatDate(dateStr) { return new Date(dateStr).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }); },
+        showToast(title, message) { this.toastTitle = title; this.toastMessage = message; this.toastVisible = true; setTimeout(() => { this.toastVisible = false; }, 3000); },
+
+        toggleBan(user) {
+          user.status = user.status === 'active' ? 'banned' : 'active';
+          this.showToast(user.status === 'banned' ? 'User Banned' : 'User Unbanned', user.name);
+        },
+
+        init() {
+          if (!requireRole(['admin'], true)) return;
+          renderHeader('users');
+          this.stats = { agents: 156, affiliates: 24, banned: 3 };
+          this.users = [
+            { id: 1, name: 'Ahmad Fauzi', email: 'ahmad@example.com', role: 'agent', joinDate: '2026-01-10', status: 'active' },
+            { id: 2, name: 'Siti Rahmah', email: 'siti@example.com', role: 'agent', joinDate: '2026-01-08', status: 'active' },
+            { id: 3, name: 'Budi Santoso', email: 'budi@example.com', role: 'freelance', joinDate: '2026-01-05', status: 'active' },
+            { id: 4, name: 'Dewi Lestari', email: 'dewi@example.com', role: 'agent', joinDate: '2025-12-20', status: 'banned' },
+            { id: 5, name: 'Rudi Hartono', email: 'rudi@example.com', role: 'freelance', joinDate: '2025-12-15', status: 'active' },
+          ];
+        }
+      }
+    }
+  </script>
+</body>
+</html>
