@@ -11,6 +11,7 @@ form_format.md
 multi_user_plan.md
 
 # System files
+/shared/wuunu.js
 .DS_Store
 .vscode/
 *.log
