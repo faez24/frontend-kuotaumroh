@@ -65,7 +65,7 @@
             <table class="w-full">
               <thead>
                 <tr class="border-b">
-                  <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Affiliate</th>
+                  <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Freelance</th>
                   <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Hadiah</th>
                   <th class="h-12 px-4 text-center align-middle font-medium text-muted-foreground">Poin</th>
                   <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Tanggal</th>
@@ -88,8 +88,8 @@
                     </td>
                     <td class="p-4 align-middle text-center">
                       <div x-show="c.status === 'pending'" class="flex justify-center gap-2">
-                        <button @click="approve(c)" class="h-8 px-3 bg-primary text-white rounded text-xs hover:bg-primary/90">Approve</button>
-                        <button @click="reject(c)" class="h-8 px-3 border border-red-200 text-red-600 rounded text-xs hover:bg-red-50">Reject</button>
+                        <button @click="openConfirmModal(c, 'approve')" class="h-8 px-3 bg-primary text-white rounded text-xs hover:bg-primary/90">Approve</button>
+                        <button @click="openConfirmModal(c, 'reject')" class="h-8 px-3 border border-red-200 text-red-600 rounded text-xs hover:bg-red-50">Reject</button>
                       </div>
                       <span x-show="c.status !== 'pending'" class="text-xs text-muted-foreground" x-text="formatDate(c.processDate)"></span>
                     </td>
@@ -105,6 +105,27 @@
       </div>
     </main>
 
+    <!-- Confirm Modal -->
+    <div x-show="confirmModalOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center">
+      <div class="absolute inset-0 bg-black/40" @click="closeConfirmModal()"></div>
+      <div x-transition class="relative z-10 w-full max-w-md rounded-lg bg-white shadow-lg p-6">
+        <h3 class="text-lg font-semibold text-slate-900" x-text="confirmModalTitle"></h3>
+        <p class="mt-2 text-sm text-muted-foreground" x-text="confirmModalMessage"></p>
+        <div class="mt-6 flex items-center justify-end gap-3">
+          <button @click="closeConfirmModal()" class="h-9 px-4 rounded-md border text-sm font-medium text-slate-700 hover:bg-muted transition-colors">
+            Batal
+          </button>
+          <button
+            @click="confirmAction()"
+            :class="selectedAction === 'reject' ? 'bg-destructive hover:bg-destructive/90' : 'bg-primary hover:bg-primary/90'"
+            class="h-9 px-4 rounded-md text-white text-sm font-medium transition-colors"
+          >
+            Konfirmasi
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div x-show="toastVisible" x-transition class="toast">
       <div class="font-semibold mb-1" x-text="toastTitle"></div>
       <div class="text-sm text-muted-foreground" x-text="toastMessage"></div>
@@ -116,6 +137,11 @@
       return {
         filterStatus: 'pending', claims: [],
         toastVisible: false, toastTitle: '', toastMessage: '',
+        confirmModalOpen: false,
+        confirmModalTitle: '',
+        confirmModalMessage: '',
+        selectedClaim: null,
+        selectedAction: null,
 
         get filteredClaims() {
           if (this.filterStatus === 'all') return this.claims;
@@ -125,8 +151,37 @@
         formatDate(dateStr) { return dateStr ? new Date(dateStr).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'; },
         showToast(title, message) { this.toastTitle = title; this.toastMessage = message; this.toastVisible = true; setTimeout(() => { this.toastVisible = false; }, 3000); },
 
-        approve(c) { c.status = 'approved'; c.processDate = new Date().toISOString(); this.showToast('Approved!', c.rewardName); },
-        reject(c) { c.status = 'rejected'; c.processDate = new Date().toISOString(); this.showToast('Rejected', 'Claim rejected'); },
+        openConfirmModal(claim, action) {
+          this.selectedClaim = claim;
+          this.selectedAction = action;
+          if (action === 'approve') {
+            this.confirmModalTitle = `Setujui klaim ${claim.affiliateName}?`;
+            this.confirmModalMessage = 'Hadiah akan diproses dan dikirim sesuai antrian.';
+          } else {
+            this.confirmModalTitle = `Tolak klaim ${claim.affiliateName}?`;
+            this.confirmModalMessage = 'Klaim akan ditolak dan poin tetap berada di akun pengguna.';
+          }
+          this.confirmModalOpen = true;
+        },
+
+        closeConfirmModal() {
+          this.confirmModalOpen = false;
+          this.selectedClaim = null;
+          this.selectedAction = null;
+        },
+
+        approve(c) { c.status = 'approved'; c.processDate = new Date().toISOString(); this.showToast('Disetujui', c.rewardName); },
+        reject(c) { c.status = 'rejected'; c.processDate = new Date().toISOString(); this.showToast('Ditolak', 'Permintaan klaim ditolak'); },
+
+        confirmAction() {
+          if (!this.selectedClaim || !this.selectedAction) return;
+          if (this.selectedAction === 'approve') {
+            this.approve(this.selectedClaim);
+          } else {
+            this.reject(this.selectedClaim);
+          }
+          this.closeConfirmModal();
+        },
 
         init() {
           if (!requireRole(['admin'], true)) return;
@@ -140,5 +195,6 @@
       }
     }
   </script>
+
 </body>
 </html>

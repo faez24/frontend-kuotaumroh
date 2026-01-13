@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rewards - Admin</title>
+
+  <link rel="apple-touch-icon" sizes="180x180" href="../public/favicon/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../public/favicon/favicon-32x32.png">
+  <meta name="theme-color" content="#10b981">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <link rel="stylesheet" href="../shared/styles.css">
+  <script src="../shared/utils.js"></script>
+  <script src="../shared/header.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            border: "hsl(var(--border))",
+            input: "hsl(var(--input))",
+            background: "hsl(var(--background))",
+            foreground: "hsl(var(--foreground))",
+            primary: { DEFAULT: "hsl(var(--primary))", foreground: "hsl(var(--primary-foreground))" },
+            muted: { DEFAULT: "hsl(var(--muted))", foreground: "hsl(var(--muted-foreground))" },
+          },
+          fontFamily: { sans: ['Figtree', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+        },
+      },
+    }
+  </script>
+</head>
+
+<body class="min-h-screen bg-background">
+  <div x-data="rewardsAdminPage()">
+    <div id="app-header"></div>
+
+    <main class="container mx-auto py-6 px-4">
+      <div class="mb-6">
+        <h1 class="text-3xl font-bold tracking-tight">Rewards</h1>
+        <p class="text-muted-foreground mt-2">Kelola daftar hadiah untuk program poin</p>
+      </div>
+
+      <div class="rounded-lg border bg-white shadow-sm">
+        <div class="p-6">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+            <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+              <div class="relative flex-1 sm:flex-none">
+                <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input type="text" x-model="search" placeholder="Cari nama/deskripsi" class="flex h-10 rounded-md border border-input bg-background pl-9 pr-3 py-2 text-sm w-full sm:w-[260px]">
+              </div>
+            </div>
+            <button @click="openAddModal()" class="h-10 px-4 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors">
+              Tambah Reward
+            </button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr class="border-b">
+                  <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Nama Reward</th>
+                  <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Deskripsi</th>
+                  <th class="h-12 px-4 text-center align-middle font-medium text-muted-foreground">Poin</th>
+                  <th class="h-12 px-4 text-center align-middle font-medium text-muted-foreground">Status</th>
+                  <th class="h-12 px-4 text-center align-middle font-medium text-muted-foreground">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template x-for="reward in filteredRewards" :key="reward.id">
+                  <tr class="border-b transition-colors hover:bg-muted/50">
+                    <td class="p-4 align-middle font-medium" x-text="reward.name"></td>
+                    <td class="p-4 align-middle text-muted-foreground" x-text="reward.description"></td>
+                    <td class="p-4 align-middle text-center font-semibold" x-text="reward.pointsCost.toLocaleString('id-ID')"></td>
+                    <td class="p-4 align-middle text-center">
+                      <span class="badge" :class="reward.active ? 'badge-success' : 'badge-secondary'" x-text="reward.active ? 'Aktif' : 'Nonaktif'"></span>
+                    </td>
+                    <td class="p-4 align-middle text-center">
+                      <div class="flex justify-center gap-2">
+                        <button @click="editReward(reward)" class="h-8 px-3 border rounded text-xs hover:bg-muted">Edit</button>
+                        <button @click="toggleActive(reward)" class="h-8 px-3 border rounded text-xs" :class="reward.active ? 'border-red-200 text-red-600 hover:bg-red-50' : 'border-green-200 text-green-600 hover:bg-green-50'" x-text="reward.active ? 'Nonaktifkan' : 'Aktifkan'"></button>
+                        <button @click="openDeleteModal(reward)" class="h-8 px-3 border border-red-200 text-red-600 rounded text-xs hover:bg-red-50">Hapus</button>
+                      </div>
+                    </td>
+                  </tr>
+                </template>
+                <template x-if="filteredRewards.length === 0">
+                  <tr><td colspan="5" class="p-8 text-center text-muted-foreground">Tidak ada reward ditemukan</td></tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Add/Edit Modal -->
+    <div x-show="showModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" @click.self="closeModal()">
+      <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+        <h3 class="text-lg font-semibold mb-4" x-text="editingReward ? 'Edit Reward' : 'Tambah Reward Baru'"></h3>
+        <form @submit.prevent="saveReward()">
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium mb-1">Nama Reward</label>
+              <input type="text" x-model="formData.name" class="w-full h-10 rounded-md border px-3" required>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Deskripsi</label>
+              <textarea x-model="formData.description" class="w-full rounded-md border px-3 py-2 text-sm" rows="3" required></textarea>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Poin</label>
+              <input type="number" x-model="formData.pointsCost" class="w-full h-10 rounded-md border px-3" min="0" required>
+            </div>
+          </div>
+          <div class="flex items-center justify-end gap-2 mt-6">
+            <button type="button" @click="closeModal()" class="h-10 px-4 border rounded-md">Batal</button>
+            <button type="submit" class="h-10 px-4 bg-primary text-white rounded-md">Simpan</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Delete Confirm Modal -->
+    <div x-show="deleteModalOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center">
+      <div class="absolute inset-0 bg-black/40" @click="closeDeleteModal()"></div>
+      <div x-transition class="relative z-10 w-full max-w-md rounded-lg bg-white shadow-lg p-6">
+        <h3 class="text-lg font-semibold text-slate-900">Hapus reward?</h3>
+        <p class="mt-2 text-sm text-muted-foreground" x-text="`Reward ${selectedReward?.name || ''} akan dihapus dari daftar.`"></p>
+        <div class="mt-6 flex items-center justify-end gap-3">
+          <button @click="closeDeleteModal()" class="h-9 px-4 rounded-md border text-sm font-medium text-slate-700 hover:bg-muted transition-colors">
+            Batal
+          </button>
+          <button @click="confirmDelete()" class="h-9 px-4 rounded-md bg-destructive text-white text-sm font-medium hover:bg-destructive/90 transition-colors">
+            Hapus
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div x-show="toastVisible" x-transition class="toast">
+      <div class="font-semibold mb-1" x-text="toastTitle"></div>
+      <div class="text-sm text-muted-foreground" x-text="toastMessage"></div>
+    </div>
+  </div>
+
+  <script>
+    function rewardsAdminPage() {
+      return {
+        search: '',
+        rewards: [],
+        showModal: false,
+        editingReward: null,
+        deleteModalOpen: false,
+        selectedReward: null,
+        formData: { name: '', description: '', pointsCost: 0 },
+        toastVisible: false,
+        toastTitle: '',
+        toastMessage: '',
+
+        get filteredRewards() {
+          return this.rewards.filter(r => {
+            const query = this.search.toLowerCase();
+            return !this.search || [r.name, r.description].some(v => v.toLowerCase().includes(query));
+          });
+        },
+
+        showToast(title, message) {
+          this.toastTitle = title;
+          this.toastMessage = message;
+          this.toastVisible = true;
+          setTimeout(() => { this.toastVisible = false; }, 3000);
+        },
+
+        openAddModal() {
+          this.editingReward = null;
+          this.formData = { name: '', description: '', pointsCost: 0 };
+          this.showModal = true;
+        },
+
+        editReward(reward) {
+          this.editingReward = reward;
+          this.formData = { name: reward.name, description: reward.description, pointsCost: reward.pointsCost };
+          this.showModal = true;
+        },
+
+        saveReward() {
+          if (this.editingReward) {
+            Object.assign(this.editingReward, this.formData);
+            this.showToast('Updated', this.formData.name);
+          } else {
+            this.rewards.push({ id: Date.now(), ...this.formData, active: true });
+            this.showToast('Added', this.formData.name);
+          }
+          this.closeModal();
+        },
+
+        toggleActive(reward) {
+          reward.active = !reward.active;
+          this.showToast('Updated', `${reward.name} ${reward.active ? 'aktif' : 'nonaktif'}`);
+        },
+
+        openDeleteModal(reward) {
+          this.selectedReward = reward;
+          this.deleteModalOpen = true;
+        },
+
+        closeDeleteModal() {
+          this.deleteModalOpen = false;
+          this.selectedReward = null;
+        },
+
+        confirmDelete() {
+          if (!this.selectedReward) return;
+          this.rewards = this.rewards.filter(r => r.id !== this.selectedReward.id);
+          this.showToast('Deleted', this.selectedReward.name);
+          this.closeDeleteModal();
+        },
+
+        closeModal() {
+          this.showModal = false;
+          this.editingReward = null;
+          this.formData = { name: '', description: '', pointsCost: 0 };
+        },
+
+        init() {
+          if (!requireRole(['admin'], true)) return;
+          renderHeader('rewards');
+          this.rewards = [
+            { id: 1, name: 'Voucher OVO Rp 100.000', description: 'E-wallet voucher untuk berbagai kebutuhan', pointsCost: 500, active: true },
+            { id: 2, name: 'Voucher OVO Rp 500.000', description: 'E-wallet voucher untuk berbagai kebutuhan', pointsCost: 2000, active: true },
+            { id: 3, name: 'Samsung Galaxy A55', description: 'Smartphone Samsung terbaru', pointsCost: 5000, active: true },
+            { id: 4, name: 'iPhone 15', description: 'iPhone terbaru dari Apple', pointsCost: 15000, active: false },
+          ];
+        }
+      }
+    }
+  </script>
+
+</body>
+</html>

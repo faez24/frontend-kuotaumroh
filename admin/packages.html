@@ -99,7 +99,7 @@
                     <td class="p-4 align-middle text-center">
                       <div class="flex justify-center gap-2">
                         <button @click="editPackage(pkg)" class="h-8 px-3 border rounded text-xs hover:bg-muted">Edit</button>
-                        <button @click="toggleActive(pkg)" class="h-8 px-3 border rounded text-xs" :class="pkg.active ? 'border-red-200 text-red-600 hover:bg-red-50' : 'border-green-200 text-green-600 hover:bg-green-50'" x-text="pkg.active ? 'Nonaktifkan' : 'Aktifkan'"></button>
+                        <button @click="openConfirmModal(pkg)" class="h-8 px-3 border rounded text-xs" :class="pkg.active ? 'border-red-200 text-red-600 hover:bg-red-50' : 'border-green-200 text-green-600 hover:bg-green-50'" x-text="pkg.active ? 'Nonaktifkan' : 'Aktifkan'"></button>
                       </div>
                     </td>
                   </tr>
@@ -153,6 +153,27 @@
       </div>
     </div>
 
+    <!-- Confirm Modal -->
+    <div x-show="confirmModalOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center">
+      <div class="absolute inset-0 bg-black/40" @click="closeConfirmModal()"></div>
+      <div x-transition class="relative z-10 w-full max-w-md rounded-lg bg-white shadow-lg p-6">
+        <h3 class="text-lg font-semibold text-slate-900" x-text="confirmModalTitle"></h3>
+        <p class="mt-2 text-sm text-muted-foreground" x-text="confirmModalMessage"></p>
+        <div class="mt-6 flex items-center justify-end gap-3">
+          <button @click="closeConfirmModal()" class="h-9 px-4 rounded-md border text-sm font-medium text-slate-700 hover:bg-muted transition-colors">
+            Batal
+          </button>
+          <button
+            @click="confirmToggle()"
+            :class="selectedPackage?.active ? 'bg-destructive hover:bg-destructive/90' : 'bg-primary hover:bg-primary/90'"
+            class="h-9 px-4 rounded-md text-white text-sm font-medium transition-colors"
+          >
+            Konfirmasi
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div x-show="toastVisible" x-transition class="toast">
       <div class="font-semibold mb-1" x-text="toastTitle"></div>
       <div class="text-sm text-muted-foreground" x-text="toastMessage"></div>
@@ -166,6 +187,10 @@
         showAddModal: false, editingPackage: null,
         formData: { provider: 'Telkomsel', name: '', quota: '', costPrice: '', sellPrice: '' },
         toastVisible: false, toastTitle: '', toastMessage: '',
+        confirmModalOpen: false,
+        confirmModalTitle: '',
+        confirmModalMessage: '',
+        selectedPackage: null,
 
         get filteredPackages() {
           return this.packages.filter(p => {
@@ -179,7 +204,30 @@
         showToast(title, message) { this.toastTitle = title; this.toastMessage = message; this.toastVisible = true; setTimeout(() => { this.toastVisible = false; }, 3000); },
 
         editPackage(pkg) { this.editingPackage = pkg; this.formData = { ...pkg }; },
+        openConfirmModal(pkg) {
+          this.selectedPackage = pkg;
+          if (pkg.active) {
+            this.confirmModalTitle = `Nonaktifkan ${pkg.name}?`;
+            this.confirmModalMessage = 'Paket tidak akan muncul di daftar aktif.';
+          } else {
+            this.confirmModalTitle = `Aktifkan ${pkg.name}?`;
+            this.confirmModalMessage = 'Paket akan tersedia untuk pemesanan.';
+          }
+          this.confirmModalOpen = true;
+        },
+
+        closeConfirmModal() {
+          this.confirmModalOpen = false;
+          this.selectedPackage = null;
+        },
+
         toggleActive(pkg) { pkg.active = !pkg.active; this.showToast('Updated', `${pkg.name} is now ${pkg.active ? 'active' : 'inactive'}`); },
+
+        confirmToggle() {
+          if (!this.selectedPackage) return;
+          this.toggleActive(this.selectedPackage);
+          this.closeConfirmModal();
+        },
         closeModal() { this.showAddModal = false; this.editingPackage = null; this.formData = { provider: 'Telkomsel', name: '', quota: '', costPrice: '', sellPrice: '' }; },
         
         savePackage() {
@@ -206,5 +254,6 @@
       }
     }
   </script>
+
 </body>
 </html>

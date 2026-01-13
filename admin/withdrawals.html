@@ -91,8 +91,8 @@
                     </td>
                     <td class="p-4 align-middle text-center">
                       <div x-show="w.status === 'pending'" class="flex justify-center gap-2">
-                        <button @click="approve(w)" class="h-8 px-3 bg-primary text-white rounded text-xs hover:bg-primary/90">Approve</button>
-                        <button @click="reject(w)" class="h-8 px-3 border border-red-200 text-red-600 rounded text-xs hover:bg-red-50">Reject</button>
+                        <button @click="openConfirmModal(w, 'approve')" class="h-8 px-3 bg-primary text-white rounded text-xs hover:bg-primary/90">Approve</button>
+                        <button @click="openConfirmModal(w, 'reject')" class="h-8 px-3 border border-red-200 text-red-600 rounded text-xs hover:bg-red-50">Reject</button>
                       </div>
                       <span x-show="w.status !== 'pending'" class="text-xs text-muted-foreground" x-text="formatDate(w.processDate)"></span>
                     </td>
@@ -108,6 +108,27 @@
       </div>
     </main>
 
+    <!-- Confirm Modal -->
+    <div x-show="confirmModalOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center">
+      <div class="absolute inset-0 bg-black/40" @click="closeConfirmModal()"></div>
+      <div x-transition class="relative z-10 w-full max-w-md rounded-lg bg-white shadow-lg p-6">
+        <h3 class="text-lg font-semibold text-slate-900" x-text="confirmModalTitle"></h3>
+        <p class="mt-2 text-sm text-muted-foreground" x-text="confirmModalMessage"></p>
+        <div class="mt-6 flex items-center justify-end gap-3">
+          <button @click="closeConfirmModal()" class="h-9 px-4 rounded-md border text-sm font-medium text-slate-700 hover:bg-muted transition-colors">
+            Batal
+          </button>
+          <button
+            @click="confirmAction()"
+            :class="selectedAction === 'reject' ? 'bg-destructive hover:bg-destructive/90' : 'bg-primary hover:bg-primary/90'"
+            class="h-9 px-4 rounded-md text-white text-sm font-medium transition-colors"
+          >
+            Konfirmasi
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div x-show="toastVisible" x-transition class="toast">
       <div class="font-semibold mb-1" x-text="toastTitle"></div>
       <div class="text-sm text-muted-foreground" x-text="toastMessage"></div>
@@ -119,6 +140,11 @@
       return {
         filterStatus: 'pending', withdrawals: [],
         toastVisible: false, toastTitle: '', toastMessage: '',
+        confirmModalOpen: false,
+        confirmModalTitle: '',
+        confirmModalMessage: '',
+        selectedWithdrawal: null,
+        selectedAction: null,
 
         get filteredWithdrawals() {
           if (this.filterStatus === 'all') return this.withdrawals;
@@ -129,8 +155,37 @@
         formatRupiah(amount) { return `Rp ${amount.toLocaleString('id-ID')}`; },
         showToast(title, message) { this.toastTitle = title; this.toastMessage = message; this.toastVisible = true; setTimeout(() => { this.toastVisible = false; }, 3000); },
 
-        approve(w) { w.status = 'approved'; w.processDate = new Date().toISOString(); this.showToast('Approved!', `Withdrawal ${this.formatRupiah(w.amount)}`); },
-        reject(w) { w.status = 'rejected'; w.processDate = new Date().toISOString(); this.showToast('Rejected', 'Withdrawal request rejected'); },
+        openConfirmModal(withdrawal, action) {
+          this.selectedWithdrawal = withdrawal;
+          this.selectedAction = action;
+          if (action === 'approve') {
+            this.confirmModalTitle = `Setujui penarikan ${withdrawal.agentName}?`;
+            this.confirmModalMessage = 'Pastikan data rekening sudah benar sebelum menyetujui.';
+          } else {
+            this.confirmModalTitle = `Tolak penarikan ${withdrawal.agentName}?`;
+            this.confirmModalMessage = 'Permintaan akan ditolak dan saldo akan dikembalikan ke akun agen.';
+          }
+          this.confirmModalOpen = true;
+        },
+
+        closeConfirmModal() {
+          this.confirmModalOpen = false;
+          this.selectedWithdrawal = null;
+          this.selectedAction = null;
+        },
+
+        approve(w) { w.status = 'approved'; w.processDate = new Date().toISOString(); this.showToast('Disetujui', `Penarikan ${this.formatRupiah(w.amount)}`); },
+        reject(w) { w.status = 'rejected'; w.processDate = new Date().toISOString(); this.showToast('Ditolak', 'Permintaan penarikan ditolak'); },
+
+        confirmAction() {
+          if (!this.selectedWithdrawal || !this.selectedAction) return;
+          if (this.selectedAction === 'approve') {
+            this.approve(this.selectedWithdrawal);
+          } else {
+            this.reject(this.selectedWithdrawal);
+          }
+          this.closeConfirmModal();
+        },
 
         init() {
           if (!requireRole(['admin'], true)) return;
@@ -145,5 +200,6 @@
       }
     }
   </script>
+
 </body>
 </html>

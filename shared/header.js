@@ -82,7 +82,17 @@ function renderHeader(currentPage = '') {
             @click="open = !open"
             class="flex h-10 items-center gap-2 rounded-full px-3 hover:bg-muted transition-colors"
           >
-            <span class="hidden text-sm font-semibold sm:inline" x-text="headerUser.name"></span>
+            <span class="flex items-center gap-2 text-sm font-semibold">
+              <span x-show="headerUser.role === 'freelance'" class="inline-flex items-center gap-1">
+                <span x-text="headerUser.points.toLocaleString('id-ID')"></span>
+                <svg class="h-4 w-4 text-amber-400" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <circle cx="12" cy="12" r="5" class="text-amber-200" fill="currentColor"></circle>
+                </svg>
+              </span>
+              <span x-show="headerUser.role === 'freelance'" class="text-slate-400">|</span>
+              <span class="hidden sm:inline" x-text="headerUser.name"></span>
+            </span>
             <div class="h-9 w-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium">
               <span x-text="headerUser.initials"></span>
             </div>
@@ -146,7 +156,9 @@ function headerComponent(currentPage, loginLink = 'login.html') {
       name: '',
       email: '',
       initials: '',
-      agentCode: ''
+      agentCode: '',
+      points: 0,
+      role: ''
     },
 
     getInitials(name) {
@@ -168,11 +180,14 @@ function headerComponent(currentPage, loginLink = 'login.html') {
       // Get user from localStorage
       const user = getUser();
       if (user) {
+        const rawPoints = user.pointsBalance ?? user.points ?? user.pointsCount ?? 0;
         this.headerUser = {
           name: user.name || '',
           email: user.email || '',
           agentCode: user.agentCode || '',
-          initials: this.getInitials(user.name || '')
+          initials: this.getInitials(user.name || ''),
+          points: Number(rawPoints) || 0,
+          role: user.role || ''
         };
       }
     }

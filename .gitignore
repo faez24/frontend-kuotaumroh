@@ -8,6 +8,7 @@ ORDER_REFINEMENTS_APPLIED.md
 TASK_LIST.md
 TASK_LIST_UPDATE.txt
 form_format.md
+multi_user_plan.md
 
 # System files
 .DS_Store
@@ -16,3 +17,16 @@ form_format.md
 
 # Node modules (if any)
 node_modules/
+
+# Root-level HTML files (excluding index.html, login.html, and 404.html)
+/catalog.html
+/dashboard.html
+/history.html
+/index-backup.html
+/order.html
+/payment.html
+/profile.html
+/referrals.html
+/signup.html
+/wallet.html
+/withdraw.html

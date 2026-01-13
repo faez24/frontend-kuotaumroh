@@ -55,24 +55,18 @@
         <div class="rounded-lg bg-card text-card-foreground border-0 shadow-lg">
           <div class="p-6 text-center">
             <h3 class="text-2xl font-semibold leading-none tracking-tight">Login Admin</h3>
-            <p class="text-sm text-muted-foreground mt-2">Masuk dengan kredensial admin</p>
+            <p class="text-sm text-muted-foreground mt-2">Masuk menggunakan nomor HP</p>
           </div>
           <div class="p-6 pt-0 space-y-4">
-            <!-- Email Input -->
+            <!-- Phone Input -->
             <div class="space-y-2">
-              <label for="email" class="text-sm font-medium">Email</label>
-              <input id="email" type="email" x-model="email" placeholder="admin@kuotaumroh.id" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+              <label for="phone" class="text-sm font-medium">Nomor HP</label>
+              <input id="phone" type="text" x-model="phone" placeholder="Contoh: 081234567890" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
             </div>
 
-            <!-- Password Input -->
-            <div class="space-y-2">
-              <label for="password" class="text-sm font-medium">Password</label>
-              <input id="password" type="password" x-model="password" placeholder="••••••••" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
-            </div>
-
-            <!-- Login Button -->
-            <button @click="handleLogin()" :disabled="loading" class="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground hover:bg-primary/90 w-full h-12 text-base font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-              <span x-show="!loading">Masuk</span>
+            <!-- Request OTP Button -->
+            <button @click="handleRequestOtp()" :disabled="loading" class="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground hover:bg-primary/90 w-full h-12 text-base font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              <span x-show="!loading">Kirim OTP</span>
               <span x-show="loading">Loading...</span>
             </button>
 
@@ -84,32 +78,84 @@
         <p class="text-center text-xs text-muted-foreground">© 2026 Kuotaumroh.id. All rights reserved.</p>
       </div>
     </div>
+
+    <!-- OTP Modal -->
+    <div x-show="otpModalOpen" x-transition class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+      <div @click.outside="closeOtpModal()" class="w-full max-w-sm rounded-lg bg-white p-6 shadow-lg">
+        <div class="mb-4">
+          <h3 class="text-lg font-semibold">Masukkan OTP</h3>
+          <p class="text-sm text-muted-foreground mt-1" x-text="`Kode dikirim ke ${phone || '-'}`"></p>
+        </div>
+
+        <div class="space-y-2">
+          <label for="otp" class="text-sm font-medium">Kode OTP</label>
+          <input id="otp" type="text" x-model="otp" placeholder="6 digit kode" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+        </div>
+
+        <p x-show="otpError" class="text-sm text-destructive mt-3" x-text="otpError"></p>
+
+        <div class="mt-6 flex gap-3">
+          <button @click="verifyOtp()" class="inline-flex flex-1 items-center justify-center rounded-md bg-primary text-primary-foreground hover:bg-primary/90 h-11 text-sm font-medium transition-colors">
+            Verifikasi
+          </button>
+          <button @click="closeOtpModal()" class="inline-flex flex-1 items-center justify-center rounded-md border border-input bg-white text-sm font-medium text-slate-700 hover:bg-slate-50 h-11 transition-colors">
+            Batal
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
     function adminLoginApp() {
       return {
-        email: '', password: '', loading: false, errorMessage: '',
+        phone: '',
+        otp: '',
+        loading: false,
+        otpModalOpen: false,
+        errorMessage: '',
+        otpError: '',
 
-        async handleLogin() {
+        async handleRequestOtp() {
+          if (!this.phone) {
+            this.errorMessage = 'Nomor HP wajib diisi';
+            return;
+          }
+
           this.loading = true;
           this.errorMessage = '';
 
           try {
             await new Promise(resolve => setTimeout(resolve, 500));
-
-            // Mock admin login validation
-            if (this.email === 'admin@kuotaumroh.id' && this.password === 'admin123') {
-              saveUser({ name: 'Admin', email: this.email, role: 'admin' });
-              window.location.href = 'dashboard.html';
-            } else {
-              this.errorMessage = 'Email atau password salah';
-              this.loading = false;
-            }
+            this.loading = false;
+            this.otpModalOpen = true;
           } catch (error) {
             this.errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
             this.loading = false;
           }
+        },
+
+        verifyOtp() {
+          this.otpError = '';
+
+          if (!this.otp) {
+            this.otpError = 'Kode OTP wajib diisi';
+            return;
+          }
+
+          if (this.otp !== '123456') {
+            this.otpError = 'Kode OTP salah';
+            return;
+          }
+
+          saveUser({ name: 'Admin', phone: this.phone, role: 'admin' });
+          window.location.href = 'dashboard.html';
+        },
+
+        closeOtpModal() {
+          this.otpModalOpen = false;
+          this.otp = '';
+          this.otpError = '';
         },
 
         init() {
@@ -121,5 +167,6 @@
       }
     }
   </script>
+
 </body>
 </html>

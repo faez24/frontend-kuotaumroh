@@ -19,6 +19,86 @@
   <script src="../shared/utils.js"></script>
   <script src="../shared/header.js"></script>
 
+  <!-- Flatpickr CSS for date range picker -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+  <!-- Flatpickr JS -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+  <!-- Custom Flatpickr Styling -->
+  <style>
+    .flatpickr-calendar {
+      border-radius: 0.5rem;
+      box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      border: 1px solid hsl(var(--border));
+    }
+
+    .flatpickr-months {
+      border-radius: 0.5rem 0.5rem 0 0;
+    }
+
+    .flatpickr-current-month .flatpickr-monthDropdown-months,
+    .flatpickr-current-month .numInputWrapper {
+      font-weight: 600;
+    }
+
+    .flatpickr-day.selected,
+    .flatpickr-day.startRange,
+    .flatpickr-day.endRange,
+    .flatpickr-day.selected.inRange,
+    .flatpickr-day.startRange.inRange,
+    .flatpickr-day.endRange.inRange,
+    .flatpickr-day.selected:focus,
+    .flatpickr-day.startRange:focus,
+    .flatpickr-day.endRange:focus,
+    .flatpickr-day.selected:hover,
+    .flatpickr-day.startRange:hover,
+    .flatpickr-day.endRange:hover,
+    .flatpickr-day.selected.prevMonthDay,
+    .flatpickr-day.startRange.prevMonthDay,
+    .flatpickr-day.endRange.prevMonthDay,
+    .flatpickr-day.selected.nextMonthDay,
+    .flatpickr-day.startRange.nextMonthDay,
+    .flatpickr-day.endRange.nextMonthDay {
+      background: #10b981;
+      border-color: #10b981;
+    }
+
+    .flatpickr-day.inRange {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: transparent;
+    }
+
+    .flatpickr-day:hover:not(.selected):not(.startRange):not(.endRange) {
+      background: hsl(var(--muted));
+      border-color: hsl(var(--border));
+    }
+
+    .flatpickr-day.today {
+      border-color: #10b981;
+    }
+
+    .flatpickr-day.today:hover,
+    .flatpickr-day.today:focus {
+      background: rgba(16, 185, 129, 0.1);
+      border-color: #10b981;
+    }
+
+    .flatpickr-months .flatpickr-prev-month:hover svg,
+    .flatpickr-months .flatpickr-next-month:hover svg {
+      fill: #10b981;
+    }
+
+    .flatpickr-weekdays {
+      background: hsl(var(--muted));
+    }
+
+    .flatpickr-weekday {
+      color: hsl(var(--muted-foreground));
+      font-weight: 500;
+    }
+  </style>
+
   <script>
     tailwind.config = {
       theme: {
@@ -52,18 +132,30 @@
       </div>
 
       <!-- Stats Cards -->
-      <div class="grid gap-4 md:grid-cols-3 mb-6">
+      <div class="grid gap-4 md:grid-cols-2 mb-6">
         <div class="rounded-lg border bg-white shadow-sm p-6">
-          <p class="text-sm text-muted-foreground">Total Agents</p>
+          <p class="text-sm text-muted-foreground">Total Agen</p>
           <p class="text-3xl font-bold mt-1" x-text="stats.agents"></p>
+          <div class="mt-3 grid grid-cols-2 gap-4 text-xs text-muted-foreground">
+            <span>Agen Aktif Bulan Ini</span>
+            <span>Banned Agen</span>
+          </div>
+          <div class="grid grid-cols-2 gap-4 text-sm font-semibold">
+            <span x-text="stats.agentsActiveThisMonth"></span>
+            <span class="text-destructive" x-text="stats.agentsBanned"></span>
+          </div>
         </div>
         <div class="rounded-lg border bg-white shadow-sm p-6">
-          <p class="text-sm text-muted-foreground">Total Affiliates</p>
-          <p class="text-3xl font-bold mt-1" x-text="stats.affiliates"></p>
-        </div>
-        <div class="rounded-lg border bg-white shadow-sm p-6">
-          <p class="text-sm text-muted-foreground">Banned Users</p>
-          <p class="text-3xl font-bold mt-1 text-destructive" x-text="stats.banned"></p>
+          <p class="text-sm text-muted-foreground">Total Freelance</p>
+          <p class="text-3xl font-bold mt-1" x-text="stats.freelance"></p>
+          <div class="mt-3 grid grid-cols-2 gap-4 text-xs text-muted-foreground">
+            <span>Freelance Aktif Bulan Ini</span>
+            <span>Banned Freelance</span>
+          </div>
+          <div class="grid grid-cols-2 gap-4 text-sm font-semibold">
+            <span x-text="stats.freelanceActiveThisMonth"></span>
+            <span class="text-destructive" x-text="stats.freelanceBanned"></span>
+          </div>
         </div>
       </div>
 
@@ -74,17 +166,34 @@
           <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
             <h3 class="text-lg font-semibold">Daftar Users</h3>
             <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+              <div class="relative w-full sm:w-auto">
+                <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <input
+                  type="text"
+                  id="dateRangePicker"
+                  placeholder="Tanggal Daftar"
+                  class="flex h-10 rounded-md border border-input bg-background pl-9 pr-8 py-2 text-sm w-full sm:w-[220px]"
+                  readonly
+                >
+                <button
+                  type="button"
+                  x-show="dateFrom || dateTo"
+                  @click="clearDateFilter()"
+                  class="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground rounded-full hover:bg-muted transition-colors"
+                >
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
               <div class="relative flex-1 sm:flex-none">
                 <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
                 <input type="text" x-model="search" placeholder="Cari nama/email" class="flex h-10 rounded-md border border-input bg-background pl-9 pr-3 py-2 text-sm w-full sm:w-[200px]">
               </div>
-              <select x-model="roleFilter" class="h-10 rounded-md border border-input bg-background px-3 text-sm">
-                <option value="all">Semua Role</option>
-                <option value="agent">Agent</option>
-                <option value="freelance">Affiliate</option>
-              </select>
               <select x-model="statusFilter" class="h-10 rounded-md border border-input bg-background px-3 text-sm">
                 <option value="all">Semua Status</option>
                 <option value="active">Aktif</option>
@@ -92,46 +201,201 @@
               </select>
             </div>
           </div>
+          <div class="mb-6 flex gap-2 border-b">
+            <button @click="roleFilter = 'agent'; currentPage = 1" class="px-4 py-2 text-sm font-medium border-b-2 transition-colors" :class="roleFilter === 'agent' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'">Agent</button>
+            <button @click="roleFilter = 'freelance'; currentPage = 1" class="px-4 py-2 text-sm font-medium border-b-2 transition-colors" :class="roleFilter === 'freelance' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'">Freelance</button>
+          </div>
 
           <!-- Table -->
           <div class="overflow-x-auto">
             <table class="w-full">
               <thead>
                 <tr class="border-b">
-                  <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Nama</th>
-                  <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Email</th>
-                  <th class="h-12 px-4 text-center align-middle font-medium text-muted-foreground">Role</th>
-                  <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Tanggal Daftar</th>
-                  <th class="h-12 px-4 text-center align-middle font-medium text-muted-foreground">Status</th>
+                  <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
+                    <button @click="handleSort('name')" class="inline-flex items-center gap-2">
+                      Nama
+                      <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                      </svg>
+                    </button>
+                  </th>
+                  <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
+                    <button @click="handleSort('email')" class="inline-flex items-center gap-2">
+                      Email
+                      <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                      </svg>
+                    </button>
+                  </th>
+                  <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
+                    <button @click="handleSort('joinDate')" class="inline-flex items-center gap-2">
+                      Tanggal Daftar
+                      <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                      </svg>
+                    </button>
+                  </th>
+                  <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
+                    <button @click="handleSort('lastActiveDate')" class="inline-flex items-center gap-2">
+                      Terakhir Aktif
+                      <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                      </svg>
+                    </button>
+                  </th>
+                  <th x-show="roleFilter === 'agent'" class="h-12 px-4 text-right align-middle font-medium text-muted-foreground">
+                    <button @click="handleSort('revenue')" class="inline-flex items-center gap-2">
+                      Revenue
+                      <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                      </svg>
+                    </button>
+                  </th>
+                  <th x-show="roleFilter === 'agent'" class="h-12 px-4 text-right align-middle font-medium text-muted-foreground">
+                    <button @click="handleSort('agentOrderCount')" class="inline-flex items-center gap-2">
+                      Agen Order
+                      <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                      </svg>
+                    </button>
+                  </th>
+                  <th x-show="roleFilter === 'agent'" class="h-12 px-4 text-right align-middle font-medium text-muted-foreground">
+                    <button @click="handleSort('affiliateOrderCount')" class="inline-flex items-center gap-2">
+                      Affiliate Order
+                      <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                      </svg>
+                    </button>
+                  </th>
+                  <th x-show="roleFilter === 'freelance'" class="h-12 px-4 text-right align-middle font-medium text-muted-foreground">
+                    <button @click="handleSort('totalDownline')" class="inline-flex items-center gap-2">
+                      Total Downline
+                      <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                      </svg>
+                    </button>
+                  </th>
+                  <th x-show="roleFilter === 'freelance'" class="h-12 px-4 text-right align-middle font-medium text-muted-foreground">
+                    <button @click="handleSort('totalPoints')" class="inline-flex items-center gap-2">
+                      Total Poin
+                      <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                      </svg>
+                    </button>
+                  </th>
+                  <th class="h-12 px-4 text-center align-middle font-medium text-muted-foreground">
+                    <button @click="handleSort('status')" class="inline-flex items-center gap-2">
+                      Status
+                      <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                      </svg>
+                    </button>
+                  </th>
                   <th class="h-12 px-4 text-center align-middle font-medium text-muted-foreground">Aksi</th>
                 </tr>
               </thead>
               <tbody>
-                <template x-for="user in filteredUsers" :key="user.id">
+                <template x-for="user in paginatedUsers" :key="user.id">
                   <tr class="border-b transition-colors hover:bg-muted/50">
                     <td class="p-4 align-middle font-medium" x-text="user.name"></td>
                     <td class="p-4 align-middle text-muted-foreground" x-text="user.email"></td>
-                    <td class="p-4 align-middle text-center">
-                      <span class="badge" :class="user.role === 'agent' ? 'badge-primary' : 'badge-secondary'" x-text="user.role === 'agent' ? 'Agent' : 'Affiliate'"></span>
-                    </td>
                     <td class="p-4 align-middle" x-text="formatDate(user.joinDate)"></td>
+                    <td class="p-4 align-middle" x-text="formatDate(user.lastActiveDate)"></td>
+                    <td x-show="roleFilter === 'agent'" class="p-4 align-middle text-right font-medium text-primary" x-text="formatRupiah(user.revenue)"></td>
+                    <td x-show="roleFilter === 'agent'" class="p-4 align-middle text-right font-medium" x-text="user.agentOrderCount.toLocaleString('id-ID')"></td>
+                    <td x-show="roleFilter === 'agent'" class="p-4 align-middle text-right font-medium" x-text="user.affiliateOrderCount.toLocaleString('id-ID')"></td>
+                    <td x-show="roleFilter === 'freelance'" class="p-4 align-middle text-right font-medium" x-text="user.totalDownline.toLocaleString('id-ID')"></td>
+                    <td x-show="roleFilter === 'freelance'" class="p-4 align-middle text-right font-medium text-primary" x-text="user.totalPoints.toLocaleString('id-ID') + ' poin'"></td>
                     <td class="p-4 align-middle text-center">
                       <span class="badge" :class="user.status === 'active' ? 'badge-success' : 'badge-destructive'" x-text="user.status === 'active' ? 'Aktif' : 'Banned'"></span>
                     </td>
                     <td class="p-4 align-middle text-center">
-                      <button @click="toggleBan(user)" class="h-8 px-3 rounded text-xs font-medium transition-colors" :class="user.status === 'active' ? 'border border-red-200 text-red-600 hover:bg-red-50' : 'border border-green-200 text-green-600 hover:bg-green-50'" x-text="user.status === 'active' ? 'Ban' : 'Unban'"></button>
+                      <button @click="openBanModal(user)" class="h-8 px-3 rounded text-xs font-medium transition-colors" :class="user.status === 'active' ? 'border border-red-200 text-red-600 hover:bg-red-50' : 'border border-green-200 text-green-600 hover:bg-green-50'" x-text="user.status === 'active' ? 'Ban' : 'Unban'"></button>
                     </td>
                   </tr>
                 </template>
                 <template x-if="filteredUsers.length === 0">
-                  <tr><td colspan="6" class="p-8 text-center text-muted-foreground">Tidak ada user ditemukan</td></tr>
+                  <tr><td :colspan="roleFilter === 'freelance' ? 8 : 9" class="p-8 text-center text-muted-foreground">Tidak ada user ditemukan</td></tr>
                 </template>
               </tbody>
             </table>
           </div>
+
+          <!-- Pagination Controls -->
+          <div class="flex flex-col lg:flex-row items-center justify-between gap-4 p-4 border-t">
+            <div class="text-sm text-muted-foreground">
+              Menampilkan item
+              <span x-text="Math.min((currentPage - 1) * itemsPerPage + 1, sortedUsers.length)"></span>
+              -
+              <span x-text="Math.min(currentPage * itemsPerPage, sortedUsers.length)"></span>
+              dari
+              <span x-text="sortedUsers.length"></span>
+              item.
+            </div>
+            <div class="flex items-center gap-2">
+              <button
+                @click="changePage(currentPage - 1)"
+                :disabled="currentPage === 1"
+                :class="currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-muted'"
+                class="inline-flex items-center justify-center rounded-md border bg-transparent h-8 px-3 text-sm transition-colors"
+              >
+                Previous
+              </button>
+              <div class="flex gap-1">
+                <template x-for="page in totalPages" :key="page">
+                  <button
+                    x-show="page === 1 || page === totalPages || (page >= currentPage - 1 && page <= currentPage + 1)"
+                    @click="changePage(page)"
+                    :class="page === currentPage ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'"
+                    class="inline-flex items-center justify-center rounded-md border h-8 w-8 text-sm transition-colors"
+                    x-text="page"
+                  ></button>
+                </template>
+              </div>
+              <button
+                @click="changePage(currentPage + 1)"
+                :disabled="currentPage === totalPages"
+                :class="currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-muted'"
+                class="inline-flex items-center justify-center rounded-md border bg-transparent h-8 px-3 text-sm transition-colors"
+              >
+                Next
+              </button>
+            </div>
+            <div class="flex items-center gap-2 text-sm text-muted-foreground">
+              <span>Menampilkan</span>
+              <select
+                @change="setItemsPerPage($event.target.value)"
+                :value="itemsPerPage"
+                class="h-8 rounded-md border border-input bg-background px-2 py-1 text-sm"
+              >
+                <option value="20">20</option>
+                <option value="40">40</option>
+                <option value="60">60</option>
+                <option value="80">80</option>
+              </select>
+              <span>item per halaman</span>
+            </div>
+          </div>
         </div>
       </div>
     </main>
+
+    <!-- Ban/Unban Modal -->
+    <div x-show="banModalOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center">
+      <div class="absolute inset-0 bg-black/40" @click="closeBanModal()"></div>
+      <div x-transition class="relative z-10 w-full max-w-md rounded-lg bg-white shadow-lg p-6">
+        <h3 class="text-lg font-semibold text-slate-900" x-text="banModalTitle"></h3>
+        <p class="mt-2 text-sm text-muted-foreground" x-text="banModalMessage"></p>
+        <div class="mt-6 flex items-center justify-end gap-3">
+          <button @click="closeBanModal()" class="h-9 px-4 rounded-md border text-sm font-medium text-slate-700 hover:bg-muted transition-colors">
+            Batal
+          </button>
+          <button @click="confirmBanToggle()" class="h-9 px-4 rounded-md bg-destructive text-white text-sm font-medium hover:bg-destructive/90 transition-colors">
+            Konfirmasi
+          </button>
+        </div>
+      </div>
+    </div>
 
     <div x-show="toastVisible" x-transition class="toast">
       <div class="font-semibold mb-1" x-text="toastTitle"></div>
@@ -142,41 +406,251 @@
   <script>
     function usersPage() {
       return {
-        search: '', roleFilter: 'all', statusFilter: 'all',
-        users: [], stats: { agents: 0, affiliates: 0, banned: 0 },
+        search: '', roleFilter: 'agent', statusFilter: 'all',
+        users: [], stats: { agents: 0, freelance: 0, agentsActiveThisMonth: 0, freelanceActiveThisMonth: 0, agentsBanned: 0, freelanceBanned: 0 },
         toastVisible: false, toastTitle: '', toastMessage: '',
+        dateFrom: '',
+        dateTo: '',
+        banModalOpen: false,
+        banModalTitle: '',
+        banModalMessage: '',
+        selectedUser: null,
+        sortKey: 'joinDate',
+        sortDirection: 'desc',
+        currentPage: 1,
+        itemsPerPage: 20,
 
         get filteredUsers() {
           return this.users.filter(u => {
-            const matchSearch = !this.search || u.name.toLowerCase().includes(this.search.toLowerCase()) || u.email.toLowerCase().includes(this.search.toLowerCase());
+            const query = this.search.toLowerCase();
+            const matchSearch = !this.search || [
+              u.name,
+              u.email,
+              String(u.agentOrderCount || ''),
+              String(u.affiliateOrderCount || '')
+            ].some(value => value.toLowerCase().includes(query));
             const matchRole = this.roleFilter === 'all' || u.role === this.roleFilter;
             const matchStatus = this.statusFilter === 'all' || u.status === this.statusFilter;
-            return matchSearch && matchRole && matchStatus;
+            let matchDate = true;
+            if (this.dateFrom && this.dateTo) {
+              const start = new Date(this.dateFrom);
+              const end = new Date(this.dateTo);
+              const joinDate = new Date(u.joinDate);
+              matchDate = joinDate >= start && joinDate <= end;
+            }
+            return matchSearch && matchRole && matchStatus && matchDate;
           });
+        },
+
+        get sortedUsers() {
+          return [...this.filteredUsers].sort((a, b) => {
+            let comparison = 0;
+            switch (this.sortKey) {
+              case 'name':
+                comparison = a.name.localeCompare(b.name);
+                break;
+              case 'email':
+                comparison = a.email.localeCompare(b.email);
+                break;
+              case 'joinDate':
+                comparison = new Date(a.joinDate) - new Date(b.joinDate);
+                break;
+              case 'lastActiveDate':
+                comparison = new Date(a.lastActiveDate) - new Date(b.lastActiveDate);
+                break;
+              case 'revenue':
+                comparison = (a.revenue || 0) - (b.revenue || 0);
+                break;
+              case 'totalDownline':
+                comparison = (a.totalDownline || 0) - (b.totalDownline || 0);
+                break;
+              case 'totalPoints':
+                comparison = (a.totalPoints || 0) - (b.totalPoints || 0);
+                break;
+              case 'agentOrderCount':
+                comparison = (a.agentOrderCount || 0) - (b.agentOrderCount || 0);
+                break;
+              case 'affiliateOrderCount':
+                comparison = (a.affiliateOrderCount || 0) - (b.affiliateOrderCount || 0);
+                break;
+              case 'status':
+                comparison = a.status.localeCompare(b.status);
+                break;
+              default:
+                comparison = 0;
+            }
+            return this.sortDirection === 'asc' ? comparison : -comparison;
+          });
+        },
+
+        get totalPages() {
+          return Math.ceil(this.sortedUsers.length / this.itemsPerPage) || 1;
+        },
+
+        get paginatedUsers() {
+          const safePage = Math.min(this.currentPage, this.totalPages);
+          if (safePage !== this.currentPage) {
+            this.currentPage = safePage;
+          }
+          const start = (this.currentPage - 1) * this.itemsPerPage;
+          const end = start + this.itemsPerPage;
+          return this.sortedUsers.slice(start, end);
         },
 
         formatDate(dateStr) { return new Date(dateStr).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }); },
         showToast(title, message) { this.toastTitle = title; this.toastMessage = message; this.toastVisible = true; setTimeout(() => { this.toastVisible = false; }, 3000); },
+
+        handleSort(key) {
+          if (this.sortKey === key) {
+            this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+          } else {
+            this.sortKey = key;
+            this.sortDirection = key.includes('Date') ? 'desc' : 'asc';
+          }
+        },
+
+        changePage(page) {
+          if (page >= 1 && page <= this.totalPages) {
+            this.currentPage = page;
+          }
+        },
+
+        setItemsPerPage(value) {
+          this.itemsPerPage = parseInt(value, 10);
+          this.currentPage = 1;
+        },
+
+        clearDateFilter() {
+          this.dateFrom = '';
+          this.dateTo = '';
+          const input = document.querySelector('#dateRangePicker');
+          const picker = input ? input._flatpickr : null;
+          if (picker) {
+            picker.clear();
+          } else if (input) {
+            input.value = '';
+          }
+        },
+
+        openBanModal(user) {
+          this.selectedUser = user;
+          if (user.status === 'banned') {
+            this.banModalTitle = `Buka Banned ${user.name}?`;
+            this.banModalMessage = 'User dapat kembali login dan melakukan aktifitas';
+          } else {
+            this.banModalTitle = `Banned ${user.name}?`;
+            this.banModalMessage = 'User tidak akan dapat melakukan login, namun link referral akan tetap bisa diakses';
+          }
+          this.banModalOpen = true;
+        },
+
+        closeBanModal() {
+          this.banModalOpen = false;
+          this.selectedUser = null;
+        },
 
         toggleBan(user) {
           user.status = user.status === 'active' ? 'banned' : 'active';
           this.showToast(user.status === 'banned' ? 'User Banned' : 'User Unbanned', user.name);
         },
 
+        confirmBanToggle() {
+          if (this.selectedUser) {
+            this.toggleBan(this.selectedUser);
+          }
+          this.closeBanModal();
+        },
         init() {
           if (!requireRole(['admin'], true)) return;
           renderHeader('users');
-          this.stats = { agents: 156, affiliates: 24, banned: 3 };
-          this.users = [
-            { id: 1, name: 'Ahmad Fauzi', email: 'ahmad@example.com', role: 'agent', joinDate: '2026-01-10', status: 'active' },
-            { id: 2, name: 'Siti Rahmah', email: 'siti@example.com', role: 'agent', joinDate: '2026-01-08', status: 'active' },
-            { id: 3, name: 'Budi Santoso', email: 'budi@example.com', role: 'freelance', joinDate: '2026-01-05', status: 'active' },
-            { id: 4, name: 'Dewi Lestari', email: 'dewi@example.com', role: 'agent', joinDate: '2025-12-20', status: 'banned' },
-            { id: 5, name: 'Rudi Hartono', email: 'rudi@example.com', role: 'freelance', joinDate: '2025-12-15', status: 'active' },
-          ];
+          this.stats = { agents: 156, freelance: 24, agentsActiveThisMonth: 48, freelanceActiveThisMonth: 9, agentsBanned: 2, freelanceBanned: 1 };
+          this.users = this.generateMockUsers();
+
+          this.$nextTick(() => {
+            flatpickr('#dateRangePicker', {
+              mode: 'range',
+              dateFormat: 'd M Y',
+              locale: {
+                rangeSeparator: ' - '
+              },
+              onChange: (selectedDates) => {
+                if (selectedDates.length === 2) {
+                  this.dateFrom = selectedDates[0].toISOString().split('T')[0];
+                  this.dateTo = selectedDates[1].toISOString().split('T')[0];
+                } else if (selectedDates.length === 0) {
+                  this.dateFrom = '';
+                  this.dateTo = '';
+                }
+              },
+              onClose: (selectedDates, dateStr, instance) => {
+                if (selectedDates.length === 1) {
+                  instance.clear();
+                  this.dateFrom = '';
+                  this.dateTo = '';
+                }
+              }
+            });
+          });
+          this.$watch('search', () => { this.currentPage = 1; });
+          this.$watch('statusFilter', () => { this.currentPage = 1; });
+          this.$watch('roleFilter', () => { this.currentPage = 1; });
+          this.$watch('dateFrom', () => { this.currentPage = 1; });
+          this.$watch('dateTo', () => { this.currentPage = 1; });
+        },
+        generateMockUsers() {
+          const firstNames = ['Ahmad', 'Siti', 'Budi', 'Dewi', 'Rudi', 'Nadia', 'Fajar', 'Putri', 'Rizki', 'Intan'];
+          const lastNames = ['Fauzi', 'Rahmah', 'Santoso', 'Lestari', 'Hartono', 'Pratama', 'Saputra', 'Wijaya', 'Utami', 'Kurnia'];
+          const startDate = new Date('2025-01-01');
+          const endDate = new Date('2026-01-31');
+          let id = 1;
+
+          const randomDate = (start, end) => new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+          const toIso = (date) => date.toISOString().split('T')[0];
+          const makeName = (i) => `${firstNames[i % firstNames.length]} ${lastNames[(i * 3) % lastNames.length]}`;
+          const makeEmail = (name, i) => `${name.toLowerCase().replace(/\s+/g, '.')}+${i}@example.com`;
+
+          const users = [];
+
+          for (let i = 0; i < this.stats.agents; i++) {
+            const name = makeName(i);
+            const joinDate = randomDate(startDate, endDate);
+            const lastActive = randomDate(joinDate, endDate);
+            users.push({
+              id: id++,
+              name,
+              email: makeEmail(name, i),
+              role: 'agent',
+              joinDate: toIso(joinDate),
+              lastActiveDate: toIso(lastActive),
+              revenue: Math.round(500000 + Math.random() * 4500000),
+              agentOrderCount: Math.floor(20 + Math.random() * 180),
+              affiliateOrderCount: Math.floor(5 + Math.random() * 90),
+              status: i < this.stats.agentsBanned ? 'banned' : 'active'
+            });
+          }
+
+          for (let i = 0; i < this.stats.freelance; i++) {
+            const name = makeName(i + 20);
+            const joinDate = randomDate(startDate, endDate);
+            const lastActive = randomDate(joinDate, endDate);
+            users.push({
+              id: id++,
+              name,
+              email: makeEmail(name, i + 200),
+              role: 'freelance',
+              joinDate: toIso(joinDate),
+              lastActiveDate: toIso(lastActive),
+              totalDownline: Math.floor(Math.random() * 25),
+              totalPoints: Math.floor(200 + Math.random() * 4800),
+              status: i < this.stats.freelanceBanned ? 'banned' : 'active'
+            });
+          }
+
+          return users;
         }
       }
     }
   </script>
+
 </body>
 </html>

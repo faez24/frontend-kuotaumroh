@@ -144,12 +144,12 @@
               <div class="flex items-center gap-6">
                 <div class="text-center">
                   <div class="text-3xl font-bold text-slate-900" x-text="stats.totalAgents"></div>
-                  <p class="text-xs text-slate-500 mt-1">Agents</p>
+                  <p class="text-xs text-slate-500 mt-1">Agen</p>
                 </div>
                 <div class="h-10 w-px bg-slate-200"></div>
                 <div class="text-center">
                   <div class="text-3xl font-bold text-slate-900" x-text="stats.totalAffiliates"></div>
-                  <p class="text-xs text-slate-500 mt-1">Affiliates</p>
+                  <p class="text-xs text-slate-500 mt-1">Freelance</p>
                 </div>
               </div>
 
@@ -180,7 +180,7 @@
           <div class="h-px flex-1 bg-slate-200"></div>
         </div>
 
-        <div class="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-6">
+        <div class="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4">
           <template x-for="item in menuItems" :key="item.id">
             <a :href="item.href">
               <div
@@ -193,12 +193,12 @@
                 <div x-show="item.badge > 0" class="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-red-500 text-white text-xs font-bold flex items-center justify-center" x-text="item.badge"></div>
                 
                 <div class="flex flex-col items-center justify-center gap-3 p-4 text-center">
-                  <div 
-                    class="h-12 w-12 rounded-full flex items-center justify-center transition-transform group-hover:scale-110"
-                    :class="item.variant === 'primary' ? 'bg-white/20' : 'bg-primary/10'"
-                  >
-                    <svg class="h-6 w-6" :class="item.variant === 'primary' ? 'text-white' : 'text-primary'" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-html="item.iconSvg"></svg>
-                  </div>
+                  <img
+                    :src="`../public/images/${item.icon}.png`"
+                    :alt="item.title"
+                    class="h-20 w-20 object-contain transition-transform group-hover:scale-110"
+                    onerror="this.src='../public/images/kabah.png'"
+                  />
                   <h3
                     class="text-xs font-bold uppercase tracking-wide leading-tight"
                     :class="item.variant === 'primary' ? 'text-primary-foreground' : 'text-slate-700'"
@@ -218,6 +218,7 @@
       <div class="text-sm text-muted-foreground" x-text="toastMessage"></div>
     </div>
   </div>
+
 
   <!-- Page Script -->
   <script>
@@ -304,7 +305,7 @@
               href: 'users.html',
               variant: 'primary',
               badge: 0,
-              iconSvg: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />'
+              icon: 'users'
             },
             {
               id: 'transactions',
@@ -312,31 +313,7 @@
               href: 'transactions.html',
               variant: 'default',
               badge: 0,
-              iconSvg: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />'
-            },
-            {
-              id: 'withdrawals',
-              title: 'Withdrawals',
-              href: 'withdrawals.html',
-              variant: 'default',
-              badge: this.stats.pendingWithdrawals,
-              iconSvg: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />'
-            },
-            {
-              id: 'claims',
-              title: 'Reward Claims',
-              href: 'reward-claims.html',
-              variant: 'default',
-              badge: this.stats.pendingClaims,
-              iconSvg: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />'
-            },
-            {
-              id: 'packages',
-              title: 'Paket',
-              href: 'packages.html',
-              variant: 'default',
-              badge: 0,
-              iconSvg: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />'
+              icon: 'transaction'
             },
             {
               id: 'analytics',
@@ -344,7 +321,39 @@
               href: 'analytics.html',
               variant: 'default',
               badge: 0,
-              iconSvg: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />'
+              icon: 'analytics'
+            },
+            {
+              id: 'withdrawals',
+              title: 'Withdrawals',
+              href: 'withdrawals.html',
+              variant: 'default',
+              badge: this.stats.pendingWithdrawals,
+              icon: 'withdraw'
+            },
+            {
+              id: 'claims',
+              title: 'Reward Claims',
+              href: 'reward-claims.html',
+              variant: 'default',
+              badge: this.stats.pendingClaims,
+              icon: 'claim'
+            },
+            {
+              id: 'rewards',
+              title: 'Rewards',
+              href: 'rewards.html',
+              variant: 'default',
+              badge: 0,
+              icon: 'reward'
+            },
+            {
+              id: 'packages',
+              title: 'Paket',
+              href: 'packages.html',
+              variant: 'default',
+              badge: 0,
+              icon: 'package'
             }
           ];
         }

@@ -95,9 +95,9 @@
     <!-- Main Content -->
     <main class="container mx-auto py-10 animate-fade-in px-4">
       <!-- Stats Grid -->
-      <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-12 mb-12">
+      <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-12">
         <!-- Profit Card -->
-        <div class="lg:col-span-7">
+        <div>
           <div class="relative overflow-hidden rounded-2xl border-slate-200 bg-white shadow-sm h-full">
             <!-- Background Decoration -->
             <div class="pointer-events-none absolute right-0 top-0 h-40 w-40 -translate-y-1/3 translate-x-1/3 rounded-full bg-primary/5"></div>
@@ -137,8 +137,40 @@
           </div>
         </div>
 
+        <!-- Referral Card -->
+        <div>
+          <div class="rounded-2xl border-slate-200 bg-white shadow-sm h-full">
+            <div class="flex flex-row items-center justify-between p-6 pb-4">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">
+                Link Referral
+              </h3>
+            </div>
+            <div class="p-6 pt-0">
+              <div class="flex flex-col gap-4 sm:flex-row sm:items-start">
+                <div class="sm:w-24 sm:shrink-0">
+                  <img
+                    :src="'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(referralLink)"
+                    alt="QR Referral"
+                    class="w-full aspect-square rounded-lg border bg-white object-contain p-2"
+                  >
+                </div>
+                <div class="space-y-2 sm:flex-1">
+                  <label class="text-xs font-medium text-muted-foreground">Link Pendaftaran</label>
+                  <div class="flex flex-col gap-2 sm:flex-row">
+                    <input type="text" readonly :value="referralLink" class="flex h-9 w-full min-w-0 rounded-md border border-input bg-muted px-3 py-2 text-xs">
+                    <button @click="copyReferralLink()" class="h-9 w-full px-3 bg-primary text-white rounded-md text-xs font-medium hover:bg-primary/90 transition-colors sm:w-auto">
+                      Salin
+                    </button>
+                  </div>
+                  <p class="text-xs text-slate-500">Bagikan link ini untuk dapatkan bonus referral.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Wallet Card -->
-        <div class="lg:col-span-5">
+        <div>
           <div class="rounded-2xl border-slate-200 bg-white shadow-sm h-full">
             <!-- Header -->
             <div class="flex flex-row items-center justify-between p-6 pb-4">
@@ -215,6 +247,7 @@
   <script src="../shared/api.js"></script>
   <script src="../shared/components.js"></script>
 
+
   <!-- Page Script -->
   <script>
     function dashboardApp() {
@@ -226,6 +259,7 @@
           agentCode: 'AGN-2024-001',
           initials: 'AF'
         },
+        referralLink: '',
 
         // Stats data
         stats: {
@@ -284,6 +318,7 @@
               initials: this.getInitials(savedUser.name)
             };
           }
+          this.referralLink = 'https://kuotaumroh.id/signup.html?ref=' + (this.user.agentCode || 'AGN-DEMO');
 
           // Check if user is logged in
           if (!isLoggedIn()) {
@@ -319,6 +354,11 @@
         logout() {
           clearUser();
           window.location.href = 'login.html';
+        },
+
+        copyReferralLink() {
+          if (!this.referralLink) return;
+          navigator.clipboard.writeText(this.referralLink);
         }
       }
     }

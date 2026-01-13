@@ -43,26 +43,11 @@
     <!-- Shared Header -->
     <div id="app-header"></div>
 
-    <main class="container mx-auto py-6 px-4">
+    <main class="container mx-auto py-10 animate-fade-in px-4">
       <!-- Page Header -->
       <div class="mb-6">
         <h1 class="text-3xl font-bold tracking-tight">Tukar Hadiah</h1>
         <p class="text-muted-foreground mt-2">Tukarkan poin Anda dengan berbagai hadiah menarik</p>
-      </div>
-
-      <!-- Points Balance Card -->
-      <div class="rounded-lg border bg-gradient-to-r from-primary to-primary/80 text-white shadow-sm p-6 mb-6">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm opacity-90">Saldo Poin Anda</p>
-            <p class="text-4xl font-bold mt-1" x-text="pointsBalance.toLocaleString('id-ID') + ' poin'"></p>
-          </div>
-          <div class="h-16 w-16 rounded-full bg-white/20 flex items-center justify-center">
-            <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-        </div>
       </div>
 
       <!-- Tabs -->
@@ -85,7 +70,7 @@
               <p class="text-sm text-muted-foreground mt-1" x-text="reward.description"></p>
               <div class="flex items-center justify-between mt-4">
                 <span class="font-bold text-primary" x-text="reward.pointsCost.toLocaleString('id-ID') + ' poin'"></span>
-                <button @click="claimReward(reward)" :disabled="pointsBalance < reward.pointsCost" class="h-9 px-4 rounded-md text-sm font-medium transition-colors" :class="pointsBalance >= reward.pointsCost ? 'bg-primary text-white hover:bg-primary/90' : 'bg-muted text-muted-foreground cursor-not-allowed'">
+                <button @click="openClaimModal(reward)" :disabled="pointsBalance < reward.pointsCost" class="h-9 px-4 rounded-md text-sm font-medium transition-colors" :class="pointsBalance >= reward.pointsCost ? 'bg-primary text-white hover:bg-primary/90' : 'bg-muted text-muted-foreground cursor-not-allowed'">
                   Klaim
                 </button>
               </div>
@@ -128,6 +113,23 @@
       </div>
     </main>
 
+    <!-- Claim Modal -->
+    <div x-show="claimModalOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center">
+      <div class="absolute inset-0 bg-black/40" @click="closeClaimModal()"></div>
+      <div x-transition class="relative z-10 w-full max-w-md rounded-lg bg-white shadow-lg p-6">
+        <h3 class="text-lg font-semibold text-slate-900" x-text="`Tukarkan ${selectedReward?.pointsCost?.toLocaleString('id-ID') || 0} poin dengan ${selectedReward?.name || ''}?`"></h3>
+        <p class="mt-2 text-sm text-muted-foreground">Klaim akan diproses max 3x24 jam di hari kerja</p>
+        <div class="mt-6 flex items-center justify-end gap-3">
+          <button @click="closeClaimModal()" class="h-9 px-4 rounded-md border text-sm font-medium text-slate-700 hover:bg-muted transition-colors">
+            Batal
+          </button>
+          <button @click="confirmClaim()" class="h-9 px-4 rounded-md bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors">
+            Klaim
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Toast -->
     <div x-show="toastVisible" x-transition class="toast">
       <div class="font-semibold mb-1" x-text="toastTitle"></div>
@@ -142,6 +144,8 @@
         pointsBalance: 1250,
         rewards: [],
         claimHistory: [],
+        claimModalOpen: false,
+        selectedReward: null,
         toastVisible: false, toastTitle: '', toastMessage: '',
 
         formatDate(dateStr) {
@@ -153,12 +157,26 @@
           setTimeout(() => { this.toastVisible = false; }, 3000);
         },
 
-        claimReward(reward) {
+        openClaimModal(reward) {
           if (this.pointsBalance >= reward.pointsCost) {
+            this.selectedReward = reward;
+            this.claimModalOpen = true;
+          }
+        },
+
+        closeClaimModal() {
+          this.claimModalOpen = false;
+          this.selectedReward = null;
+        },
+
+        confirmClaim() {
+          const reward = this.selectedReward;
+          if (reward && this.pointsBalance >= reward.pointsCost) {
             this.pointsBalance -= reward.pointsCost;
             this.claimHistory.unshift({ id: Date.now(), rewardName: reward.name, pointsCost: reward.pointsCost, claimDate: new Date().toISOString(), status: 'PENDING' });
             this.showToast('Berhasil!', 'Klaim hadiah sedang diproses');
           }
+          this.closeClaimModal();
         },
 
         init() {
@@ -181,5 +199,6 @@
       }
     }
   </script>
+
 </body>
 </html>

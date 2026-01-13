@@ -19,6 +19,86 @@
   <script src="../shared/utils.js"></script>
   <script src="../shared/header.js"></script>
 
+  <!-- Flatpickr CSS for date range picker -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+  <!-- Flatpickr JS -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+  <!-- Custom Flatpickr Styling -->
+  <style>
+    .flatpickr-calendar {
+      border-radius: 0.5rem;
+      box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      border: 1px solid hsl(var(--border));
+    }
+
+    .flatpickr-months {
+      border-radius: 0.5rem 0.5rem 0 0;
+    }
+
+    .flatpickr-current-month .flatpickr-monthDropdown-months,
+    .flatpickr-current-month .numInputWrapper {
+      font-weight: 600;
+    }
+
+    .flatpickr-day.selected,
+    .flatpickr-day.startRange,
+    .flatpickr-day.endRange,
+    .flatpickr-day.selected.inRange,
+    .flatpickr-day.startRange.inRange,
+    .flatpickr-day.endRange.inRange,
+    .flatpickr-day.selected:focus,
+    .flatpickr-day.startRange:focus,
+    .flatpickr-day.endRange:focus,
+    .flatpickr-day.selected:hover,
+    .flatpickr-day.startRange:hover,
+    .flatpickr-day.endRange:hover,
+    .flatpickr-day.selected.prevMonthDay,
+    .flatpickr-day.startRange.prevMonthDay,
+    .flatpickr-day.endRange.prevMonthDay,
+    .flatpickr-day.selected.nextMonthDay,
+    .flatpickr-day.startRange.nextMonthDay,
+    .flatpickr-day.endRange.nextMonthDay {
+      background: #10b981;
+      border-color: #10b981;
+    }
+
+    .flatpickr-day.inRange {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: transparent;
+    }
+
+    .flatpickr-day:hover:not(.selected):not(.startRange):not(.endRange) {
+      background: hsl(var(--muted));
+      border-color: hsl(var(--border));
+    }
+
+    .flatpickr-day.today {
+      border-color: #10b981;
+    }
+
+    .flatpickr-day.today:hover,
+    .flatpickr-day.today:focus {
+      background: rgba(16, 185, 129, 0.1);
+      border-color: #10b981;
+    }
+
+    .flatpickr-months .flatpickr-prev-month:hover svg,
+    .flatpickr-months .flatpickr-next-month:hover svg {
+      fill: #10b981;
+    }
+
+    .flatpickr-weekdays {
+      background: hsl(var(--muted));
+    }
+
+    .flatpickr-weekday {
+      color: hsl(var(--muted-foreground));
+      font-weight: 500;
+    }
+  </style>
+
   <script>
     tailwind.config = {
       theme: {
@@ -79,7 +159,8 @@
                 <thead>
                   <tr class="border-b">
                     <th class="h-10 px-4 text-left align-middle font-medium text-muted-foreground">#</th>
-                    <th class="h-10 px-4 text-left align-middle font-medium text-muted-foreground">Agent</th>
+                    <th class="h-10 px-4 text-left align-middle font-medium text-muted-foreground">Agen</th>
+                    <th class="h-10 px-4 text-left align-middle font-medium text-muted-foreground">Travel</th>
                     <th class="h-10 px-4 text-center align-middle font-medium text-muted-foreground">Orders</th>
                     <th class="h-10 px-4 text-right align-middle font-medium text-muted-foreground">Revenue</th>
                   </tr>
@@ -89,6 +170,7 @@
                     <tr class="border-b transition-colors hover:bg-muted/50">
                       <td class="p-4 align-middle font-medium" x-text="idx + 1"></td>
                       <td class="p-4 align-middle" x-text="agent.name"></td>
+                      <td class="p-4 align-middle" x-text="agent.travelName"></td>
                       <td class="p-4 align-middle text-center" x-text="agent.orders"></td>
                       <td class="p-4 align-middle text-right font-semibold text-primary" x-text="formatRupiah(agent.revenue)"></td>
                     </tr>
@@ -102,9 +184,33 @@
         <!-- Monthly Trends -->
         <div class="rounded-lg border bg-white shadow-sm">
           <div class="p-6">
-            <h3 class="text-lg font-semibold mb-4">Tren Bulanan</h3>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+              <h3 class="text-lg font-semibold">Tren Bulanan</h3>
+              <div class="relative w-full sm:w-auto">
+                <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <input
+                  type="text"
+                  id="monthlyTrendRange"
+                  placeholder="Pilih Rentang Tanggal"
+                  class="flex h-10 rounded-md border border-input bg-background pl-9 pr-8 py-2 text-sm w-full sm:w-[230px]"
+                  readonly
+                >
+                <button
+                  type="button"
+                  x-show="trendDateFrom || trendDateTo"
+                  @click="clearTrendFilter()"
+                  class="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground rounded-full hover:bg-muted transition-colors"
+                >
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
             <div class="space-y-4">
-              <template x-for="month in monthlyData" :key="month.name">
+              <template x-for="month in filteredMonthlyData" :key="month.name">
                 <div>
                   <div class="flex justify-between text-sm mb-1">
                     <span x-text="month.name"></span>
@@ -178,8 +284,44 @@
         metrics: { monthlyRevenue: 0, totalOrders: 0, activeAgents: 0, avgOrdersPerDay: 0, maxMonthlyRevenue: 0 },
         topAgents: [], monthlyData: [], providerBreakdown: [], recentActivity: [],
         toastVisible: false, toastTitle: '', toastMessage: '',
+        trendDateFrom: '',
+        trendDateTo: '',
 
         formatRupiah(amount) { return `Rp ${Number(amount).toLocaleString('id-ID')}`; },
+        formatMonthLabel(dateStr) {
+          const date = new Date(dateStr + '-01');
+          return date.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+        },
+
+        get filteredMonthlyData() {
+          if (!this.trendDateFrom && !this.trendDateTo) return this.monthlyData;
+          return this.monthlyData.filter(entry => {
+            const entryDate = new Date(entry.date + '-01');
+            if (this.trendDateFrom) {
+              const from = new Date(this.trendDateFrom);
+              from.setHours(0, 0, 0, 0);
+              if (entryDate < from) return false;
+            }
+            if (this.trendDateTo) {
+              const to = new Date(this.trendDateTo);
+              to.setHours(23, 59, 59, 999);
+              if (entryDate > to) return false;
+            }
+            return true;
+          });
+        },
+
+        clearTrendFilter() {
+          this.trendDateFrom = '';
+          this.trendDateTo = '';
+          const input = document.querySelector('#monthlyTrendRange');
+          const picker = input ? input._flatpickr : null;
+          if (picker) {
+            picker.clear();
+          } else if (input) {
+            input.value = '';
+          }
+        },
 
         init() {
           if (!requireRole(['admin'], true)) return;
@@ -188,18 +330,18 @@
           this.metrics = { monthlyRevenue: 85750000, totalOrders: 1843, activeAgents: 156, avgOrdersPerDay: 62, maxMonthlyRevenue: 100000000 };
           
           this.topAgents = [
-            { id: 1, name: 'Ahmad Fauzi', orders: 45, revenue: 11250000 },
-            { id: 2, name: 'Siti Rahmah', orders: 38, revenue: 9500000 },
-            { id: 3, name: 'Budi Santoso', orders: 32, revenue: 8000000 },
-            { id: 4, name: 'Dewi Lestari', orders: 28, revenue: 7000000 },
-            { id: 5, name: 'Rudi Hartono', orders: 25, revenue: 6250000 },
+            { id: 1, name: 'Ahmad Fauzi', travelName: 'PT Amanah Umroh', orders: 45, revenue: 11250000 },
+            { id: 2, name: 'Siti Rahmah', travelName: 'PT Barokah Travel', orders: 38, revenue: 9500000 },
+            { id: 3, name: 'Budi Santoso', travelName: 'PT Baitullah Nusantara', orders: 32, revenue: 8000000 },
+            { id: 4, name: 'Dewi Lestari', travelName: 'PT Safar Mandiri', orders: 28, revenue: 7000000 },
+            { id: 5, name: 'Rudi Hartono', travelName: 'PT Amanah Umroh', orders: 25, revenue: 6250000 },
           ];
           
           this.monthlyData = [
-            { name: 'Oktober', revenue: 65000000 },
-            { name: 'November', revenue: 78000000 },
-            { name: 'Desember', revenue: 92000000 },
-            { name: 'Januari', revenue: 85750000 },
+            { date: '2025-10', name: 'Oktober 2025', revenue: 65000000 },
+            { date: '2025-11', name: 'November 2025', revenue: 78000000 },
+            { date: '2025-12', name: 'Desember 2025', revenue: 92000000 },
+            { date: '2026-01', name: 'Januari 2026', revenue: 85750000 },
           ];
           
           this.providerBreakdown = [
@@ -216,9 +358,36 @@
             { id: 3, type: 'order', description: 'New agent Rudi registered', time: '30 min ago' },
             { id: 4, type: 'order', description: 'Budi Santoso completed order #ORD-2026-0114', time: '1 hour ago' },
           ];
+
+          this.$nextTick(() => {
+            flatpickr('#monthlyTrendRange', {
+              mode: 'range',
+              dateFormat: 'd M Y',
+              locale: {
+                rangeSeparator: ' - '
+              },
+              onChange: (selectedDates) => {
+                if (selectedDates.length === 2) {
+                  this.trendDateFrom = selectedDates[0].toISOString().split('T')[0];
+                  this.trendDateTo = selectedDates[1].toISOString().split('T')[0];
+                } else if (selectedDates.length === 0) {
+                  this.trendDateFrom = '';
+                  this.trendDateTo = '';
+                }
+              },
+              onClose: (selectedDates, dateStr, instance) => {
+                if (selectedDates.length === 1) {
+                  instance.clear();
+                  this.trendDateFrom = '';
+                  this.trendDateTo = '';
+                }
+              }
+            });
+          });
         }
       }
     }
   </script>
+
 </body>
 </html>
