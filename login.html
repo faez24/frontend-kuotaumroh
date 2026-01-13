@@ -238,9 +238,9 @@
               // Show success message
               this.toast.success('Login Berhasil', 'Selamat datang kembali!');
 
-              // Redirect to role-specific dashboard
+              // Redirect to agent dashboard
               setTimeout(() => {
-                redirectToDashboard();
+                window.location.href = 'agent/dashboard.html';
               }, 500);
             } else {
               throw new Error('Login failed');
