@@ -101,11 +101,12 @@ function normalizeMsisdn(msisdn) {
  * @returns {string} API-compatible provider name
  */
 function normalizeProviderForApi(detectedProvider) {
+  // Map detected provider names to API type field values
   const providerMap = {
-    'telkomsel': 'SIMPATI',
+    'telkomsel': 'TELKOMSEL',
     'indosat': 'INDOSAT',
     'xl': 'XL',
-    'axis': 'AXIS',
+    'axis': 'AXIS',  // Note: AXIS has its own packages in the new API
     'tri': 'TRI',
     'smartfren': 'SMARTFREN',
   };

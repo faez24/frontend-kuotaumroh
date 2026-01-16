@@ -1214,25 +1214,21 @@
         async loadPackages(retryCount = 0) {
           try {
             this.packagesLoading = true;
-            const response = await fetch('https://kuotaumroh.id/api/belidigi/package?ref_code=bulkumroh');
-
-            if (!response.ok) {
-              throw new Error(`HTTP ${response.status}`);
-            }
-
-            const data = await response.json();
+            
+            const data = await fetchPackages();
 
             if (!Array.isArray(data) || data.length === 0) {
               throw new Error('No packages returned from API');
             }
 
+            // Map to order page format (uses 'type' instead of 'provider')
             this.packages = data.map(pkg => ({
               id: pkg.id,
-              type: pkg.type,
+              type: pkg.provider,  // Map 'provider' to 'type' for this page's logic
               name: pkg.name,
-              price: parseInt(pkg.price),
-              sellPrice: parseInt(pkg.price_digipos),
-              days: pkg.days
+              price: pkg.price,
+              sellPrice: pkg.sellPrice,
+              days: pkg.validity ? parseInt(pkg.validity) : 30
             }));
 
             this.showToast('Berhasil', `${this.packages.length} paket dimuat`);
@@ -1301,19 +1297,21 @@
         },
 
         normalizeProviderForApi(provider) {
+          // Map detected provider names to API type field values
           const map = {
-            'TELKOMSEL': 'SIMPATI',
-            'SIMPATI': 'SIMPATI',
-            'AS': 'SIMPATI',
+            'TELKOMSEL': 'TELKOMSEL',
+            'SIMPATI': 'TELKOMSEL',
+            'AS': 'TELKOMSEL',
             'XL': 'XL',
-            'AXIS': 'XL',
+            'AXIS': 'AXIS',  // Note: AXIS has its own packages in the new API
             'INDOSAT': 'INDOSAT',
             'IM3': 'INDOSAT',
             'MENTARI': 'INDOSAT',
-            // Don't normalize TRI, SMARTFREN, or other providers
-            // Let them query their own package types from the API
+            'TRI': 'TRI',
+            'THREE': 'TRI',
+            'SMARTFREN': 'SMARTFREN',
           };
-          return map[provider?.toUpperCase()] || provider;
+          return map[provider?.toUpperCase()] || provider?.toUpperCase();
         },
 
         // Package Picker methods

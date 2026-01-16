@@ -17,6 +17,7 @@
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <link rel="stylesheet" href="../shared/styles.css">
   <script src="../shared/utils.js"></script>
+  <script src="../shared/api.js"></script>
   <script src="../shared/header.js"></script>
 
   <script>
@@ -86,7 +87,19 @@
                 </tr>
               </thead>
               <tbody>
-                <template x-for="pkg in filteredPackages" :key="pkg.id">
+                <!-- Loading State -->
+                <template x-if="loading">
+                  <tr>
+                    <td colspan="7" class="p-8 text-center text-muted-foreground">
+                      <div class="flex items-center justify-center gap-3">
+                        <div class="spinner"></div>
+                        <span>Memuat paket dari API...</span>
+                      </div>
+                    </td>
+                  </tr>
+                </template>
+                <!-- Package List -->
+                <template x-if="!loading" x-for="pkg in filteredPackages" :key="pkg.id">
                   <tr class="border-b transition-colors hover:bg-muted/50">
                     <td class="p-4 align-middle font-medium" x-text="pkg.provider"></td>
                     <td class="p-4 align-middle" x-text="pkg.name"></td>
@@ -104,7 +117,8 @@
                     </td>
                   </tr>
                 </template>
-                <template x-if="filteredPackages.length === 0">
+                <!-- Empty State -->
+                <template x-if="!loading && filteredPackages.length === 0">
                   <tr><td colspan="7" class="p-8 text-center text-muted-foreground">Tidak ada paket ditemukan</td></tr>
                 </template>
               </tbody>
@@ -183,9 +197,10 @@
   <script>
     function packagesPage() {
       return {
-        search: '', providerFilter: 'all', packages: [], providers: ['Telkomsel', 'Indosat', 'XL', 'Smartfren', 'Tri'],
+        search: '', providerFilter: 'all', packages: [], providers: [],
+        loading: true,
         showAddModal: false, editingPackage: null,
-        formData: { provider: 'Telkomsel', name: '', quota: '', costPrice: '', sellPrice: '' },
+        formData: { provider: '', name: '', quota: '', costPrice: '', sellPrice: '' },
         toastVisible: false, toastTitle: '', toastMessage: '',
         confirmModalOpen: false,
         confirmModalTitle: '',
@@ -241,15 +256,41 @@
           this.closeModal();
         },
 
-        init() {
+        async init() {
           if (!requireRole(['admin'], true)) return;
           renderHeader('packages');
-          this.packages = [
-            { id: 1, provider: 'Telkomsel', name: 'Umroh Gold 10GB', quota: '10GB', costPrice: 200000, sellPrice: 250000, active: true },
-            { id: 2, provider: 'Telkomsel', name: 'Umroh Silver 5GB', quota: '5GB', costPrice: 100000, sellPrice: 150000, active: true },
-            { id: 3, provider: 'Indosat', name: 'Umroh Premium 15GB', quota: '15GB', costPrice: 280000, sellPrice: 350000, active: true },
-            { id: 4, provider: 'XL', name: 'Umroh Basic 3GB', quota: '3GB', costPrice: 70000, sellPrice: 100000, active: false },
-          ];
+          await this.loadPackages();
+        },
+
+        async loadPackages() {
+          try {
+            this.loading = true;
+            const data = await fetchPackages();
+            
+            // Map API response to admin format
+            this.packages = data.map(pkg => ({
+              id: pkg.id,
+              provider: pkg.provider,
+              name: pkg.name,
+              quota: pkg.quota,
+              costPrice: pkg.price,
+              sellPrice: pkg.sellPrice,
+              active: true  // All packages from API are considered active
+            }));
+            
+            // Extract unique providers dynamically
+            this.providers = [...new Set(this.packages.map(p => p.provider))];
+            if (this.providers.length > 0) {
+              this.formData.provider = this.providers[0];
+            }
+            
+            this.showToast('Berhasil', `${this.packages.length} paket dimuat dari API`);
+          } catch (err) {
+            console.error('Failed to load packages:', err);
+            this.showToast('Error', 'Gagal memuat paket: ' + err.message);
+          } finally {
+            this.loading = false;
+          }
         }
       }
     }

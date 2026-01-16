@@ -17,6 +17,7 @@
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <link rel="stylesheet" href="../shared/styles.css">
   <script src="../shared/utils.js"></script>
+  <script src="../shared/api.js"></script>
   <script src="../shared/header.js"></script>
 
   <!-- Flatpickr CSS for date range picker -->
@@ -312,16 +313,12 @@
         agentData: {
           agentCode: "AGN-2024-001",
           referralLink: "",
-          totalCommission: 2450000,
-          pendingCommission: 350000,
+          totalCommission: 0,
+          pendingCommission: 0,
         },
-        referredAgents: [
-          { id: '1', msisdn: '081234567890', provider: 'Telkomsel', packageName: 'Umroh Gold 10GB', orderDate: new Date('2024-02-12'), commission: 450000 },
-          { id: '2', msisdn: '085234567891', provider: 'Indosat', packageName: 'Umroh Silver 5GB', orderDate: new Date('2024-02-08'), commission: 320000 },
-          { id: '3', msisdn: '087834567892', provider: 'Smartfren', packageName: 'Umroh Basic 3GB', orderDate: new Date('2024-02-01'), commission: 780000 },
-          { id: '4', msisdn: '082234567893', provider: 'XL', packageName: 'Umroh Premium 15GB', orderDate: new Date('2024-01-28'), commission: 150000 },
-          { id: '5', msisdn: '081299990001', provider: 'Telkomsel', packageName: 'Umroh Gold 10GB', orderDate: new Date('2024-01-10'), commission: 0 },
-        ],
+        packages: [], // Loaded from API
+        packagesLoading: true,
+        referredAgents: [], // Will be populated with real or demo data
         copied: null,
         searchQuery: '',
         dateFrom: '',
@@ -330,7 +327,7 @@
         toastTitle: '',
         toastMessage: '',
 
-        init() {
+        async init() {
           if (!requireRole(['agent'], true)) return;
           
           const savedUser = getUser();
@@ -342,6 +339,12 @@
 
           renderHeader('referrals');
           this.generateQRCode();
+
+          // Load packages from API to get real commission fees
+          await this.loadPackages();
+          
+          // Generate demo referral data using real packages
+          this.generateDemoReferralData();
 
           this.$nextTick(() => {
             flatpickr('#dateRangePicker', {
@@ -368,6 +371,61 @@
               }
             });
           });
+        },
+
+        async loadPackages() {
+          try {
+            this.packagesLoading = true;
+            this.packages = await fetchPackages();
+            console.log('Loaded packages for referral:', this.packages.length);
+          } catch (err) {
+            console.error('Failed to load packages:', err);
+            this.showToast('Error', 'Gagal memuat data paket');
+          } finally {
+            this.packagesLoading = false;
+          }
+        },
+
+        generateDemoReferralData() {
+          // Generate demo referral history using real packages from API
+          if (this.packages.length === 0) {
+            // Fallback if packages failed to load
+            this.referredAgents = [
+              { id: '1', msisdn: '081234567890', provider: 'TELKOMSEL', packageName: 'Internet 12 Hari 50GB', orderDate: new Date('2024-02-12'), commission: 9400 },
+              { id: '2', msisdn: '085234567891', provider: 'INDOSAT', packageName: 'Spesial 12 Hari', orderDate: new Date('2024-02-08'), commission: 8400 },
+            ];
+          } else {
+            // Create demo data using real packages
+            const demoMSISDNs = [
+              { msisdn: '081234567890', provider: 'TELKOMSEL' },
+              { msisdn: '085234567891', provider: 'INDOSAT' },
+              { msisdn: '087834567892', provider: 'XL' },
+              { msisdn: '082234567893', provider: 'TELKOMSEL' },
+              { msisdn: '081299990001', provider: 'INDOSAT' },
+            ];
+            
+            this.referredAgents = demoMSISDNs.map((demo, idx) => {
+              // Find a package matching the provider
+              const pkg = this.packages.find(p => p.provider === demo.provider) || this.packages[0];
+              const daysAgo = idx * 5 + Math.floor(Math.random() * 5);
+              const orderDate = new Date();
+              orderDate.setDate(orderDate.getDate() - daysAgo);
+              
+              return {
+                id: String(idx + 1),
+                msisdn: demo.msisdn,
+                provider: pkg.provider,
+                packageName: pkg.name,
+                packageId: pkg.id,
+                orderDate: orderDate,
+                commission: pkg.feeAffiliate || 0, // Use real affiliate fee from API
+              };
+            });
+          }
+          
+          // Calculate totals from demo data
+          this.agentData.totalCommission = this.referredAgents.reduce((sum, r) => sum + r.commission, 0);
+          this.agentData.pendingCommission = Math.round(this.agentData.totalCommission * 0.15); // 15% pending as demo
         },
 
         generateQRCode() {

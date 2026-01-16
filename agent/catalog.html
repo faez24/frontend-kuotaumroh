@@ -304,44 +304,26 @@
           await this.loadPackages();
         },
 
-        // Load packages from real API
+        // Load packages using shared API
         async loadPackages() {
           try {
             this.loading = true;
-            console.log('Fetching packages from API...');
+            console.log('Fetching packages using shared API...');
             
-            const response = await fetch('https://kuotaumroh.id/api/belidigi/package?ref_code=bulkumroh', {
-              method: 'GET',
-              headers: {
-                'Accept': 'application/json'
-              }
-            });
-            
-            console.log('Response status:', response.status);
-            
-            if (!response.ok) {
-              throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const data = await response.json();
+            const data = await fetchPackages();
             console.log('Received packages:', data.length);
             
-            // Map API response to our format
-            this.packages = data.map(pkg => {
-              const price = parseInt(pkg.price);
-              const sellPrice = parseInt(pkg.price_digipos);
-              
-              return {
-                id: pkg.id,
-                provider: pkg.type,
-                name: pkg.name,
-                quota: pkg.description.replace(/<br>/g, ' ').replace(/✅/g, '').trim(),
-                duration: `${pkg.days} Hari`,
-                price: price,
-                sellPrice: sellPrice,
-                profit: sellPrice - price
-              };
-            });
+            // Map API response to catalog format
+            this.packages = data.map(pkg => ({
+              id: pkg.id,
+              provider: pkg.provider,
+              name: pkg.name,
+              quota: pkg.description ? pkg.description.replace(/<br>/g, ' ').replace(/✅/g, '').trim() : pkg.quota,
+              duration: pkg.validity,
+              price: pkg.price,
+              sellPrice: pkg.sellPrice,
+              profit: pkg.sellPrice - pkg.price
+            }));
             
             console.log('Mapped packages:', this.packages.length);
           } catch (err) {

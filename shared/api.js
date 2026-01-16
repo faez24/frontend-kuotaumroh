@@ -121,7 +121,7 @@ async function logout() {
 async function fetchPackages(provider = null) {
   try {
     // Fetch from real API
-    const response = await fetch('https://kuotaumroh.id/api/belidigi/package?ref_code=bulkumroh');
+    const response = await fetch('https://kuotaumroh.id/api/umroh/package?ref_code=bulk_umroh');
     if (!response.ok) {
       throw new Error('Failed to fetch packages');
     }
@@ -129,24 +129,28 @@ async function fetchPackages(provider = null) {
     const data = await response.json();
     
     // Map API response to app format
-    const packages = data.map(pkg => {
-      // Extract quota from description (e.g., "5 GB", "10 GB")
-      const quotaMatch = pkg.description.match(/(\d+\s*GB)/i);
-      const quota = quotaMatch ? quotaMatch[1] : `${pkg.days} hari`;
-      
-      return {
-        id: pkg.id,
-        name: pkg.name,
-        provider: pkg.type, // e.g., "SIMPATI", "INDOSAT", "XL", "BYU"
-        price: parseInt(pkg.price), // Agent wholesale price
-        sellPrice: parseInt(pkg.price_digipos), // Public retail price
-        quota: quota,
-        validity: `${pkg.days} hari`,
-        description: pkg.description,
-        promo: pkg.promo || null,
-        image: pkg.image || null,
-      };
-    });
+    const packages = data
+      .filter(pkg => pkg.is_active === '1') // Only include active packages
+      .filter(pkg => pkg.price_bulk && pkg.price_customer) // Only include packages with prices
+      .map(pkg => {
+        return {
+          id: pkg.id,
+          name: pkg.name,
+          provider: pkg.type, // e.g., "TELKOMSEL", "INDOSAT", "XL", "AXIS"
+          subType: pkg.sub_type, // e.g., "INTERNET", "INTERNET + TELP/SMS"
+          price: parseInt(pkg.price_bulk), // Agent wholesale price
+          sellPrice: parseInt(pkg.price_customer), // Public retail price
+          feeAffiliate: pkg.fee_affiliate ? parseInt(pkg.fee_affiliate) : 0,
+          quota: pkg.quota || 'Unlimited',
+          validity: `${pkg.days} hari`,
+          days: parseInt(pkg.days),
+          telp: pkg.telp,
+          sms: pkg.sms,
+          bonus: pkg.bonus,
+          description: pkg.bonus ? `${pkg.quota} + ${pkg.bonus}` : pkg.quota,
+          promo: pkg.promo || null,
+        };
+      });
     
     // Filter by provider if specified
     if (provider) {
