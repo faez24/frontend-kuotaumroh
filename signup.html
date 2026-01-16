@@ -105,8 +105,15 @@
     <header class="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
       <div class="container mx-auto flex h-16 items-center justify-between px-4">
         <div class="flex items-center gap-2">
-          <img src="public/images/kabah.png" alt="Kuotaumroh.id" class="h-9 w-9 object-contain">
-          <span class="text-xl font-semibold">Kuotaumroh.id</span>
+          <!-- Desktop Logo -->
+          <div class="hidden md:flex items-center gap-2">
+            <img src="public/images/kabah.png" alt="Kuotaumroh.id" class="h-9 w-9 object-contain">
+            <span class="text-xl font-semibold">Kuotaumroh.id</span>
+          </div>
+          <!-- Mobile Banner Logo -->
+          <div class="md:hidden">
+            <img src="public/images/bannermobile.png" alt="Kuotaumroh.id" class="h-10 object-contain">
+          </div>
         </div>
         <a 
           href="login.html" 
@@ -118,7 +125,7 @@
     </header>
 
     <!-- Main Content -->
-    <main class="container mx-auto py-8 px-4 max-w-3xl animate-fade-in">
+    <main class="container mx-auto py-8 px-4 max-w-5xl animate-fade-in">
       
       <!-- Back Button -->
       <div class="mb-6">
@@ -134,7 +141,7 @@
       </div>
 
       <!-- Page Header -->
-      <div class="mb-8">
+      <div class="mb-8 text-center md:text-left">
         <h1 class="text-3xl font-bold tracking-tight mb-2">Daftar Agent</h1>
         <p class="text-muted-foreground">Bergabunglah dengan kami sebagai agent Kuotaumroh.id</p>
       </div>
@@ -142,280 +149,350 @@
       <!-- Registration Form -->
       <div class="rounded-lg border bg-white shadow-sm">
         <div class="p-6">
-          <form @submit.prevent="handleSubmit" class="space-y-6">
+          <form @submit.prevent="handleSubmit" class="space-y-8">
             
-            <!-- Contact Information Section -->
-            <div class="space-y-4">
-              <h2 class="text-lg font-semibold border-b pb-2">Informasi Kontak</h2>
-              
-              <!-- Email -->
-              <div class="space-y-2">
-                <label for="email" class="text-sm font-medium">Email</label>
-                <input
-                  id="email"
-                  type="email"
-                  x-model="formData.email"
-                  placeholder="Email"
-                  disabled
-                  class="flex h-10 w-full rounded-md border border-input bg-muted px-3 py-2 text-sm opacity-60 cursor-not-allowed"
-                >
-                <p class="text-xs text-muted-foreground">Email dari akun Google Anda</p>
-              </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Left Column: Contact & Basic Info -->
+                <div class="space-y-6">
+                    <!-- Contact Information Section -->
+                    <div class="space-y-4">
+                      <h2 class="text-lg font-semibold border-b pb-2 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                        Informasi Kontak
+                      </h2>
 
-              <!-- Phone Number -->
-              <div class="space-y-2">
-                <label for="phone" class="text-sm font-medium">No. HP (+62)</label>
-                <input
-                  id="phone"
-                  type="tel"
-                  x-model="formData.phone"
-                  placeholder="6281xxx"
-                  class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                >
-                <p class="text-xs text-muted-foreground">Format: 6281xxxxxxxxx (tanpa +62)</p>
-              </div>
-
-              <!-- Full Name -->
-              <div class="space-y-2">
-                <label for="full_name" class="text-sm font-medium">Nama Lengkap</label>
-                <input
-                  id="full_name"
-                  type="text"
-                  x-model="formData.full_name"
-                  class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                >
-              </div>
-            </div>
-
-            <!-- Agent Information Section -->
-            <div class="space-y-4">
-              <h2 class="text-lg font-semibold border-b pb-2">Informasi Agent</h2>
-              
-              <!-- User Type -->
-              <div class="space-y-2">
-                <label for="user_type" class="text-sm font-medium">Pilih Jenis Agent</label>
-                <select
-                  id="user_type"
-                  x-model="formData.user_type"
-                  class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                >
-                  <option value="TRAVEL">TOUR & TRAVEL</option>
-                </select>
-              </div>
-
-              <!-- Travel Name -->
-              <div class="space-y-2">
-                <label for="travel_name" class="text-sm font-medium">Nama Travel</label>
-                <input
-                  id="travel_name"
-                  type="text"
-                  x-model="formData.travel_name"
-                  class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                >
-              </div>
-
-              <!-- Travel Type -->
-              <div class="space-y-2">
-                <label for="travel_type" class="text-sm font-medium">Jenis Travel</label>
-                <select
-                  id="travel_type"
-                  x-model="formData.travel_type"
-                  class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                >
-                  <option value="">Pilih jenis travel</option>
-                  <option value="UMROH">UMROH</option>
-                  <option value="LEISURE">LEISURE</option>
-                  <option value="UMROH LEISURE">UMROH & LEISURE</option>
-                </select>
-              </div>
-
-              <!-- Travel Member -->
-              <div class="space-y-2">
-                <label for="travel_member" class="text-sm font-medium">Total Traveller per Bulan</label>
-                <input
-                  id="travel_member"
-                  type="number"
-                  x-model="formData.travel_member"
-                  min="0"
-                  class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                >
-              </div>
-            </div>
-
-            <!-- Address Information Section -->
-            <div class="space-y-4">
-              <h2 class="text-lg font-semibold border-b pb-2">Informasi Alamat</h2>
-              
-              <!-- Province (Searchable) -->
-              <div class="space-y-2" x-data="{ provinceDropdownOpen: false, provinceSearch: '' }" x-init="$watch('provinceDropdownOpen', value => { if (value) $nextTick(() => $refs.provinceSearchInput.focus()) })">
-                <label for="province" class="text-sm font-medium">Pilih Provinsi</label>
-                
-                <!-- Custom Searchable Dropdown -->
-                <div class="relative" @click.away="provinceDropdownOpen = false">
-                  <!-- Trigger Button -->
-                  <button
-                    type="button"
-                    @click="provinceDropdownOpen = !provinceDropdownOpen"
-                    class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                  >
-                    <span :class="!formData.province && 'text-muted-foreground'" x-text="formData.province || 'Pilih provinsi'"></span>
-                    <svg class="h-4 w-4 transition-transform" :class="provinceDropdownOpen && 'rotate-180'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
-
-                  <!-- Dropdown Panel -->
-                  <div
-                    x-show="provinceDropdownOpen"
-                    x-transition
-                    class="absolute z-50 mt-1 w-full rounded-md border border-input bg-white shadow-lg"
-                  >
-                    <!-- Search Input -->
-                    <div class="p-2 border-b">
-                      <input
-                        type="text"
-                        x-ref="provinceSearchInput"
-                        x-model="provinceSearch"
-                        @click.stop
-                        placeholder="Cari provinsi..."
-                        class="w-full rounded-md border border-input px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                      >
+                       <!-- Full Name -->
+                      <div class="space-y-2">
+                        <label for="full_name" class="text-sm font-medium">Nama PIC</label>
+                        <input
+                          id="full_name"
+                          type="text"
+                          x-model="formData.full_name"
+                          class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                        >
+                      </div>
+                      
+                      <!-- Email -->
+                      <div class="space-y-2">
+                        <label for="email" class="text-sm font-medium">Email</label>
+                        <input
+                          id="email"
+                          type="email"
+                          x-model="formData.email"
+                          placeholder="Email"
+                          disabled
+                          class="flex h-10 w-full rounded-md border border-input bg-muted px-3 py-2 text-sm opacity-60 cursor-not-allowed"
+                        >
+                      </div>
+        
+                      <!-- Phone Number -->
+                      <div class="space-y-2">
+                        <label for="phone" class="text-sm font-medium">No. HP (+62)</label>
+                        <div class="relative">
+                          <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <span class="text-sm text-muted-foreground">+62</span>
+                          </div>
+                          <input
+                            id="phone"
+                            type="tel"
+                            x-model="formData.phone"
+                            @input="formData.phone = formData.phone.replace(/[^0-9]/g, '')"
+                            placeholder="81xxx"
+                            class="flex h-10 w-full rounded-md border border-input bg-background pl-12 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                          >
+                        </div>
+                        <p class="text-xs text-muted-foreground">Format: 81xxxxxxxx (tanpa 0 atau +62)</p>
+                      </div>
                     </div>
+
+                    <!-- Agent Type Selection -->
+                    <div class="space-y-4">
+                        <h2 class="text-lg font-semibold border-b pb-2 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                            Jenis Kemitraan
+                        </h2>
+                        
+                        <!-- User Type -->
+                        <div class="space-y-2" x-data="{ agentTypeOpen: false }">
+                          <label class="text-sm font-medium">Pilih Jenis Agent</label>
+                          <div class="relative" @click.away="agentTypeOpen = false">
+                            <button
+                              type="button"
+                              @click="agentTypeOpen = !agentTypeOpen"
+                              class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                            >
+                              <span x-text="formData.user_type === 'AGENT' ? 'Agent' : (formData.user_type === 'TRAVEL_AGENT' ? 'Travel Agent' : 'Freelance')"></span>
+                              <svg class="h-4 w-4 transition-transform" :class="agentTypeOpen && 'rotate-180'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                              </svg>
+                            </button>
+                            <div
+                              x-show="agentTypeOpen"
+                              x-transition
+                              class="absolute z-50 mt-1 w-full rounded-md border border-input bg-white shadow-lg"
+                              style="display: none;"
+                            >
+                              <div class="py-1">
+                                <button type="button" @click="formData.user_type = 'AGENT'; agentTypeOpen = false" class="w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors" :class="formData.user_type === 'AGENT' && 'bg-primary/10 text-primary'">Agent</button>
+                                <button type="button" @click="formData.user_type = 'TRAVEL_AGENT'; agentTypeOpen = false" class="w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors" :class="formData.user_type === 'TRAVEL_AGENT' && 'bg-primary/10 text-primary'">Travel Agent</button>
+                                <button type="button" @click="formData.user_type = 'FREELANCE'; agentTypeOpen = false" class="w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors" :class="formData.user_type === 'FREELANCE' && 'bg-primary/10 text-primary'">Freelance</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Agent Details (Conditional) -->
+                <div class="space-y-6">
+                    <!-- Agent Information Section -->
+                    <div class="space-y-4">
+                      <h2 class="text-lg font-semibold border-b pb-2 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                        Detail Travel
+                      </h2>
+        
+                      <!-- Travel Name -->
+                      <div class="space-y-2">
+                        <label for="travel_name" class="text-sm font-medium">Nama Travel</label>
+                        <input
+                          id="travel_name"
+                          type="text"
+                          x-model="formData.travel_name"
+                          class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                        >
+                      </div>
+        
+                      <!-- Travel Type -->
+                      <div class="space-y-2" x-data="{ travelTypeOpen: false }">
+                        <label class="text-sm font-medium">Jenis Travel</label>
+                        <div class="relative" @click.away="travelTypeOpen = false">
+                          <button
+                            type="button"
+                            @click="travelTypeOpen = !travelTypeOpen"
+                            class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                          >
+                            <span :class="!formData.travel_type && 'text-muted-foreground'" x-text="formData.travel_type || 'Pilih jenis travel'"></span>
+                            <svg class="h-4 w-4 transition-transform" :class="travelTypeOpen && 'rotate-180'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </button>
+                          <div
+                            x-show="travelTypeOpen"
+                            x-transition
+                            class="absolute z-50 mt-1 w-full rounded-md border border-input bg-white shadow-lg"
+                            style="display: none;"
+                          >
+                            <div class="py-1">
+                              <button type="button" @click="formData.travel_type = 'UMROH'; travelTypeOpen = false" class="w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors" :class="formData.travel_type === 'UMROH' && 'bg-primary/10 text-primary'">UMROH</button>
+                              <button type="button" @click="formData.travel_type = 'LEISURE'; travelTypeOpen = false" class="w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors" :class="formData.travel_type === 'LEISURE' && 'bg-primary/10 text-primary'">LEISURE</button>
+                              <button type="button" @click="formData.travel_type = 'UMROH LEISURE'; travelTypeOpen = false" class="w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors" :class="formData.travel_type === 'UMROH LEISURE' && 'bg-primary/10 text-primary'">UMROH & LEISURE</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+        
+                      <!-- Travel Member -->
+                      <div class="space-y-2">
+                        <label for="travel_member" class="text-sm font-medium">Total Traveller per Bulan</label>
+                        <input
+                          id="travel_member"
+                          type="number"
+                          x-model="formData.travel_member"
+                          min="0"
+                          class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                        >
+                      </div>
+
+                       <!-- Logo Upload Section -->
+                        <div class="space-y-2">
+                            <label class="text-sm font-medium">Logo Travel (Opsional)</label>
+                            <div class="flex items-center gap-4">
+                            <input
+                                type="file"
+                                @change="handleFileUpload($event)"
+                                accept="image/png,image/jpeg,image/jpg,image/gif"
+                                class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium file:cursor-pointer hover:file:text-primary transition-colors cursor-pointer"
+                            >
+                            </div>
+                            <p class="text-xs text-muted-foreground">Format: PNG, JPG, GIF. Maksimal 2MB</p>
+                            
+                            <!-- Logo Preview -->
+                            <div x-show="logoPreview" class="mt-2">
+                            <img :src="logoPreview" alt="Logo preview" class="h-24 w-24 object-contain border rounded-md">
+                            </div>
+                        </div>
+
+                        <!-- Kerjasama Section -->
+                        <div class="space-y-2">
+                            <label class="text-sm font-medium">Surat PPIU</label>
+                            <div class="flex items-center gap-4">
+                                <input
+                                type="file"
+                                @change="handleCooperationLetterUpload($event)"
+                                accept="application/pdf,image/png,image/jpeg,image/jpg"
+                                class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium file:cursor-pointer hover:file:text-primary transition-colors cursor-pointer"
+                                >
+                            </div>
+                            <p class="text-xs text-muted-foreground">Format: PDF, PNG, JPG. Maksimal 5MB</p>
+                            
+                            <!-- File Preview -->
+                            <div x-show="cooperationLetterFile" class="mt-2 p-3 border rounded-md bg-muted/30">
+                                <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <svg class="h-6 w-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    <div class="overflow-hidden">
+                                    <p class="text-sm font-medium truncate" x-text="cooperationLetterFile?.name"></p>
+                                    <p class="text-xs text-muted-foreground" x-text="formatFileSize(cooperationLetterFile?.size)"></p>
+                                    </div>
+                                </div>
+                                <button
+                                    type="button"
+                                    @click="removeCooperationLetter()"
+                                    class="text-destructive hover:text-destructive/80 transition-colors"
+                                >
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Address Information Section (Full Width) -->
+            <div class="space-y-4 pt-4 border-t">
+              <h2 class="text-lg font-semibold border-b pb-2 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Informasi Alamat
+              </h2>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <!-- Province (Searchable) -->
+                  <div class="space-y-2" x-data="{ provinceDropdownOpen: false, provinceSearch: '' }" x-init="$watch('provinceDropdownOpen', value => { if (value) $nextTick(() => $refs.provinceSearchInput.focus()) })">
+                    <label for="province" class="text-sm font-medium">Pilih Provinsi</label>
                     
-                    <!-- Options List -->
-                    <div class="max-h-60 overflow-y-auto">
-                      <template x-for="province in provinces.filter(p => p.toLowerCase().includes(provinceSearch.toLowerCase()))" :key="province">
-                        <button
-                          type="button"
-                          @click="formData.province = province; handleProvinceChange(); provinceDropdownOpen = false; provinceSearch = ''"
-                          class="w-full px-3 py-2 text-left text-sm hover:bg-muted transition-colors"
-                          :class="formData.province === province && 'bg-muted'"
-                          x-text="province"
-                        ></button>
-                      </template>
-                      <!-- No results -->
-                      <div x-show="provinces.filter(p => p.toLowerCase().includes(provinceSearch.toLowerCase())).length === 0" class="px-3 py-2 text-sm text-muted-foreground">
-                        Tidak ada provinsi ditemukan
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- City (Searchable) -->
-              <div class="space-y-2" x-data="{ cityDropdownOpen: false, citySearch: '' }" x-init="$watch('cityDropdownOpen', value => { if (value) $nextTick(() => $refs.citySearchInput.focus()) })">
-                <label for="city" class="text-sm font-medium">Pilih Kota/Kab</label>
-                
-                <!-- Custom Searchable Dropdown -->
-                <div class="relative" @click.away="cityDropdownOpen = false">
-                  <!-- Trigger Button -->
-                  <button
-                    type="button"
-                    @click="cityDropdownOpen = !cityDropdownOpen"
-                    class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                  >
-                    <span :class="!formData.city && 'text-muted-foreground'" x-text="formData.city || 'Pilih kota/kabupaten'"></span>
-                    <svg class="h-4 w-4 transition-transform" :class="cityDropdownOpen && 'rotate-180'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
-
-                  <!-- Dropdown Panel -->
-                  <div
-                    x-show="cityDropdownOpen"
-                    x-transition
-                    class="absolute z-50 mt-1 w-full rounded-md border border-input bg-white shadow-lg"
-                  >
-                    <!-- Search Input -->
-                    <div class="p-2 border-b">
-                      <input
-                        type="text"
-                        x-ref="citySearchInput"
-                        x-model="citySearch"
-                        @click.stop
-                        placeholder="Cari kota/kabupaten..."
-                        class="flex h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                    <!-- Custom Searchable Dropdown -->
+                    <div class="relative" @click.away="provinceDropdownOpen = false">
+                      <!-- Trigger Button -->
+                      <button
+                        type="button"
+                        @click="provinceDropdownOpen = !provinceDropdownOpen"
+                        class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                       >
-                    </div>
-
-                    <!-- Options List -->
-                    <div class="max-h-60 overflow-y-auto p-1">
-                      <template x-for="city in filteredCities(citySearch)" :key="city">
-                        <button
-                          type="button"
-                          @click="formData.city = city; handleCityChange(); cityDropdownOpen = false; citySearch = ''"
-                          :class="formData.city === city && 'bg-primary/10 text-primary'"
-                          class="w-full text-left px-3 py-2 text-sm rounded hover:bg-accent transition-colors"
-                          x-text="city"
-                        ></button>
-                      </template>
-                      
-                      <!-- No Results -->
-                      <div x-show="filteredCities(citySearch).length === 0" class="px-3 py-6 text-center text-sm text-muted-foreground">
-                        Tidak ada hasil ditemukan
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Subdistrict (Searchable) -->
-              <div class="space-y-2" x-data="{ subdistrictDropdownOpen: false, subdistrictSearch: '' }" x-init="$watch('subdistrictDropdownOpen', value => { if (value) $nextTick(() => $refs.subdistrictSearchInput.focus()) })">
-                <label for="subdistrict" class="text-sm font-medium">Pilih Kecamatan</label>
-                
-                <!-- Custom Searchable Dropdown -->
-                <div class="relative" @click.away="subdistrictDropdownOpen = false">
-                  <!-- Trigger Button -->
-                  <button
-                    type="button"
-                    @click="subdistrictDropdownOpen = !subdistrictDropdownOpen"
-                    :disabled="!formData.city"
-                    class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <span :class="!formData.subdistrict && 'text-muted-foreground'" x-text="formData.subdistrict || 'Pilih kecamatan'"></span>
-                    <svg class="h-4 w-4 transition-transform" :class="subdistrictDropdownOpen && 'rotate-180'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
-
-                  <!-- Dropdown Panel -->
-                  <div
-                    x-show="subdistrictDropdownOpen"
-                    x-transition
-                    class="absolute z-50 mt-1 w-full rounded-md border border-input bg-white shadow-lg"
-                  >
-                    <!-- Search Input -->
-                    <div class="p-2 border-b">
-                      <input
-                        type="text"
-                        x-ref="subdistrictSearchInput"
-                        x-model="subdistrictSearch"
-                        @click.stop
-                        placeholder="Cari kecamatan..."
-                        class="flex h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                        <span :class="!formData.province && 'text-muted-foreground'" x-text="formData.province || 'Pilih provinsi'"></span>
+                        <svg class="h-4 w-4 transition-transform" :class="provinceDropdownOpen && 'rotate-180'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+    
+                      <!-- Dropdown Panel -->
+                      <div
+                        x-show="provinceDropdownOpen"
+                        x-transition
+                        class="absolute z-50 mt-1 w-full rounded-md border border-input bg-white shadow-lg"
                       >
-                    </div>
-
-                    <!-- Options List -->
-                    <div class="max-h-60 overflow-y-auto p-1">
-                      <template x-for="subdistrict in filteredSubdistricts(subdistrictSearch)" :key="subdistrict">
-                        <button
-                          type="button"
-                          @click="formData.subdistrict = subdistrict; subdistrictDropdownOpen = false; subdistrictSearch = ''"
-                          :class="formData.subdistrict === subdistrict && 'bg-primary/10 text-primary'"
-                          class="w-full text-left px-3 py-2 text-sm rounded hover:bg-accent transition-colors"
-                          x-text="subdistrict"
-                        ></button>
-                      </template>
-                      
-                      <!-- No Results -->
-                      <div x-show="filteredSubdistricts(subdistrictSearch).length === 0" class="px-3 py-6 text-center text-sm text-muted-foreground">
-                        Tidak ada hasil ditemukan
+                        <!-- Search Input -->
+                        <div class="p-2 border-b">
+                          <input
+                            type="text"
+                            x-ref="provinceSearchInput"
+                            x-model="provinceSearch"
+                            @click.stop
+                            placeholder="Cari provinsi..."
+                            class="w-full rounded-md border border-input px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                          >
+                        </div>
+                        
+                        <!-- Options List -->
+                        <div class="max-h-60 overflow-y-auto">
+                          <template x-for="province in provinces.filter(p => p.toLowerCase().includes(provinceSearch.toLowerCase()))" :key="province">
+                            <button
+                              type="button"
+                              @click="formData.province = province; handleProvinceChange(); provinceDropdownOpen = false; provinceSearch = ''"
+                              class="w-full px-3 py-2 text-left text-sm hover:bg-muted transition-colors"
+                              :class="formData.province === province && 'bg-muted'"
+                              x-text="province"
+                            ></button>
+                          </template>
+                          <!-- No results -->
+                          <div x-show="provinces.filter(p => p.toLowerCase().includes(provinceSearch.toLowerCase())).length === 0" class="px-3 py-2 text-sm text-muted-foreground">
+                            Tidak ada provinsi ditemukan
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-                <p class="text-xs text-muted-foreground" x-show="!formData.city">Pilih kota terlebih dahulu</p>
+    
+                  <!-- City (Searchable) -->
+                  <div class="space-y-2" x-data="{ cityDropdownOpen: false, citySearch: '' }" x-init="$watch('cityDropdownOpen', value => { if (value) $nextTick(() => $refs.citySearchInput.focus()) })">
+                    <label for="city" class="text-sm font-medium">Pilih Kota/Kab</label>
+                    
+                    <!-- Custom Searchable Dropdown -->
+                    <div class="relative" @click.away="cityDropdownOpen = false">
+                      <!-- Trigger Button -->
+                      <button
+                        type="button"
+                        @click="cityDropdownOpen = !cityDropdownOpen"
+                        class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                      >
+                        <span :class="!formData.city && 'text-muted-foreground'" x-text="formData.city || 'Pilih kota/kabupaten'"></span>
+                        <svg class="h-4 w-4 transition-transform" :class="cityDropdownOpen && 'rotate-180'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+    
+                      <!-- Dropdown Panel -->
+                      <div
+                        x-show="cityDropdownOpen"
+                        x-transition
+                        class="absolute z-50 mt-1 w-full rounded-md border border-input bg-white shadow-lg"
+                      >
+                        <!-- Search Input -->
+                        <div class="p-2 border-b">
+                          <input
+                            type="text"
+                            x-ref="citySearchInput"
+                            x-model="citySearch"
+                            @click.stop
+                            placeholder="Cari kota/kabupaten..."
+                            class="flex h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                          >
+                        </div>
+    
+                        <!-- Options List -->
+                        <div class="max-h-60 overflow-y-auto p-1">
+                          <template x-for="city in filteredCities(citySearch)" :key="city">
+                            <button
+                              type="button"
+                              @click="formData.city = city; handleCityChange(); cityDropdownOpen = false; citySearch = ''"
+                              :class="formData.city === city && 'bg-primary/10 text-primary'"
+                              class="w-full text-left px-3 py-2 text-sm rounded hover:bg-accent transition-colors"
+                              x-text="city"
+                            ></button>
+                          </template>
+                          
+                          <!-- No Results -->
+                          <div x-show="filteredCities(citySearch).length === 0" class="px-3 py-6 text-center text-sm text-muted-foreground">
+                            Tidak ada hasil ditemukan
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
               </div>
 
               <!-- Full Address -->
@@ -434,33 +511,9 @@
                   id="address"
                   x-model="formData.address"
                   @blur="geocodeAddress()"
-                  rows="3"
+                  rows="5"
                   class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                 ></textarea>
-              </div>
-
-              <!-- RT & RW -->
-              <div class="grid grid-cols-2 gap-4">
-                <div class="space-y-2">
-                  <label for="rt" class="text-sm font-medium">RT</label>
-                  <input
-                    id="rt"
-                    type="number"
-                    x-model="formData.rt"
-                    min="0"
-                    class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                  >
-                </div>
-                <div class="space-y-2">
-                  <label for="rw" class="text-sm font-medium">RW</label>
-                  <input
-                    id="rw"
-                    type="number"
-                    x-model="formData.rw"
-                    min="0"
-                    class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                  >
-                </div>
               </div>
 
               <!-- Map Section -->
@@ -516,7 +569,7 @@
                 <!-- Map Container -->
                 <div 
                   id="map" 
-                  class="w-full h-96 rounded-md border border-input overflow-hidden"
+                  class="w-full h-80 rounded-md border border-input overflow-hidden"
                   x-init="$nextTick(() => { if (formData.city && !mapInitialized) initializeMap(); })"
                 ></div>
                 
@@ -539,85 +592,17 @@
               </div>
             </div>
 
-            <!-- Logo Upload Section -->
-            <div class="space-y-4">
-              <h2 class="text-lg font-semibold border-b pb-2">Logo Travel (Opsional)</h2>
-              
-              <div class="space-y-2">
-                <label class="text-sm font-medium">Upload Logo</label>
-                <div class="flex items-center gap-4">
-                  <input
-                    type="file"
-                    @change="handleFileUpload($event)"
-                    accept="image/png,image/jpeg,image/jpg,image/gif"
-                    class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium"
-                  >
-                </div>
-                <p class="text-xs text-muted-foreground">Format: PNG, JPG, GIF. Maksimal 2MB</p>
-                
-                <!-- Logo Preview -->
-                <div x-show="logoPreview" class="mt-4">
-                  <p class="text-sm font-medium mb-2">Preview:</p>
-                  <img :src="logoPreview" alt="Logo preview" class="h-24 w-24 object-contain border rounded-md">
-                </div>
-              </div>
-            </div>
-
-            <!-- Kerjasama Section -->
-            <div class="space-y-4">
-              <h2 class="text-lg font-semibold border-b pb-2">Kerjasama</h2>
-              
-              <div class="space-y-2">
-                <label class="text-sm font-medium">Surat Kerjasama</label>
-                <div class="flex items-center gap-4">
-                  <input
-                    type="file"
-                    @change="handleCooperationLetterUpload($event)"
-                    accept="application/pdf,image/png,image/jpeg,image/jpg"
-                    class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium"
-                  >
-                </div>
-                <p class="text-xs text-muted-foreground">Format: PDF, PNG, JPG. Maksimal 5MB</p>
-                
-                <!-- File Preview -->
-                <div x-show="cooperationLetterFile" class="mt-4 p-4 border rounded-md bg-muted/30">
-                  <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                      <!-- File Icon -->
-                      <svg class="h-8 w-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <div>
-                        <p class="text-sm font-medium" x-text="cooperationLetterFile?.name"></p>
-                        <p class="text-xs text-muted-foreground" x-text="formatFileSize(cooperationLetterFile?.size)"></p>
-                      </div>
-                    </div>
-                    <!-- Remove Button -->
-                    <button
-                      type="button"
-                      @click="removeCooperationLetter()"
-                      class="text-destructive hover:text-destructive/80 transition-colors"
-                    >
-                      <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
             <!-- Submit Button -->
             <div class="flex items-center gap-4 pt-4">
               <button
                 type="submit"
                 :disabled="isSubmitting"
                 :class="isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-primary/90'"
-                class="flex-1 inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground h-11 px-8 font-medium transition-colors"
+                class="flex-1 inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground h-12 px-8 text-lg font-medium transition-colors shadow-sm"
               >
                 <span x-show="!isSubmitting">Daftar Sekarang</span>
                 <span x-show="isSubmitting" class="flex items-center gap-2">
-                  <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                  <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
@@ -665,16 +650,13 @@
           email: '',
           phone: '',
           full_name: '',
-          user_type: 'TRAVEL',
+          user_type: 'AGENT',
           travel_name: '',
           travel_type: '',
           travel_member: '',
           province: '',
           city: '',
-          subdistrict: '',
           address: '',
-          rt: '',
-          rw: '',
           latitude: null,
           longitude: null,
         },
@@ -697,7 +679,6 @@
         provinceCodes: new Map(),
         cities: [],
         cityCodes: new Map(),
-        subdistricts: [],
 
         // Map state
         mapInstance: null,
@@ -720,10 +701,11 @@
             this.formData.email = email;
           } else {
             // If no email in URL, redirect to login for Google auth first
-            this.showToast('Autentikasi Diperlukan', 'Silakan login dengan Google terlebih dahulu');
-            setTimeout(() => {
-              window.location.href = 'login.html';
-            }, 2000);
+            // Commented out for development testing
+            // this.showToast('Autentikasi Diperlukan', 'Silakan login dengan Google terlebih dahulu');
+            // setTimeout(() => {
+            //   window.location.href = 'login.html';
+            // }, 2000);
           }
           
           // Load provinces from API
@@ -788,34 +770,6 @@
           }
         },
 
-        async loadSubdistricts(cityCode) {
-          try {
-            // Try to load from local cache first, then fall back to API
-            let response;
-            const localPath = `public/wilayah/districts-${cityCode}.json`;
-            
-            try {
-              // Try local cache first
-              response = await fetch(localPath);
-              if (!response.ok) throw new Error('Not in cache');
-            } catch {
-              // If not in cache, try API directly
-              response = await fetch(`https://wilayah.id/api/districts/${cityCode}.json`);
-            }
-            
-            const data = await response.json();
-            
-            if (data && data.data) {
-              this.subdistricts = data.data.map(d => d.name).sort();
-              console.log('Loaded', this.subdistricts.length, 'subdistricts for city', cityCode);
-            }
-          } catch (error) {
-            console.error('Error loading subdistricts:', error);
-            this.showToast('Error', 'Gagal memuat data kecamatan. Silakan coba lagi.');
-            this.subdistricts = [];
-          }
-        },
-
         filteredCities(search) {
           if (!search) return this.cities;
           const searchLower = search.toLowerCase();
@@ -824,21 +778,10 @@
           );
         },
 
-        filteredSubdistricts(search) {
-          if (!this.subdistricts.length) return [];
-          if (!search) return this.subdistricts;
-          const searchLower = search.toLowerCase();
-          return this.subdistricts.filter(subdistrict => 
-            subdistrict.toLowerCase().includes(searchLower)
-          );
-        },
-
         async handleProvinceChange() {
-          // Reset city and subdistrict when province changes
+          // Reset city when province changes
           this.formData.city = '';
-          this.formData.subdistrict = '';
           this.cities = [];
-          this.subdistricts = [];
           
           const provinceCode = this.provinceCodes.get(this.formData.province);
           if (provinceCode) {
@@ -848,17 +791,6 @@
         },
 
         async handleCityChange() {
-          // Reset subdistrict when city changes
-          this.formData.subdistrict = '';
-          this.subdistricts = [];
-          
-          // Load subdistricts for selected city
-          const cityCode = this.cityCodes.get(this.formData.city);
-          if (cityCode) {
-            await this.loadSubdistricts(cityCode);
-            console.log('City changed to:', this.formData.city, `(${cityCode})`);
-          }
-          
           // Initialize map if not already initialized
           this.$nextTick(async () => {
             if (!this.mapInitialized) {
@@ -1060,7 +992,6 @@
           // Construct query with full hierarchy for better accuracy
           let queryItems = [this.formData.address];
           
-          if (this.formData.subdistrict) queryItems.push(this.formData.subdistrict);
           if (this.formData.city) queryItems.push(this.formData.city);
           if (this.formData.province) queryItems.push(this.formData.province);
           
