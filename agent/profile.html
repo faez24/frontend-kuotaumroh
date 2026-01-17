@@ -284,6 +284,7 @@
   <script>
     function profileApp() {
       return {
+        agentId: null,
         // User data
         user: {
           name: '',
@@ -355,47 +356,65 @@
 
         // Lifecycle
         init() {
-          // Mock data for demonstration
-          const mockUser = {
-            name: 'Ahmad Zulfikar',
-            email: 'ahmad.zulfikar@kuotaumroh.id',
-            phone: '812345678901',
-            full_name: 'Ahmad Zulfikar Rahman',
-            user_type: 'Agent Travel Umroh',
-            travel_name: 'Cahaya Mekkah Travel',
-            travel_type: 'Travel Umroh & Haji',
-            travel_member: '150-200 orang',
-            province: 'DKI Jakarta',
-            city: 'Jakarta Selatan',
-            subdistrict: 'Kebayoran Baru',
-            rt: '005',
-            rw: '012',
-            address: 'Jl. Senopati Raya No. 45, Senayan',
-            latitude: '-6.2297',
-            longitude: '106.8117',
-            agentCode: 'AGT-JKT-2024-001'
-          };
+          if (!requireRole(['agent'], true)) return;
+          syncAgentIdFromUrl();
+          renderHeader('profile');
 
-          // Always start with mock data as base, then merge with saved user if available
           const savedUser = getUser();
-          this.user = {
-            ...mockUser,
-            ...(savedUser || {}),
-            initials: this.getInitials((savedUser && savedUser.name) ? savedUser.name : mockUser.name)
-          };
+          this.agentId = savedUser?.id || null;
 
-          if (!isLoggedIn()) {
-            window.location.href = 'login.html';
+          (async () => {
+            await this.loadAgent();
+            this.$nextTick(() => {
+              if (this.user.latitude && this.user.longitude) {
+                this.initMap();
+              }
+            });
+          })();
+        },
+
+        async loadAgent() {
+          if (!this.agentId) return;
+          try {
+            const res = await fetch(`http://127.0.0.1:8000/api/agents/${this.agentId}`, { headers: { 'Accept': 'application/json' } });
+            if (!res.ok) throw new Error('Gagal memuat data agent');
+            const json = await res.json();
+            const agent = json?.data || json;
+
+            const phoneRaw = String(agent?.no_hp || '');
+            const phone = phoneRaw.startsWith('62') ? phoneRaw.substring(2) : (phoneRaw.startsWith('0') ? phoneRaw.substring(1) : phoneRaw);
+
+            this.user = {
+              name: agent?.nama_pic || '',
+              email: agent?.email || '',
+              phone,
+              full_name: agent?.nama_pic || '',
+              user_type: agent?.kategori_agent || '',
+              travel_name: agent?.nama_travel || '',
+              travel_type: agent?.jenis_travel || '',
+              travel_member: agent?.total_traveller ?? '',
+              province: agent?.provinsi || '',
+              city: agent?.kabupaten_kota || '',
+              address: agent?.alamat_lengkap || '',
+              latitude: agent?.lat || '',
+              longitude: agent?.long || '',
+              agentCode: agent?.agent_code || '',
+              initials: this.getInitials(agent?.nama_pic || '')
+            };
+
+            setUser({
+              ...(getUser() || {}),
+              id: agent?.id || this.agentId,
+              role: 'agent',
+              name: this.user.name,
+              email: this.user.email,
+              agentCode: this.user.agentCode
+            });
+
+            renderHeader('profile');
+          } catch (e) {
+            console.error(e);
           }
-
-          // Note: Header is now auto-rendered via data-auto-render
-          
-          // Initialize map after Alpine renders the DOM
-          this.$nextTick(() => {
-            if (this.user.latitude && this.user.longitude) {
-               this.initMap();
-            }
-          });
         }
       }
     }
