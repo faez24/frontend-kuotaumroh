@@ -554,6 +554,8 @@
         stats: { total: 0, activeThisMonth: 0, pointsEarned: 0 },
         toastVisible: false, toastTitle: '', toastMessage: '',
 
+        portalType: 'freelance',
+
         freelanceId: null,
         addModalOpen: false,
         isSubmitting: false,
@@ -926,7 +928,27 @@
           this.addFormData.longitude = lng;
         },
 
+        getPortalType() {
+          try {
+            const params = new URLSearchParams(window.location.search);
+            const hinted = params.get('type');
+            if (hinted === 'affiliate' || hinted === 'freelance') return hinted;
+          } catch {}
+          const role = getUserRole();
+          if (role === 'affiliate' || role === 'freelance') return role;
+          return 'freelance';
+        },
+
+        getCollectionName() {
+          return this.portalType === 'affiliate' ? 'affiliates' : 'freelances';
+        },
+
+        getDownlineForeignKey() {
+          return this.portalType === 'affiliate' ? 'affiliate_id' : 'freelance_id';
+        },
+
         async resolveFreelanceId() {
+          this.portalType = this.getPortalType();
           const savedUser = getUser();
           const params = new URLSearchParams(window.location.search);
           const idFromUrl = parseInt(params.get('id'), 10);
@@ -934,7 +956,7 @@
             setUser({
               ...savedUser,
               id: idFromUrl,
-              role: 'freelance'
+              role: this.portalType
             });
             return idFromUrl;
           }
@@ -942,7 +964,7 @@
           if (savedUser?.id) return savedUser.id;
           if (!savedUser?.email) return null;
 
-          const listRes = await fetch('http://127.0.0.1:8000/api/freelances', { headers: { 'Accept': 'application/json' } });
+          const listRes = await fetch(`http://127.0.0.1:8000/api/${this.getCollectionName()}`, { headers: { 'Accept': 'application/json' } });
           if (!listRes.ok) return null;
           const listJson = await listRes.json();
           const list = Array.isArray(listJson) ? listJson : (listJson.data || []);
@@ -951,10 +973,31 @@
         },
 
         async loadAgents() {
-          const res = await fetch(`http://127.0.0.1:8000/api/freelances/${this.freelanceId}/agents`, { headers: { 'Accept': 'application/json' } });
-          if (!res.ok) throw new Error('Gagal memuat daftar agent');
-          const json = await res.json();
-          const data = Array.isArray(json) ? json : (json.data || []);
+          const collection = this.getCollectionName();
+          const nestedUrl = `http://127.0.0.1:8000/api/${collection}/${this.freelanceId}/agents`;
+          let data = [];
+          const res = await fetch(nestedUrl, { headers: { 'Accept': 'application/json' } });
+          if (res.ok) {
+            const json = await res.json().catch(() => ({}));
+            data = Array.isArray(json) ? json : (json.data || []);
+          } else {
+            const partnerRes = await fetch(`http://127.0.0.1:8000/api/${collection}/${this.freelanceId}`, { headers: { 'Accept': 'application/json' } });
+            if (partnerRes.ok) {
+              const partnerJson = await partnerRes.json().catch(() => ({}));
+              const partner = partnerJson.data || null;
+              if (partner && Array.isArray(partner.agents)) data = partner.agents;
+            }
+          }
+
+          if (!Array.isArray(data) || !data.length) {
+            const allRes = await fetch('http://127.0.0.1:8000/api/agents', { headers: { 'Accept': 'application/json' } });
+            if (!allRes.ok) throw new Error('Gagal memuat daftar agent');
+            const allJson = await allRes.json().catch(() => ({}));
+            const all = Array.isArray(allJson) ? allJson : (allJson.data || []);
+            const key = this.getDownlineForeignKey();
+            data = all.filter(a => String(a?.[key] || '') === String(this.freelanceId));
+          }
+
           const now = new Date();
 
           this.agents = data.map(a => ({
@@ -1015,7 +1058,7 @@
               const fd = new FormData();
               fd.append('email', this.addFormData.email);
               fd.append('kategori_agent', 'Host');
-              fd.append('freelance_id', String(this.freelanceId));
+              fd.append(this.getDownlineForeignKey(), String(this.freelanceId));
               fd.append('nama_pic', this.addFormData.full_name);
 
               let phone = String(this.addFormData.phone);
@@ -1041,7 +1084,8 @@
               return fd;
             };
 
-            let res = await fetch(`http://127.0.0.1:8000/api/freelances/${this.freelanceId}/agents`, {
+            const collection = this.getCollectionName();
+            let res = await fetch(`http://127.0.0.1:8000/api/${collection}/${this.freelanceId}/agents`, {
               method: 'POST',
               body: buildFormData()
             });
@@ -1163,7 +1207,8 @@
         },
 
         init() {
-          if (!requireRole(['freelance'], true)) return;
+          this.portalType = this.getPortalType();
+          if (!requireRole(['freelance', 'affiliate'], true)) return;
           renderHeader('downlines');
           
           // Initialize Flatpickr for date range picker
