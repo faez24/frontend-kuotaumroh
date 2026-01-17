@@ -1160,15 +1160,12 @@
 
         // Lifecycle
         async init() {
+          if (!requireRole(['agent'], true)) return;
+          syncAgentIdFromUrl();
           const savedUser = getUser();
           if (savedUser && savedUser.name) {
             this.user = { ...savedUser, initials: this.getInitials(savedUser.name) };
           }
-          if (!isLoggedIn()) {
-            window.location.href = 'login.html';
-          }
-
-          // Render shared header component
           renderHeader('order');
 
           await this.loadPackages();

@@ -197,7 +197,7 @@
               </div>
 
               <!-- Action Button -->
-              <a href="withdraw.html" class="mt-6 inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground hover:bg-primary/90 w-full h-11 text-base font-medium transition-colors">
+              <a :href="withId('withdraw.html')" class="mt-6 inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground hover:bg-primary/90 w-full h-11 text-base font-medium transition-colors">
                 Tarik Saldo
               </a>
             </div>
@@ -252,6 +252,7 @@
   <script>
     function dashboardApp() {
       return {
+        agentId: null,
         // User data
         user: {
           name: 'Ahmad Fauzi',
@@ -310,26 +311,13 @@
 
         // Lifecycle
         init() {
-          // Load user data from localStorage
+          if (!requireRole(['agent'], true)) return;
+          syncAgentIdFromUrl();
           const savedUser = getUser();
-          if (savedUser && savedUser.name) {
-            this.user = {
-              ...savedUser,
-              initials: this.getInitials(savedUser.name)
-            };
-          }
-          this.referralLink = 'https://kuotaumroh.id/signup.html?ref=' + (this.user.agentCode || 'AGN-DEMO');
-
-          // Check if user is logged in
-          if (!isLoggedIn()) {
-            window.location.href = '../login.html';
-          }
-
-          // Render shared header component
+          this.agentId = savedUser?.id || null;
           renderHeader('dashboard');
-
-          // Load stats from API (currently using mock data)
-          this.loadStats();
+          this.updateMenuLinks();
+          this.loadAgent();
         },
 
         // Methods
@@ -340,6 +328,56 @@
             .join('')
             .toUpperCase()
             .slice(0, 2);
+        },
+
+        withId(url) {
+          if (!this.agentId || typeof appendQueryParam !== 'function') return url;
+          return appendQueryParam(url, 'id', this.agentId);
+        },
+
+        updateMenuLinks() {
+          if (!this.agentId || typeof appendQueryParam !== 'function') return;
+          this.menuItems = this.menuItems.map(item => ({
+            ...item,
+            href: appendQueryParam(item.href, 'id', this.agentId)
+          }));
+        },
+
+        async loadAgent() {
+          if (!this.agentId) return;
+          try {
+            const savedUser = getUser();
+            const res = await fetch(`http://127.0.0.1:8000/api/agents/${this.agentId}`, { headers: { 'Accept': 'application/json' } });
+            if (!res.ok) throw new Error('Gagal memuat data agent');
+            const json = await res.json();
+            const agent = json?.data || json;
+
+            const phoneRaw = String(agent?.no_hp || '');
+            const phone = phoneRaw.startsWith('62') ? phoneRaw.substring(2) : (phoneRaw.startsWith('0') ? phoneRaw.substring(1) : phoneRaw);
+
+            this.user = {
+              name: agent?.nama_pic || savedUser?.name || 'Agent',
+              email: agent?.email || savedUser?.email || '',
+              agentCode: agent?.agent_code || savedUser?.agentCode || '',
+              phone,
+              initials: this.getInitials(agent?.nama_pic || savedUser?.name || 'Agent')
+            };
+
+            setUser({
+              ...(getUser() || {}),
+              id: agent?.id || this.agentId,
+              role: 'agent',
+              name: this.user.name,
+              email: this.user.email,
+              agentCode: this.user.agentCode
+            });
+
+            renderHeader('dashboard');
+
+            this.referralLink = agent?.link_referal || agent?.link_referral || (window.location.origin + '/signup.html?ref=' + (this.user.agentCode || ''));
+          } catch (e) {
+            console.error(e);
+          }
         },
 
         async loadStats() {

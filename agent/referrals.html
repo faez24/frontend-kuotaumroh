@@ -329,6 +329,7 @@
 
         async init() {
           if (!requireRole(['agent'], true)) return;
+          syncAgentIdFromUrl();
           
           const savedUser = getUser();
           if (savedUser && savedUser.name) {
