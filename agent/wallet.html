@@ -110,7 +110,7 @@
             <span>Pending penarikan</span>
             <span class="ml-2 font-semibold text-slate-900" x-text="formatRupiah(walletBalance.pendingWithdrawal)"></span>
           </div>
-          <a href="withdraw.html" class="mt-6 inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground hover:bg-primary/90 w-full h-11 text-base font-medium transition-colors">
+          <a :href="withId('withdraw.html')" class="mt-6 inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground hover:bg-primary/90 w-full h-11 text-base font-medium transition-colors">
             <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11l5-5m0 0l5 5m-5-5v12" />
             </svg>
@@ -225,6 +225,7 @@
   <script>
     function walletApp() {
       return {
+        agentId: null,
         // User data
         user: {
           name: 'Ahmad Fauzi',
@@ -256,22 +257,23 @@
 
         // Lifecycle
         init() {
+          if (!requireRole(['agent'], true)) return;
+          syncAgentIdFromUrl();
           const savedUser = getUser();
+          this.agentId = savedUser?.id || null;
           if (savedUser && savedUser.name) {
             this.user = {
               ...savedUser,
               initials: this.getInitials(savedUser.name)
             };
           }
-
-          if (!isLoggedIn()) {
-            window.location.href = 'login.html';
-          }
-
-          // Render shared header component
           renderHeader('wallet');
-
           this.loadWalletData();
+        },
+
+        withId(url) {
+          if (!this.agentId || typeof appendQueryParam !== 'function') return url;
+          return appendQueryParam(url, 'id', this.agentId);
         },
 
         // Methods

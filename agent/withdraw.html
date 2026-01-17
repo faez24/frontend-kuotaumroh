@@ -111,7 +111,7 @@
       <!-- Page Header -->
       <div class="mb-6">
         <div class="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-          <a href="wallet.html" class="hover:text-foreground">Dompet</a>
+          <a :href="withId('wallet.html')" class="hover:text-foreground">Dompet</a>
           <span>/</span>
           <span class="text-foreground">Tarik Saldo</span>
         </div>
@@ -370,6 +370,7 @@
   <script>
     function withdrawApp() {
       return {
+        agentId: null,
         // User data
         user: {
           name: '',
@@ -420,19 +421,16 @@
 
         // Lifecycle
         init() {
+          if (!requireRole(['agent'], true)) return;
+          syncAgentIdFromUrl();
           const savedUser = getUser();
+          this.agentId = savedUser?.id || null;
           if (savedUser && savedUser.name) {
             this.user = {
               ...savedUser,
               initials: this.getInitials(savedUser.name)
             };
           }
-
-          if (!isLoggedIn()) {
-            window.location.href = 'login.html';
-          }
-
-          // Render shared header component
           renderHeader('withdraw');
 
           // Set default account
@@ -440,6 +438,11 @@
           if (defaultAcc) {
             this.selectedAccount = defaultAcc.id;
           }
+        },
+
+        withId(url) {
+          if (!this.agentId || typeof appendQueryParam !== 'function') return url;
+          return appendQueryParam(url, 'id', this.agentId);
         },
 
         // Computed: Numeric amount

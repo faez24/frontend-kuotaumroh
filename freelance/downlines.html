@@ -284,11 +284,12 @@
       <div class="text-sm text-muted-foreground" x-text="toastMessage"></div>
     </div>
 
-    <div x-show="addModalOpen" x-transition class="fixed inset-0 z-50 flex items-center justify-center p-4" style="display: none;">
-      <div class="absolute inset-0 bg-black/50" @click="closeAddModal()"></div>
+    <div x-show="addModalOpen" x-transition class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
+      <div class="min-h-full w-full p-4 flex items-center justify-center">
+        <div class="absolute inset-0 bg-black/50" @click="closeAddModal()"></div>
 
-      <div class="relative w-full max-w-6xl rounded-lg border bg-white shadow-lg overflow-hidden max-h-[90vh]">
-        <div class="flex items-center justify-between border-b px-6 py-4">
+        <div class="relative w-full max-w-6xl rounded-lg border bg-white shadow-lg overflow-hidden max-h-[calc(100dvh-2rem)] flex flex-col">
+          <div class="flex items-center justify-between border-b px-6 py-4 shrink-0">
           <div>
             <h3 class="text-lg font-semibold">Tambah Agent</h3>
             <p class="text-sm text-muted-foreground">Form sama seperti signup, kategori agent otomatis: Host</p>
@@ -298,13 +299,19 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
-        </div>
+          </div>
 
-        <div class="px-6 py-6 overflow-y-auto" style="max-height: calc(90vh - 128px);">
-          <form id="addAgentForm" @submit.prevent="submitAddAgent()" class="space-y-6">
+          <div class="px-6 py-6 overflow-y-auto flex-1">
+            <form id="addAgentForm" @submit.prevent="submitAddAgent()" class="space-y-6">
             <div class="grid gap-6 lg:grid-cols-2">
               <div class="rounded-lg border bg-white shadow-sm p-6 space-y-4">
-                <h2 class="text-lg font-semibold border-b pb-2">Data PIC</h2>
+                <h2 class="text-lg font-semibold border-b pb-2 flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.938 18.938A10.5 10.5 0 1012 21a10.5 10.5 0 007.938-2.062z" />
+                  </svg>
+                  Data PIC
+                </h2>
 
                 <div class="space-y-2">
                   <label class="text-sm font-medium">Email <span class="text-destructive">*</span></label>
@@ -330,7 +337,12 @@
               </div>
 
               <div class="rounded-lg border bg-white shadow-sm p-6 space-y-4">
-                <h2 class="text-lg font-semibold border-b pb-2">Detail Travel</h2>
+                <h2 class="text-lg font-semibold border-b pb-2 flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Detail Travel
+                </h2>
 
                 <div class="space-y-2">
                   <label class="text-sm font-medium">Nama Travel</label>
@@ -369,6 +381,7 @@
                   <label class="text-sm font-medium">Logo Travel (Opsional)</label>
                   <input type="file" @change="handleFileUpload($event)" accept="image/png,image/jpeg,image/jpg,image/gif" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium file:cursor-pointer hover:file:text-primary transition-colors cursor-pointer" :class="addErrors.logo && 'border-destructive focus:ring-destructive'">
                   <p x-show="addErrors.logo" class="text-xs text-destructive" x-text="addErrors.logo"></p>
+                  <p class="text-xs text-muted-foreground">Format: PNG, JPG, GIF. Maksimal 2MB</p>
                   <div x-show="addLogoPreview" class="mt-2">
                     <img :src="addLogoPreview" alt="Logo preview" class="h-24 w-24 object-contain border rounded-md">
                   </div>
@@ -377,28 +390,62 @@
             </div>
 
             <div class="rounded-lg border bg-white shadow-sm p-6 space-y-4">
-              <h2 class="text-lg font-semibold border-b pb-2">Lokasi</h2>
+              <h2 class="text-lg font-semibold border-b pb-2 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Lokasi
+              </h2>
 
               <div class="grid gap-4 md:grid-cols-2">
-                <div class="space-y-2">
-                  <label class="text-sm font-medium">Provinsi <span class="text-destructive">*</span></label>
-                  <select x-model="addFormData.province" @change="handleProvinceChange()" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" :class="addErrors.province && 'border-destructive focus:ring-destructive'">
-                    <option value="">Pilih provinsi</option>
-                    <template x-for="p in provinces" :key="p">
-                      <option :value="p" x-text="p"></option>
-                    </template>
-                  </select>
+                <div class="space-y-2" x-data="{ provinceDropdownOpen: false, provinceSearch: '' }" x-init="$watch('provinceDropdownOpen', value => { if (value) $nextTick(() => $refs.provinceSearchInput.focus()) })">
+                  <label class="text-sm font-medium">Pilih Provinsi <span class="text-destructive">*</span></label>
+                  <div class="relative" @click.away="provinceDropdownOpen = false">
+                    <button type="button" @click="provinceDropdownOpen = !provinceDropdownOpen" class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" :class="addErrors.province && 'border-destructive focus:ring-destructive'">
+                      <span :class="!addFormData.province && 'text-muted-foreground'" x-text="addFormData.province || 'Pilih provinsi'"></span>
+                      <svg class="h-4 w-4 transition-transform" :class="provinceDropdownOpen && 'rotate-180'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+
+                    <div x-show="provinceDropdownOpen" x-transition class="absolute z-50 mt-1 w-full rounded-md border border-input bg-white shadow-lg" style="display:none;">
+                      <div class="p-2 border-b">
+                        <input type="text" x-ref="provinceSearchInput" x-model="provinceSearch" @click.stop placeholder="Cari provinsi..." class="w-full rounded-md border border-input px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                      </div>
+                      <div class="max-h-60 overflow-y-auto">
+                        <template x-for="province in provinces.filter(p => p.toLowerCase().includes(provinceSearch.toLowerCase()))" :key="province">
+                          <button type="button" @click="addFormData.province = province; handleProvinceChange(); provinceDropdownOpen = false; provinceSearch = ''" class="w-full px-3 py-2 text-left text-sm hover:bg-muted transition-colors" :class="addFormData.province === province && 'bg-muted'" x-text="province"></button>
+                        </template>
+                        <div x-show="provinces.filter(p => p.toLowerCase().includes(provinceSearch.toLowerCase())).length === 0" class="px-3 py-2 text-sm text-muted-foreground">Tidak ada provinsi ditemukan</div>
+                      </div>
+                    </div>
+                  </div>
                   <p x-show="addErrors.province" class="text-xs text-destructive" x-text="addErrors.province"></p>
                 </div>
 
-                <div class="space-y-2">
-                  <label class="text-sm font-medium">Kota/Kabupaten <span class="text-destructive">*</span></label>
-                  <select x-model="addFormData.city" @change="handleCityChange()" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" :class="addErrors.city && 'border-destructive focus:ring-destructive'">
-                    <option value="">Pilih kota/kabupaten</option>
-                    <template x-for="c in cities" :key="c">
-                      <option :value="c" x-text="c"></option>
-                    </template>
-                  </select>
+                <div class="space-y-2" x-data="{ cityDropdownOpen: false, citySearch: '' }" x-init="$watch('cityDropdownOpen', value => { if (value) $nextTick(() => $refs.citySearchInput.focus()) })">
+                  <label class="text-sm font-medium">Pilih Kota/Kab <span class="text-destructive">*</span></label>
+                  <div class="relative" @click.away="cityDropdownOpen = false">
+                    <button type="button" @click="cityDropdownOpen = !cityDropdownOpen" class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" :class="addErrors.city && 'border-destructive focus:ring-destructive'">
+                      <span :class="!addFormData.city && 'text-muted-foreground'" x-text="addFormData.city || 'Pilih kota/kabupaten'"></span>
+                      <svg class="h-4 w-4 transition-transform" :class="cityDropdownOpen && 'rotate-180'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+
+                    <div x-show="cityDropdownOpen" x-transition class="absolute z-50 mt-1 w-full rounded-md border border-input bg-white shadow-lg" style="display:none;">
+                      <div class="p-2 border-b">
+                        <input type="text" x-ref="citySearchInput" x-model="citySearch" @click.stop placeholder="Cari kota/kabupaten..." class="flex h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                      </div>
+                      <div class="max-h-60 overflow-y-auto p-1">
+                        <template x-for="city in filteredCities(citySearch)" :key="city">
+                          <button type="button" @click="addFormData.city = city; handleCityChange(); cityDropdownOpen = false; citySearch = ''" :class="addFormData.city === city && 'bg-primary/10 text-primary'" class="w-full text-left px-3 py-2 text-sm rounded hover:bg-accent transition-colors" x-text="city"></button>
+                        </template>
+                        <div x-show="filteredCities(citySearch).length === 0" class="px-3 py-6 text-center text-sm text-muted-foreground">Tidak ada hasil ditemukan</div>
+                      </div>
+                    </div>
+                  </div>
                   <p x-show="addErrors.city" class="text-xs text-destructive" x-text="addErrors.city"></p>
                 </div>
               </div>
@@ -471,23 +518,24 @@
                 </div>
               </div>
             </div>
-          </form>
-        </div>
+            </form>
+          </div>
 
-        <div class="flex items-center justify-end gap-2 border-t bg-white px-6 py-4">
-          <button type="button" @click="closeAddModal()" class="inline-flex items-center justify-center rounded-md border bg-transparent hover:bg-muted h-10 px-4 text-sm font-medium transition-colors">
-            Batal
-          </button>
-          <button type="submit" form="addAgentForm" :disabled="isSubmitting" class="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-            <span x-show="!isSubmitting">Simpan</span>
-            <span x-show="isSubmitting" class="flex items-center gap-2">
-              <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Menyimpan...
-            </span>
-          </button>
+          <div class="flex items-center justify-end gap-2 border-t bg-white px-6 py-4 shrink-0">
+            <button type="button" @click="closeAddModal()" class="inline-flex items-center justify-center rounded-md border bg-transparent hover:bg-muted h-10 px-4 text-sm font-medium transition-colors">
+              Batal
+            </button>
+            <button type="submit" form="addAgentForm" :disabled="isSubmitting" class="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              <span x-show="!isSubmitting">Simpan</span>
+              <span x-show="isSubmitting" class="flex items-center gap-2">
+                <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Menyimpan...
+              </span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -660,6 +708,12 @@
             console.error(e);
             this.showToast('Error', 'Gagal memuat data kota/kabupaten');
           }
+        },
+
+        filteredCities(search) {
+          if (!search) return this.cities;
+          const searchLower = search.toLowerCase();
+          return this.cities.filter(city => city.toLowerCase().includes(searchLower));
         },
 
         async handleProvinceChange() {

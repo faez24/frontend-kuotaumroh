@@ -354,6 +354,18 @@ function syncFreelanceIdFromUrl() {
   return id;
 }
 
+function syncAgentIdFromUrl() {
+  const id = getQueryInt('id');
+  if (!id) return null;
+  const current = getUser() || {};
+  setUser({
+    ...current,
+    id,
+    role: 'agent'
+  });
+  return id;
+}
+
 /**
  * Role-based redirect after login
  */
@@ -361,10 +373,11 @@ function redirectToDashboard() {
   const role = getUserRole();
   const user = getUser();
   const freelanceId = role === 'freelance' ? (user?.id || null) : null;
+  const agentId = role === 'agent' ? (user?.id || null) : null;
   const dashboards = {
     'admin': '/admin/dashboard.html',
     'freelance': freelanceId ? appendQueryParam('/freelance/dashboard.html', 'id', freelanceId) : '/freelance/dashboard.html',
-    'agent': '/agent/dashboard.html'
+    'agent': agentId ? appendQueryParam('/agent/dashboard.html', 'id', agentId) : '/agent/dashboard.html'
   };
   window.location.href = dashboards[role] || '/login.html';
 }

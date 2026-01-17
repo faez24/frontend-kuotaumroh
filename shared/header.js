@@ -54,10 +54,10 @@ function renderHeader(currentPage = '') {
   }
 
   const user = typeof getUser === 'function' ? getUser() : null;
-  const freelanceId = userRole === 'freelance' ? (user?.id || null) : null;
-  if (freelanceId && typeof appendQueryParam === 'function') {
-    dashboardLink = appendQueryParam(dashboardLink, 'id', freelanceId);
-    profileLink = appendQueryParam(profileLink, 'id', freelanceId);
+  const idForRole = (userRole === 'freelance' || userRole === 'agent') ? (user?.id || null) : null;
+  if (idForRole && typeof appendQueryParam === 'function') {
+    dashboardLink = appendQueryParam(dashboardLink, 'id', idForRole);
+    profileLink = appendQueryParam(profileLink, 'id', idForRole);
   }
 
   // Determine login link based on role
