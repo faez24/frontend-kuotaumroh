@@ -359,12 +359,6 @@
                         </template>
                         <span x-show="!user.latitude || !user.longitude">-</span>
                     </td>
-                    
-                    <td class="p-4 align-middle text-sm">
-                        <span x-show="user.referralLink" x-text="user.referralLink" class="text-primary"></span>
-                        <span x-show="!user.referralLink" class="text-muted-foreground">-</span>
-                    </td>
-
                     <!-- Standard Columns -->
                     <td x-show="roleFilter !== 'travel_agent'" class="p-4 align-middle" x-text="formatDate(user.joinDate)"></td>
                     <td x-show="roleFilter !== 'travel_agent'" class="p-4 align-middle" x-text="formatDate(user.lastActiveDate)"></td>
@@ -373,6 +367,18 @@
                     <td x-show="roleFilter === 'agent'" class="p-4 align-middle text-right font-medium" x-text="user.affiliateOrderCount.toLocaleString('id-ID')"></td>
                     <td x-show="roleFilter === 'freelance'" class="p-4 align-middle text-right font-medium" x-text="user.totalDownline.toLocaleString('id-ID')"></td>
                     <td x-show="roleFilter === 'freelance'" class="p-4 align-middle text-right font-medium text-primary" x-text="user.totalPoints.toLocaleString('id-ID') + ' poin'"></td>
+
+                    <td class="p-4 align-middle text-sm">
+                        <a 
+                          x-show="user.referralLink || user.role === 'freelance' || user.role === 'affiliate'"
+                          :href="getReferralHref(user)" 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          x-text="user.referralLink || (user.role === 'freelance' ? 'freelance' : (user.role === 'affiliate' ? 'affiliate' : '-'))" 
+                          class="text-primary hover:underline"
+                        ></a>
+                        <span x-show="!user.referralLink && user.role !== 'freelance' && user.role !== 'affiliate'" class="text-muted-foreground">-</span>
+                    </td>
                     
                     <td class="p-4 align-middle text-center">
                       <span class="badge" 
@@ -386,6 +392,9 @@
                     </td>
                     <td class="p-4 align-middle text-center">
                       <div class="flex items-center justify-center gap-2">
+                          <a x-show="roleFilter === 'freelance'" :href="getFreelanceDashboardHref(user)" target="_blank" rel="noopener noreferrer" class="h-8 px-3 rounded text-xs font-medium border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors">
+                              Dashboard
+                          </a>
                           <!-- Approve Button for Pending Users -->
                           <div class="flex gap-1" x-show="user.status === 'pending'">
                               <button @click="openApproveModal(user)" class="h-8 px-3 rounded text-xs font-medium border border-green-200 text-green-600 hover:bg-green-50 transition-colors">
@@ -725,6 +734,30 @@
             if (!this.selectedUser) return;
             const user = this.selectedUser;
             try {
+                if (user.role === 'freelance') {
+                    const deactivateResponse = await fetch(`http://127.0.0.1:8000/api/freelances/${user.id}/deactivate`, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: '{}'
+                    });
+
+                    if (!deactivateResponse.ok) {
+                        const deactivateErr = await deactivateResponse.text();
+                        console.error('Freelance deactivate failed:', deactivateResponse.status, deactivateErr);
+                        throw new Error('Gagal menonaktifkan user');
+                    }
+
+                    user.status = 'reject';
+                    this.showToast('Sukses', 'User berhasil dinonaktifkan');
+                    this.closeDeactivateModal();
+                    this.fetchUsers();
+                    return;
+                }
+
                 const rejectResponse = await fetch(`http://127.0.0.1:8000/api/agents/${user.id}/reject`, {
                     method: 'POST',
                     headers: {
@@ -765,6 +798,35 @@
 
         async activateUser(user) {
             if (!confirm(`Aktifkan kembali user ${user.name}?`)) return;
+
+            if (user.role === 'freelance') {
+                try {
+                    const activateResponse = await fetch(`http://127.0.0.1:8000/api/freelances/${user.id}/activate`, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: '{}'
+                    });
+
+                    if (!activateResponse.ok) {
+                        const activateErr = await activateResponse.text();
+                        console.error('Freelance activate failed:', activateResponse.status, activateErr);
+                        throw new Error('Gagal mengaktifkan user');
+                    }
+
+                    user.status = 'active';
+                    this.showToast('Sukses', 'User berhasil diaktifkan');
+                    this.fetchUsers();
+                    return;
+                } catch (error) {
+                    console.error('Error activating freelance:', error);
+                    this.showToast('Error', 'Gagal mengaktifkan user');
+                    return;
+                }
+            }
 
             if (!user.referralLink) {
                 this.openApproveModal(user);
@@ -957,32 +1019,24 @@
           this.$watch('dateTo', () => { this.currentPage = 1; this.fetchUsers(); });
           
           // Initial fetch
-          // this.fetchUsers();
+          this.fetchUsers();
         },
         
         async fetchUsers() {
             try {
                 this.users = []; // Clear current users
                 
-                // Construct query params
-                const params = new URLSearchParams();
-                
-                // Map frontend role filter to backend 'jenis_agent'
-                if (this.roleFilter !== 'all') {
-                    let roleParam = this.roleFilter;
-                    if (roleParam === 'travel_agent') roleParam = 'travel agent';
-                    params.append('jenis_agent', roleParam);
+                if (this.roleFilter === 'freelance') {
+                    const response = await fetch('http://127.0.0.1:8000/api/freelances');
+                    if (!response.ok) throw new Error('Network response was not ok');
+
+                    const result = await response.json();
+                    const data = Array.isArray(result) ? result : (result.data || []);
+                    this.users = data.map(u => this.mapFreelanceToTable(u));
+                    return;
                 }
-                
-                if (this.statusFilter !== 'all') {
-                    const statusParam = this.statusFilter === 'active' ? 'approve' : this.statusFilter;
-                    params.append('status', statusParam);
-                }
-                if (this.search) params.append('search', this.search);
-                if (this.dateFrom) params.append('start_date', this.dateFrom);
-                if (this.dateTo) params.append('end_date', this.dateTo);
-                
-                const response = await fetch(`http://127.0.0.1:8000/api/agents?${params.toString()}`);
+
+                const response = await fetch('http://127.0.0.1:8000/api/agents');
                 if (!response.ok) throw new Error('Network response was not ok');
                 
                 const result = await response.json();
@@ -1008,12 +1062,16 @@
             let status = apiUser.status || 'pending';
             if (status === 'approve') status = 'active';
 
+            const role = (apiUser.nama_travel || apiUser.jenis_travel || apiUser.total_traveller || apiUser.logo || apiUser.surat_ppiu)
+              ? 'travel_agent'
+              : 'agent';
+
             return {
                 id: apiUser.id,
                 name: apiUser.nama_pic,
                 email: apiUser.email,
                 phone: apiUser.no_hp,
-                role: apiUser.jenis_agent === 'travel agent' ? 'travel_agent' : apiUser.jenis_agent,
+                role,
                 joinDate: apiUser.created_at,
                 lastActiveDate: apiUser.updated_at,
                 revenue: 0, // Placeholder
@@ -1038,6 +1096,53 @@
                 totalDownline: 0,
                 totalPoints: 0
             };
+        },
+
+        mapFreelanceToTable(apiFreelance) {
+            const status = apiFreelance.is_active ? 'active' : 'reject';
+            const downlineCount = Array.isArray(apiFreelance.agents) ? apiFreelance.agents.length : 0;
+            const referralLink = apiFreelance.link_referal || apiFreelance.link_referral;
+
+            return {
+                id: apiFreelance.id,
+                name: apiFreelance.nama,
+                email: apiFreelance.email,
+                phone: apiFreelance.no_wa,
+                role: 'freelance',
+                joinDate: apiFreelance.date_register || apiFreelance.created_at,
+                lastActiveDate: apiFreelance.updated_at || apiFreelance.date_register || apiFreelance.created_at,
+                revenue: 0,
+                agentOrderCount: 0,
+                affiliateOrderCount: 0,
+                status,
+                travelName: null,
+                travelType: null,
+                monthlyTravellers: 0,
+                province: apiFreelance.provinsi,
+                city: apiFreelance.kab_kota,
+                address: apiFreelance.alamat_lengkap,
+                latitude: null,
+                longitude: null,
+                logo: null,
+                ppiu: null,
+                referralLink,
+                totalDownline: downlineCount,
+                totalPoints: 0
+            };
+        },
+
+        getReferralHref(user) {
+            if (!user) return '#';
+            const origin = window.location.origin;
+            if (user.role === 'freelance') return `${origin}/agent/?ref=${encodeURIComponent(`freelance:${user.id}`)}`;
+            if (user.role === 'affiliate') return `${origin}/agent/?ref=${encodeURIComponent(`affiliate:${user.id}`)}`;
+            return user.referralLink || '#';
+        },
+
+        getFreelanceDashboardHref(user) {
+            if (!user?.id) return '#';
+            const origin = window.location.origin;
+            return `${origin}/freelance/dashboard.html?id=${encodeURIComponent(String(user.id))}`;
         },
 
         generateMockUsers() {

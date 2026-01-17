@@ -203,6 +203,70 @@ function clearUser() {
   localStorage.removeItem('user');
 }
 
+function setReferralContext(context) {
+  try {
+    if (!context) {
+      localStorage.removeItem('referral_context');
+      return;
+    }
+    localStorage.setItem('referral_context', JSON.stringify({
+      ...context,
+      at: Date.now()
+    }));
+  } catch {
+  }
+}
+
+function getReferralContext() {
+  try {
+    return JSON.parse(localStorage.getItem('referral_context') || 'null');
+  } catch {
+    return null;
+  }
+}
+
+function clearReferralContext() {
+  localStorage.removeItem('referral_context');
+}
+
+function parseReferralString(str) {
+  if (!str || typeof str !== 'string') return null;
+  const parts = str.split(':');
+  if (parts.length !== 2) return null;
+  const type = parts[0];
+  const id = parseInt(parts[1], 10);
+  if (!Number.isFinite(id) || id <= 0) return null;
+  if (type !== 'affiliate' && type !== 'freelance') return null;
+  return { source_type: type, id };
+}
+
+function setReferral(ref) {
+  if (!ref) return;
+  localStorage.setItem('kuotaumroh_ref', JSON.stringify(ref));
+  localStorage.setItem('kuotaumroh_ref_ts', String(Date.now()));
+  try {
+    const d = new Date();
+    d.setTime(d.getTime() + 30 * 24 * 60 * 60 * 1000);
+    document.cookie = `kuotaumroh_ref=${encodeURIComponent(JSON.stringify(ref))};expires=${d.toUTCString()};path=/`;
+  } catch {}
+}
+
+function getReferral() {
+  try {
+    const v = localStorage.getItem('kuotaumroh_ref');
+    if (v) return JSON.parse(v);
+    const m = document.cookie.match(/(?:^|; )kuotaumroh_ref=([^;]+)/);
+    if (m) return JSON.parse(decodeURIComponent(m[1]));
+  } catch {}
+  return null;
+}
+
+function clearReferral() {
+  localStorage.removeItem('kuotaumroh_ref');
+  localStorage.removeItem('kuotaumroh_ref_ts');
+  document.cookie = 'kuotaumroh_ref=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/';
+}
+
 /**
  * Check if user is logged in
  * @returns {boolean} True if logged in
@@ -258,14 +322,48 @@ function getUserRole() {
   return user?.role || null;
 }
 
+function getQueryInt(key) {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const v = parseInt(params.get(key), 10);
+    if (Number.isFinite(v) && v > 0) return v;
+  } catch {}
+  return null;
+}
+
+function appendQueryParam(url, key, value) {
+  try {
+    const u = new URL(url, window.location.href);
+    u.searchParams.set(key, String(value));
+    return u.pathname + u.search + u.hash;
+  } catch {
+    const sep = url.includes('?') ? '&' : '?';
+    return `${url}${sep}${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`;
+  }
+}
+
+function syncFreelanceIdFromUrl() {
+  const id = getQueryInt('id');
+  if (!id) return null;
+  const current = getUser() || {};
+  setUser({
+    ...current,
+    id,
+    role: 'freelance'
+  });
+  return id;
+}
+
 /**
  * Role-based redirect after login
  */
 function redirectToDashboard() {
   const role = getUserRole();
+  const user = getUser();
+  const freelanceId = role === 'freelance' ? (user?.id || null) : null;
   const dashboards = {
     'admin': '/admin/dashboard.html',
-    'freelance': '/freelance/dashboard.html',
+    'freelance': freelanceId ? appendQueryParam('/freelance/dashboard.html', 'id', freelanceId) : '/freelance/dashboard.html',
     'agent': '/agent/dashboard.html'
   };
   window.location.href = dashboards[role] || '/login.html';

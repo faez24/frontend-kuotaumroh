@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Referral - Kuotaumroh.id</title>
+  <link rel="stylesheet" href="shared/styles.css">
+  <script src="shared/utils.js"></script>
+</head>
+<body class="min-h-screen bg-background">
+  <main class="container mx-auto px-4 py-12">
+    <div class="rounded-lg border bg-white shadow-sm p-6">
+      <h1 id="title" class="text-lg font-semibold">Memproses referral…</h1>
+      <p id="desc" class="text-sm text-muted-foreground mt-2">Mohon tunggu sebentar.</p>
+      <div id="actions" class="mt-4 hidden">
+        <a href="index.html" class="inline-flex items-center justify-center rounded-md bg-secondary text-secondary-foreground hover:bg-secondary/80 h-10 px-4 text-sm font-medium transition-colors">
+          Kembali ke Beranda
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    async function resolveReferralContext() {
+      const params = new URLSearchParams(window.location.search);
+      const ref = params.get('ref');
+      const affiliateId = params.get('affiliate_id');
+      const freelanceId = params.get('freelance_id');
+
+      if (affiliateId) return { source_type: 'affiliate', id: parseInt(affiliateId, 10), url: window.location.href };
+      if (freelanceId) return { source_type: 'freelance', id: parseInt(freelanceId, 10), url: window.location.href };
+
+      if (ref) {
+        const parts = ref.split(':');
+        if (parts.length === 2) {
+          const type = parts[0];
+          const id = parseInt(parts[1], 10);
+          if (type === 'affiliate' && Number.isFinite(id)) return { source_type: 'affiliate', id, url: window.location.href };
+          if (type === 'freelance' && Number.isFinite(id)) return { source_type: 'freelance', id, url: window.location.href };
+        }
+      }
+
+      const current = window.location.href;
+
+      try {
+        const res = await fetch('http://127.0.0.1:8000/api/affiliates', { headers: { 'Accept': 'application/json' } });
+        if (res.ok) {
+          const json = await res.json();
+          const data = Array.isArray(json) ? json : (json.data || []);
+          const match = data.find(a => a.link_referral === current || a.link_referal === current);
+          if (match && match.id) return { source_type: 'affiliate', id: match.id, url: current };
+        }
+      } catch {
+      }
+
+      try {
+        const res = await fetch('http://127.0.0.1:8000/api/freelances', { headers: { 'Accept': 'application/json' } });
+        if (res.ok) {
+          const json = await res.json();
+          const data = Array.isArray(json) ? json : (json.data || []);
+          const match = data.find(f => f.link_referral === current || f.link_referal === current);
+          if (match && match.id) return { source_type: 'freelance', id: match.id, url: current };
+        }
+      } catch {
+      }
+
+      return null;
+    }
+
+    (async () => {
+      const titleEl = document.getElementById('title');
+      const descEl = document.getElementById('desc');
+      const actionsEl = document.getElementById('actions');
+
+      const params = new URLSearchParams(window.location.search);
+      const ref = params.get('ref');
+      const parsed = parseReferralString(ref);
+      if (parsed) {
+        setReferral(parsed);
+        setReferralContext({ ...parsed, url: window.location.href });
+        window.location.replace('login.html');
+        return;
+      }
+
+      const ctx = await resolveReferralContext();
+      if (ctx) {
+        setReferral({ source_type: ctx.source_type, id: ctx.id });
+        setReferralContext(ctx);
+        window.location.replace('login.html');
+        return;
+      }
+
+      titleEl.textContent = 'Referral tidak valid';
+      descEl.textContent = 'Link referral tidak ditemukan atau sudah tidak aktif.';
+      actionsEl.classList.remove('hidden');
+    })();
+  </script>
+</body>
+</html>
