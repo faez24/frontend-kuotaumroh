@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Daftar Agent - Kuotaumroh.id</title>
+  <title>Daftar Travel Agent - Kuotaumroh.id</title>
 
   <!-- Favicon -->
   <link rel="apple-touch-icon" sizes="57x57" href="public/favicon/apple-icon-57x57.png">
@@ -37,6 +37,8 @@
 
   <!-- Shared CSS -->
   <link rel="stylesheet" href="shared/styles.css">
+
+  <script src="shared/utils.js"></script>
 
   <!-- Leaflet.js CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -142,8 +144,8 @@
 
       <!-- Page Header -->
       <div class="mb-8 text-center md:text-left">
-        <h1 class="text-3xl font-bold tracking-tight mb-2">Daftar Agent</h1>
-        <p class="text-muted-foreground">Bergabunglah dengan kami sebagai agent Kuotaumroh.id</p>
+        <h1 class="text-3xl font-bold tracking-tight mb-2">Daftar Travel Agent</h1>
+        <p class="text-muted-foreground">Bergabunglah dengan kami sebagai Travel Agent Kuotaumroh.id</p>
       </div>
 
       <!-- Registration Form -->
@@ -207,50 +209,13 @@
                       </div>
                     </div>
 
-                    <!-- Agent Type Selection -->
-                    <div class="space-y-4">
-                        <h2 class="text-lg font-semibold border-b pb-2 flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                            </svg>
-                            Jenis Kemitraan
-                        </h2>
-                        
-                        <!-- User Type -->
-                        <div class="space-y-2" x-data="{ agentTypeOpen: false }">
-                          <label class="text-sm font-medium">Pilih Jenis Agent</label>
-                          <div class="relative" @click.away="agentTypeOpen = false">
-                            <button
-                              type="button"
-                              @click="agentTypeOpen = !agentTypeOpen"
-                              class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                            >
-                              <span x-text="formData.user_type === 'AGENT' ? 'Agent' : (formData.user_type === 'TRAVEL_AGENT' ? 'Travel Agent' : 'Freelance')"></span>
-                              <svg class="h-4 w-4 transition-transform" :class="agentTypeOpen && 'rotate-180'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                              </svg>
-                            </button>
-                            <div
-                              x-show="agentTypeOpen"
-                              x-transition
-                              class="absolute z-50 mt-1 w-full rounded-md border border-input bg-white shadow-lg"
-                              style="display: none;"
-                            >
-                              <div class="py-1">
-                                <button type="button" @click="formData.user_type = 'TRAVEL_AGENT'; agentTypeOpen = false" class="w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors" :class="formData.user_type === 'TRAVEL_AGENT' && 'bg-primary/10 text-primary'">Travel Agent</button>
-                                <button type="button" @click="formData.user_type = 'AGENT'; agentTypeOpen = false" class="w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors" :class="formData.user_type === 'AGENT' && 'bg-primary/10 text-primary'">Agent</button>
-                                <button type="button" @click="formData.user_type = 'FREELANCE'; agentTypeOpen = false" class="w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors" :class="formData.user_type === 'FREELANCE' && 'bg-primary/10 text-primary'">Freelance</button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                    </div>
+                    
                 </div>
 
                 <!-- Right Column: Agent Details (Conditional) -->
                 <div class="space-y-6">
                     <!-- Agent Information Section -->
-                    <div class="space-y-4" x-show="formData.user_type === 'TRAVEL_AGENT'" x-transition>
+                    <div class="space-y-4">
                       <h2 class="text-lg font-semibold border-b pb-2 flex items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
@@ -376,14 +341,7 @@
                         </div>
                     </div>
                     
-                    <!-- Placeholder for Non-Travel Agent (Optional) -->
-                    <div x-show="formData.user_type !== 'TRAVEL_AGENT'" class="bg-muted/20 rounded-lg p-6 border border-dashed flex flex-col items-center justify-center text-center h-full min-h-[200px]">
-                         <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-muted-foreground mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                        <h3 class="text-lg font-medium text-foreground">Bergabung sebagai <span x-text="formData.user_type === 'AGENT' ? 'Agent' : 'Freelance'"></span></h3>
-                        <p class="text-sm text-muted-foreground mt-1">Lengkapi alamat Anda di bawah untuk melanjutkan pendaftaran.</p>
-                    </div>
+                    
                 </div>
             </div>
 
@@ -678,7 +636,6 @@
           email: '',
           phone: '',
           full_name: '',
-          user_type: 'TRAVEL_AGENT',
           travel_name: '',
           travel_type: '',
           travel_member: '',
@@ -720,11 +677,15 @@
         isSearchingMap: false,
         isGeocodingAddress: false,
         mapSearchDebounce: null,
+        referralContext: null,
 
         async init() {
           // Get email from URL params (passed after Google auth)
           const urlParams = new URLSearchParams(window.location.search);
           const email = urlParams.get('email');
+          const ref = urlParams.get('ref');
+          const affiliateId = urlParams.get('affiliate_id');
+          const freelanceId = urlParams.get('freelance_id');
           
           if (email) {
             this.formData.email = email;
@@ -739,6 +700,28 @@
           
           // Load provinces from API
           await this.loadProvinces();
+
+          if (affiliateId) {
+            const id = parseInt(affiliateId, 10);
+            if (Number.isFinite(id)) {
+              setReferral({ source_type: 'affiliate', id });
+              setReferralContext({ source_type: 'affiliate', id, url: window.location.href });
+            }
+          } else if (freelanceId) {
+            const id = parseInt(freelanceId, 10);
+            if (Number.isFinite(id)) {
+              setReferral({ source_type: 'freelance', id });
+              setReferralContext({ source_type: 'freelance', id, url: window.location.href });
+            }
+          } else if (ref) {
+            const parsed = parseReferralString(ref);
+            if (parsed) {
+              setReferral(parsed);
+              setReferralContext({ ...parsed, url: window.location.href });
+            }
+          }
+
+          this.referralContext = getReferral();
           
           console.log('Signup form initialized with email:', this.formData.email);
         },
@@ -1167,30 +1150,27 @@
         async handleSubmit() {
           this.errors = {};
           
-          // Client-side validation for Travel Agent
-          if (this.formData.user_type === 'TRAVEL_AGENT') {
-            let hasError = false;
-            if (!this.formData.travel_name) {
-              this.errors.travel_name = 'Nama Travel wajib diisi';
-              hasError = true;
-            }
-            if (!this.formData.travel_type) {
-              this.errors.travel_type = 'Jenis Travel wajib dipilih';
-              hasError = true;
-            }
-            if (!this.formData.travel_member) {
-              this.errors.travel_member = 'Total Traveller per Bulan wajib diisi';
-              hasError = true;
-            }
-            if (!this.cooperationLetterFile) {
-              this.errors.cooperationLetterFile = 'Surat PPIU wajib diupload';
-              hasError = true;
-            }
-            
-            if (hasError) {
-              this.showToast('Validasi Gagal', 'Mohon lengkapi data travel yang bertanda bintang');
-              return;
-            }
+          let hasError = false;
+          if (!this.formData.travel_name) {
+            this.errors.travel_name = 'Nama Travel wajib diisi';
+            hasError = true;
+          }
+          if (!this.formData.travel_type) {
+            this.errors.travel_type = 'Jenis Travel wajib dipilih';
+            hasError = true;
+          }
+          if (!this.formData.travel_member) {
+            this.errors.travel_member = 'Total Traveller per Bulan wajib diisi';
+            hasError = true;
+          }
+          if (!this.cooperationLetterFile) {
+            this.errors.cooperationLetterFile = 'Surat PPIU wajib diupload';
+            hasError = true;
+          }
+          
+          if (hasError) {
+            this.showToast('Validasi Gagal', 'Mohon lengkapi data travel yang bertanda bintang');
+            return;
           }
 
           this.isSubmitting = true;
@@ -1202,10 +1182,16 @@
             // 'email' => 'required|email|unique:agents,email', 
             formDataToSend.append('email', this.formData.email);
 
-            // 'jenis_agent' => 'required|in:travel agent,agent,freelance', 
-            // Convert 'TRAVEL_AGENT' -> 'travel agent', 'AGENT' -> 'agent', etc.
-            const jenisAgent = this.formData.user_type.toLowerCase().replace('_', ' ');
-            formDataToSend.append('jenis_agent', jenisAgent);
+            const ref = this.referralContext;
+            if (ref && (ref.source_type === 'affiliate' || ref.source_type === 'freelance') && Number.isFinite(ref.id)) {
+              formDataToSend.append('kategori_agent', 'Referral');
+              if (ref.source_type === 'affiliate') formDataToSend.append('affiliate_id', String(ref.id));
+              if (ref.source_type === 'freelance') formDataToSend.append('freelance_id', String(ref.id));
+            } else {
+              formDataToSend.append('kategori_agent', 'Host');
+            }
+
+            
 
             // 'nama_pic' => 'required|string', 
             formDataToSend.append('nama_pic', this.formData.full_name);
@@ -1218,26 +1204,10 @@
             if (phone.startsWith('62')) phone = phone.substring(2);
             formDataToSend.append('no_hp', '62' + phone);
 
-            // 'nama_travel' => 'required|string', 
-            // 'jenis_travel' => 'required|string', 
-            // Send these even if empty, or handle based on agent type logic if backend requires
-            if (this.formData.user_type === 'TRAVEL_AGENT') {
-                formDataToSend.append('nama_travel', this.formData.travel_name);
-                formDataToSend.append('jenis_travel', this.formData.travel_type);
-            } else {
-                // If backend strictly requires them, we might need to send a placeholder or handle it.
-                // For now, sending empty string or relying on backend to ignore if not travel agent.
-                // If strict validation fails for non-travel agent, we might need to send '-'
-                formDataToSend.append('nama_travel', '-');
-                formDataToSend.append('jenis_travel', '-');
-            }
+            formDataToSend.append('nama_travel', this.formData.travel_name);
+            formDataToSend.append('jenis_travel', this.formData.travel_type);
 
-            // 'total_traveller' => 'nullable|integer',
-            if (this.formData.user_type === 'TRAVEL_AGENT' && this.formData.travel_member) {
-                formDataToSend.append('total_traveller', this.formData.travel_member);
-            } else {
-                formDataToSend.append('total_traveller', 0);
-            } 
+            if (this.formData.travel_member) formDataToSend.append('total_traveller', this.formData.travel_member);
             formDataToSend.append('provinsi', this.formData.province);
 
             // 'kabupaten_kota' => 'required|string', 
@@ -1269,7 +1239,7 @@
             }
 
             // Send to API
-            const response = await fetch('http://127.0.0.1:8000/api/agents', {
+            let response = await fetch('http://127.0.0.1:8000/api/agents', {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
@@ -1277,10 +1247,9 @@
                 body: formDataToSend
             });
 
-            const result = await response.json();
+            let result = await response.json();
 
             if (!response.ok) {
-                // Handle validation errors (e.g., Laravel 422)
                 if (response.status === 422 && result.errors) {
                     const errorMessages = Object.values(result.errors).flat().join(', ');
                     throw new Error(errorMessages);
@@ -1289,7 +1258,8 @@
             }
 
             console.log('Success:', result);
-            this.showToast('Berhasil!', 'Pendaftaran berhasil. Silakan cek email Anda untuk verifikasi.');
+            this.showToast('Berhasil!', 'Pendaftaran Travel Agent berhasil. Silakan cek email Anda untuk verifikasi.');
+            clearReferral();
             
             // Reset form and redirect to agent dashboard
             setTimeout(() => {

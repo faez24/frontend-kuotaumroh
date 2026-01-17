@@ -169,6 +169,7 @@
 
         init() {
           if (!requireRole(['freelance'], true)) return;
+          syncFreelanceIdFromUrl();
           renderHeader('profile');
 
           const savedUser = getUser();

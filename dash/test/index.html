@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Referral - Kuotaumroh.id</title>
+  <link rel="stylesheet" href="../../shared/styles.css" />
+  <script src="../../shared/utils.js"></script>
+</head>
+<body class="min-h-screen bg-background">
+  <main class="container mx-auto px-4 py-12">
+    <div class="rounded-lg border bg-white shadow-sm p-6">
+      <h1 class="text-lg font-semibold">Memproses referral…</h1>
+      <p class="text-sm text-muted-foreground mt-2">Anda akan diarahkan ke halaman login.</p>
+    </div>
+  </main>
+
+  <script>
+    (async () => {
+      try {
+        const current = window.location.href;
+
+        const affRes = await fetch('http://127.0.0.1:8000/api/affiliates', { headers: { 'Accept': 'application/json' } });
+        if (affRes.ok) {
+          const json = await affRes.json();
+          const data = Array.isArray(json) ? json : (json.data || []);
+          const match = data.find(a => a.link_referral === current || a.link_referal === current);
+          if (match && match.id) {
+            setReferral({ source_type: 'affiliate', id: match.id });
+            setReferralContext({ source_type: 'affiliate', id: match.id, url: current });
+          }
+        }
+
+        if (!getReferral() && !getReferralContext()) {
+          const res = await fetch('http://127.0.0.1:8000/api/freelances', { headers: { 'Accept': 'application/json' } });
+          if (res.ok) {
+            const json = await res.json();
+            const data = Array.isArray(json) ? json : (json.data || []);
+            const match = data.find(f => f.link_referral === current || f.link_referal === current);
+            if (match && match.id) {
+              setReferral({ source_type: 'freelance', id: match.id });
+              setReferralContext({ source_type: 'freelance', id: match.id, url: current });
+            }
+          }
+        }
+      } catch {
+      }
+
+      window.location.replace('../../login.html');
+    })();
+  </script>
+</body>
+</html>
