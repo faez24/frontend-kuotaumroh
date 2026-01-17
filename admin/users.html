@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -28,11 +29,13 @@
   <!-- Custom Flatpickr Styling -->
   <style>
     .badge-warning {
-        background-color: hsl(45 100% 96%); /* Light yellow/orange */
-        color: hsl(45 100% 35%); /* Darker yellow/orange text */
-        border: 1px solid hsl(45 100% 85%);
+      background-color: hsl(45 100% 96%);
+      /* Light yellow/orange */
+      color: hsl(45 100% 35%);
+      /* Darker yellow/orange text */
+      border: 1px solid hsl(45 100% 85%);
     }
-    
+
     .flatpickr-calendar {
       border-radius: 0.5rem;
       box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
@@ -140,15 +143,15 @@
       <!-- Stats Cards -->
       <div class="grid gap-4 md:grid-cols-3 mb-6">
         <div class="rounded-lg border bg-white shadow-sm p-6">
-          <p class="text-sm text-muted-foreground">Total Agen</p>
-          <p class="text-3xl font-bold mt-1" x-text="stats.agents"></p>
+          <p class="text-sm text-muted-foreground">Total Affiliate</p>
+          <p class="text-3xl font-bold mt-1" x-text="stats.affiliates"></p>
           <div class="mt-3 grid grid-cols-2 gap-4 text-xs text-muted-foreground">
-            <span>Agen Aktif Bulan Ini</span>
-            <span>Banned Agen</span>
+            <span>Affiliate Aktif Bulan Ini</span>
+            <span>Banned Affiliate</span>
           </div>
           <div class="grid grid-cols-2 gap-4 text-sm font-semibold">
-            <span x-text="stats.agentsActiveThisMonth"></span>
-            <span class="text-destructive" x-text="stats.agentsBanned"></span>
+            <span x-text="stats.affiliatesActiveThisMonth"></span>
+            <span class="text-destructive" x-text="stats.affiliatesBanned"></span>
           </div>
         </div>
         <div class="rounded-lg border bg-white shadow-sm p-6">
@@ -182,35 +185,55 @@
         <div class="p-6">
           <!-- Filters -->
           <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-            <h3 class="text-lg font-semibold">Daftar Users</h3>
+            <div class="flex items-center gap-3">
+              <h3 class="text-lg font-semibold">Daftar Users</h3>
+              <button x-show="roleFilter === 'affiliate'" @click="openAddAffiliateModal()"
+                class="h-9 px-4 rounded-md bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors inline-flex items-center gap-2">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Tambah Affiliate
+              </button>
+              <button x-show="roleFilter === 'freelance'" @click="openAddFreelanceModal()"
+                class="h-9 px-4 rounded-md bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors inline-flex items-center gap-2">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Tambah Freelance
+              </button>
+              <button x-show="roleFilter === 'travel_agent'" @click="openAddTravelAgentModal()"
+                class="h-9 px-4 rounded-md bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors inline-flex items-center gap-2">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Tambah Travel Agent
+              </button>
+            </div>
             <div class="flex flex-wrap gap-2 w-full sm:w-auto">
               <div class="relative w-full sm:w-auto">
-                <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none"
+                  fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                <input
-                  type="text"
-                  id="dateRangePicker"
-                  placeholder="Tanggal Daftar"
+                <input type="text" id="dateRangePicker" placeholder="Tanggal Daftar"
                   class="flex h-10 rounded-md border border-input bg-background pl-9 pr-8 py-2 text-sm w-full sm:w-[220px]"
-                  readonly
-                >
-                <button
-                  type="button"
-                  x-show="dateFrom || dateTo"
-                  @click="clearDateFilter()"
-                  class="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground rounded-full hover:bg-muted transition-colors"
-                >
+                  readonly>
+                <button type="button" x-show="dateFrom || dateTo" @click="clearDateFilter()"
+                  class="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground rounded-full hover:bg-muted transition-colors">
                   <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               </div>
               <div class="relative flex-1 sm:flex-none">
-                <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" fill="none"
+                  stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
-                <input type="text" x-model="search" placeholder="Cari nama/email" class="flex h-10 rounded-md border border-input bg-background pl-9 pr-3 py-2 text-sm w-full sm:w-[200px]">
+                <input type="text" x-model="search" placeholder="Cari nama/email"
+                  class="flex h-10 rounded-md border border-input bg-background pl-9 pr-3 py-2 text-sm w-full sm:w-[200px]">
               </div>
               <select x-model="statusFilter" class="h-10 rounded-md border border-input bg-background px-3 text-sm">
                 <option value="all">Semua Status</option>
@@ -220,9 +243,16 @@
             </div>
           </div>
           <div class="mb-6 flex gap-2 border-b">
-            <button @click="roleFilter = 'agent'; currentPage = 1" class="px-4 py-2 text-sm font-medium border-b-2 transition-colors" :class="roleFilter === 'agent' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'">Agent</button>
-            <button @click="roleFilter = 'travel_agent'; currentPage = 1" class="px-4 py-2 text-sm font-medium border-b-2 transition-colors" :class="roleFilter === 'travel_agent' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'">Travel Agent</button>
-            <button @click="roleFilter = 'freelance'; currentPage = 1" class="px-4 py-2 text-sm font-medium border-b-2 transition-colors" :class="roleFilter === 'freelance' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'">Freelance</button>
+            <button @click="roleFilter = 'affiliate'; currentPage = 1"
+              class="px-4 py-2 text-sm font-medium border-b-2 transition-colors"
+              :class="roleFilter === 'affiliate' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'">Affiliate</button>
+            <button @click="roleFilter = 'travel_agent'; currentPage = 1"
+              class="px-4 py-2 text-sm font-medium border-b-2 transition-colors"
+              :class="roleFilter === 'travel_agent' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'">Travel
+              Agent</button>
+            <button @click="roleFilter = 'freelance'; currentPage = 1"
+              class="px-4 py-2 text-sm font-medium border-b-2 transition-colors"
+              :class="roleFilter === 'freelance' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'">Freelance</button>
           </div>
 
           <!-- Table -->
@@ -234,7 +264,8 @@
                     <button @click="handleSort('name')" class="inline-flex items-center gap-2">
                       <span x-text="roleFilter === 'travel_agent' ? 'Nama PIC' : 'Nama'"></span>
                       <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
                       </svg>
                     </button>
                   </th>
@@ -242,77 +273,122 @@
                     <button @click="handleSort('email')" class="inline-flex items-center gap-2">
                       Email
                       <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
                       </svg>
                     </button>
                   </th>
-                  
+
                   <!-- Travel Agent Specific Columns -->
-                  <th x-show="roleFilter === 'travel_agent'" class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">No. HP</th>
-                  <th x-show="roleFilter === 'travel_agent'" class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Nama Travel</th>
-                  <th x-show="roleFilter === 'travel_agent'" class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Jenis Travel</th>
-                  <th x-show="roleFilter === 'travel_agent'" class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Total Travel/Bulan</th>
-                  <th x-show="roleFilter === 'travel_agent'" class="h-12 px-4 text-center align-middle font-medium text-muted-foreground">Logo</th>
-                  <th x-show="roleFilter === 'travel_agent'" class="h-12 px-4 text-center align-middle font-medium text-muted-foreground">Surat PPIU</th>
-                  <th x-show="roleFilter === 'travel_agent'" class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Provinsi</th>
-                  <th x-show="roleFilter === 'travel_agent'" class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Kota/Kab</th>
-                  <th x-show="roleFilter === 'travel_agent'" class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Detail Alamat</th>
-                  <th x-show="roleFilter === 'travel_agent'" class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Koordinat</th>
+                  <th x-show="roleFilter === 'travel_agent'"
+                    class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">No. HP</th>
+                  <th x-show="roleFilter === 'travel_agent'"
+                    class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Nama Travel</th>
+                  <th x-show="roleFilter === 'travel_agent'"
+                    class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Jenis Travel</th>
+                  <th x-show="roleFilter === 'travel_agent'"
+                    class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Total Travel/Bulan</th>
+                  <th x-show="roleFilter === 'travel_agent'"
+                    class="h-12 px-4 text-center align-middle font-medium text-muted-foreground">Logo</th>
+                  <th x-show="roleFilter === 'travel_agent'"
+                    class="h-12 px-4 text-center align-middle font-medium text-muted-foreground">Surat PPIU</th>
+                  <th x-show="roleFilter === 'travel_agent'"
+                    class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Provinsi</th>
+                  <th x-show="roleFilter === 'travel_agent'"
+                    class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Kota/Kab</th>
+                  <th x-show="roleFilter === 'travel_agent'"
+                    class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Detail Alamat</th>
+                  <th x-show="roleFilter === 'travel_agent'"
+                    class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Koordinat</th>
 
                   <!-- Standard Columns (hidden for travel agent if needed, or adjusted) -->
-                  <th x-show="roleFilter !== 'travel_agent'" class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
+                  <th x-show="roleFilter !== 'travel_agent'"
+                    class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
                     <button @click="handleSort('joinDate')" class="inline-flex items-center gap-2">
                       Tanggal Daftar
                       <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
                       </svg>
                     </button>
                   </th>
-                  <th x-show="roleFilter !== 'travel_agent'" class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
+                  <th x-show="roleFilter !== 'travel_agent'"
+                    class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
                     <button @click="handleSort('lastActiveDate')" class="inline-flex items-center gap-2">
                       Terakhir Aktif
                       <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
                       </svg>
                     </button>
                   </th>
-                  <th x-show="roleFilter === 'agent'" class="h-12 px-4 text-right align-middle font-medium text-muted-foreground">
+                  <th x-show="roleFilter === 'agent'"
+                    class="h-12 px-4 text-right align-middle font-medium text-muted-foreground">
                     <button @click="handleSort('revenue')" class="inline-flex items-center gap-2">
                       Revenue
                       <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
                       </svg>
                     </button>
                   </th>
-                  <th x-show="roleFilter === 'agent'" class="h-12 px-4 text-right align-middle font-medium text-muted-foreground">
+                  <th x-show="roleFilter === 'agent'"
+                    class="h-12 px-4 text-right align-middle font-medium text-muted-foreground">
                     <button @click="handleSort('agentOrderCount')" class="inline-flex items-center gap-2">
                       Agen Order
                       <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
                       </svg>
                     </button>
                   </th>
-                  <th x-show="roleFilter === 'agent'" class="h-12 px-4 text-right align-middle font-medium text-muted-foreground">
+                  <th x-show="roleFilter === 'agent'"
+                    class="h-12 px-4 text-right align-middle font-medium text-muted-foreground">
                     <button @click="handleSort('affiliateOrderCount')" class="inline-flex items-center gap-2">
                       Affiliate Order
                       <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
                       </svg>
                     </button>
                   </th>
-                  <th x-show="roleFilter === 'freelance'" class="h-12 px-4 text-right align-middle font-medium text-muted-foreground">
+                  <th x-show="roleFilter === 'affiliate'"
+                    class="h-12 px-4 text-right align-middle font-medium text-muted-foreground">
                     <button @click="handleSort('totalDownline')" class="inline-flex items-center gap-2">
                       Total Downline
                       <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
                       </svg>
                     </button>
                   </th>
-                  <th x-show="roleFilter === 'freelance'" class="h-12 px-4 text-right align-middle font-medium text-muted-foreground">
+                  <th x-show="roleFilter === 'freelance'"
+                    class="h-12 px-4 text-right align-middle font-medium text-muted-foreground">
+                    <button @click="handleSort('totalDownline')" class="inline-flex items-center gap-2">
+                      Total Downline
+                      <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                      </svg>
+                    </button>
+                  </th>
+                  <th x-show="roleFilter === 'freelance'"
+                    class="h-12 px-4 text-right align-middle font-medium text-muted-foreground">
+                    <button @click="handleSort('totalDownline')" class="inline-flex items-center gap-2">
+                      Total Downline
+                      <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                      </svg>
+                    </button>
+                  </th>
+                  <th x-show="roleFilter === 'freelance'"
+                    class="h-12 px-4 text-right align-middle font-medium text-muted-foreground">
                     <button @click="handleSort('totalPoints')" class="inline-flex items-center gap-2">
                       Total Poin
                       <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
                       </svg>
                     </button>
                   </th>
@@ -321,7 +397,8 @@
                     <button @click="handleSort('status')" class="inline-flex items-center gap-2">
                       Status
                       <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
                       </svg>
                     </button>
                   </th>
@@ -333,93 +410,123 @@
                   <tr class="border-b transition-colors hover:bg-muted/50 whitespace-nowrap">
                     <td class="p-4 align-middle font-medium" x-text="user.name"></td>
                     <td class="p-4 align-middle text-muted-foreground" x-text="user.email"></td>
-                    
+
                     <!-- Travel Agent Columns -->
                     <td x-show="roleFilter === 'travel_agent'" class="p-4 align-middle" x-text="user.phone || '-'"></td>
-                    <td x-show="roleFilter === 'travel_agent'" class="p-4 align-middle" x-text="user.travelName || '-'"></td>
-                    <td x-show="roleFilter === 'travel_agent'" class="p-4 align-middle" x-text="user.travelType || '-'"></td>
-                    <td x-show="roleFilter === 'travel_agent'" class="p-4 align-middle" x-text="user.monthlyTravellers || 0"></td>
+                    <td x-show="roleFilter === 'travel_agent'" class="p-4 align-middle" x-text="user.travelName || '-'">
+                    </td>
+                    <td x-show="roleFilter === 'travel_agent'" class="p-4 align-middle" x-text="user.travelType || '-'">
+                    </td>
+                    <td x-show="roleFilter === 'travel_agent'" class="p-4 align-middle"
+                      x-text="user.monthlyTravellers || 0"></td>
                     <td x-show="roleFilter === 'travel_agent'" class="p-4 align-middle text-center">
-                        <button x-show="user.logo" @click="openFileModal(user.logo)" class="text-xs text-primary hover:underline font-medium">View</button>
-                        <span x-show="!user.logo" class="text-xs text-muted-foreground">-</span>
+                      <button x-show="user.logo" @click="openFileModal(user.logo)"
+                        class="text-xs text-primary hover:underline font-medium">View</button>
+                      <span x-show="!user.logo" class="text-xs text-muted-foreground">-</span>
                     </td>
                     <td x-show="roleFilter === 'travel_agent'" class="p-4 align-middle text-center">
-                        <button x-show="user.ppiu" @click="openFileModal(user.ppiu)" class="text-xs text-primary hover:underline font-medium">View</button>
-                        <span x-show="!user.ppiu" class="text-xs text-muted-foreground">-</span>
+                      <button x-show="user.ppiu" @click="openFileModal(user.ppiu)"
+                        class="text-xs text-primary hover:underline font-medium">View</button>
+                      <span x-show="!user.ppiu" class="text-xs text-muted-foreground">-</span>
                     </td>
-                    <td x-show="roleFilter === 'travel_agent'" class="p-4 align-middle text-sm text-muted-foreground" x-text="user.province || '-'"></td>
-                    <td x-show="roleFilter === 'travel_agent'" class="p-4 align-middle text-sm text-muted-foreground" x-text="user.city || '-'"></td>
-                    <td x-show="roleFilter === 'travel_agent'" class="p-4 align-middle text-sm text-muted-foreground min-w-[200px] whitespace-normal" x-text="user.address || '-'"></td>
+                    <td x-show="roleFilter === 'travel_agent'" class="p-4 align-middle text-sm text-muted-foreground"
+                      x-text="user.province || '-'"></td>
+                    <td x-show="roleFilter === 'travel_agent'" class="p-4 align-middle text-sm text-muted-foreground"
+                      x-text="user.city || '-'"></td>
+                    <td x-show="roleFilter === 'travel_agent'"
+                      class="p-4 align-middle text-sm text-muted-foreground min-w-[200px] whitespace-normal"
+                      x-text="user.address || '-'"></td>
                     <td x-show="roleFilter === 'travel_agent'" class="p-4 align-middle text-sm text-muted-foreground">
-                        <template x-if="user.latitude && user.longitude">
-                            <a :href="`https://www.google.com/maps?q=${user.latitude},${user.longitude}`" target="_blank" class="text-primary hover:underline flex items-center gap-1">
-                                <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                                Maps
-                            </a>
-                        </template>
-                        <span x-show="!user.latitude || !user.longitude">-</span>
+                      <template x-if="user.latitude && user.longitude">
+                        <a :href="`https://www.google.com/maps?q=${user.latitude},${user.longitude}`" target="_blank"
+                          class="text-primary hover:underline flex items-center gap-1">
+                          <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          Maps
+                        </a>
+                      </template>
+                      <span x-show="!user.latitude || !user.longitude">-</span>
                     </td>
                     <!-- Standard Columns -->
-                    <td x-show="roleFilter !== 'travel_agent'" class="p-4 align-middle" x-text="formatDate(user.joinDate)"></td>
-                    <td x-show="roleFilter !== 'travel_agent'" class="p-4 align-middle" x-text="formatDate(user.lastActiveDate)"></td>
-                    <td x-show="roleFilter === 'agent'" class="p-4 align-middle text-right font-medium text-primary" x-text="formatRupiah(user.revenue)"></td>
-                    <td x-show="roleFilter === 'agent'" class="p-4 align-middle text-right font-medium" x-text="user.agentOrderCount.toLocaleString('id-ID')"></td>
-                    <td x-show="roleFilter === 'agent'" class="p-4 align-middle text-right font-medium" x-text="user.affiliateOrderCount.toLocaleString('id-ID')"></td>
-                    <td x-show="roleFilter === 'freelance'" class="p-4 align-middle text-right font-medium" x-text="user.totalDownline.toLocaleString('id-ID')"></td>
-                    <td x-show="roleFilter === 'freelance'" class="p-4 align-middle text-right font-medium text-primary" x-text="user.totalPoints.toLocaleString('id-ID') + ' poin'"></td>
+                    <td x-show="roleFilter !== 'travel_agent'" class="p-4 align-middle"
+                      x-text="formatDate(user.joinDate)"></td>
+                    <td x-show="roleFilter !== 'travel_agent'" class="p-4 align-middle"
+                      x-text="formatDate(user.lastActiveDate)"></td>
+                    <td x-show="roleFilter === 'agent'" class="p-4 align-middle text-right font-medium text-primary"
+                      x-text="formatRupiah(user.revenue)"></td>
+                    <td x-show="roleFilter === 'agent'" class="p-4 align-middle text-right font-medium"
+                      x-text="user.agentOrderCount.toLocaleString('id-ID')"></td>
+                    <td x-show="roleFilter === 'agent'" class="p-4 align-middle text-right font-medium"
+                      x-text="user.affiliateOrderCount.toLocaleString('id-ID')"></td>
+                    <td x-show="roleFilter === 'affiliate'" class="p-4 align-middle text-right font-medium"
+                      x-text="user.totalDownline.toLocaleString('id-ID')"></td>
+                    <td x-show="roleFilter === 'freelance'" class="p-4 align-middle text-right font-medium"
+                      x-text="user.totalDownline.toLocaleString('id-ID')"></td>
+                    <td x-show="roleFilter === 'freelance'" class="p-4 align-middle text-right font-medium text-primary"
+                      x-text="user.totalPoints.toLocaleString('id-ID') + ' poin'"></td>
 
                     <td class="p-4 align-middle text-sm">
-                        <a 
-                          x-show="user.referralLink || user.role === 'freelance' || user.role === 'affiliate'"
-                          :href="getReferralHref(user)" 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
-                          x-text="user.referralLink || (user.role === 'freelance' ? 'freelance' : (user.role === 'affiliate' ? 'affiliate' : '-'))" 
-                          class="text-primary hover:underline"
-                        ></a>
-                        <span x-show="!user.referralLink && user.role !== 'freelance' && user.role !== 'affiliate'" class="text-muted-foreground">-</span>
+                      <a x-show="user.referralLink || user.role === 'freelance' || user.role === 'affiliate'"
+                        :href="getReferralHref(user)" target="_blank" rel="noopener noreferrer"
+                        x-text="user.referralLink || (user.role === 'freelance' ? 'freelance' : (user.role === 'affiliate' ? 'affiliate' : '-'))"
+                        class="text-primary hover:underline"></a>
+                      <span x-show="!user.referralLink && user.role !== 'freelance' && user.role !== 'affiliate'"
+                        class="text-muted-foreground">-</span>
                     </td>
-                    
+
                     <td class="p-4 align-middle text-center">
-                      <span class="badge" 
-                        :class="{
+                      <span class="badge" :class="{
                             'badge-success': user.status === 'active',
                             'badge-destructive': user.status === 'reject',
                             'badge-warning': user.status === 'pending'
-                        }" 
+                        }"
                         x-text="user.status === 'active' ? 'Aktif' : (user.status === 'reject' ? 'Ditolak' : 'Pending')">
                       </span>
                     </td>
                     <td class="p-4 align-middle text-center">
                       <div class="flex items-center justify-center gap-2">
-                          <a x-show="roleFilter === 'freelance'" :href="getFreelanceDashboardHref(user)" target="_blank" rel="noopener noreferrer" class="h-8 px-3 rounded text-xs font-medium border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors">
-                              Dashboard
-                          </a>
-                          <!-- Approve Button for Pending Users -->
-                          <div class="flex gap-1" x-show="user.status === 'pending'">
-                              <button @click="openApproveModal(user)" class="h-8 px-3 rounded text-xs font-medium border border-green-200 text-green-600 hover:bg-green-50 transition-colors">
-                                Approve
-                              </button>
-                              <button @click="rejectUser(user)" class="h-8 px-3 rounded text-xs font-medium border border-red-200 text-red-600 hover:bg-red-50 transition-colors">
-                                Reject
-                              </button>
-                          </div>
-                          
-                          <!-- Deactivate Button for Active Users -->
-                          <button x-show="user.status === 'active'" @click="openDeactivateModal(user)" class="h-8 px-3 rounded text-xs font-medium border border-red-200 text-red-600 hover:bg-red-50 transition-colors">
-                              Nonaktifkan
+                        <a x-show="roleFilter === 'freelance'" :href="getFreelanceDashboardHref(user)" target="_blank"
+                          rel="noopener noreferrer"
+                          class="h-8 px-3 rounded text-xs font-medium border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors">
+                          Dashboard
+                        </a>
+                        <!-- Approve Button for Pending Users -->
+                        <div class="flex gap-1" x-show="user.status === 'pending'">
+                          <button @click="openApproveModal(user)"
+                            class="h-8 px-3 rounded text-xs font-medium border border-green-200 text-green-600 hover:bg-green-50 transition-colors">
+                            Approve
                           </button>
+                          <button @click="rejectUser(user)"
+                            class="h-8 px-3 rounded text-xs font-medium border border-red-200 text-red-600 hover:bg-red-50 transition-colors">
+                            Reject
+                          </button>
+                        </div>
 
-                          <!-- Activate Button for Rejected Users -->
-                          <button x-show="user.status === 'reject'" @click="activateUser(user)" class="h-8 px-3 rounded text-xs font-medium border border-blue-200 text-blue-600 hover:bg-blue-50 transition-colors">
-                              Aktifkan
-                          </button>
+                        <!-- Deactivate Button for Active Users -->
+                        <button x-show="user.status === 'active'" @click="openDeactivateModal(user)"
+                          class="h-8 px-3 rounded text-xs font-medium border border-red-200 text-red-600 hover:bg-red-50 transition-colors">
+                          Nonaktifkan
+                        </button>
+
+                        <!-- Activate Button for Rejected Users -->
+                        <button x-show="user.status === 'reject'" @click="activateUser(user)"
+                          class="h-8 px-3 rounded text-xs font-medium border border-blue-200 text-blue-600 hover:bg-blue-50 transition-colors">
+                          Aktifkan
+                        </button>
                       </div>
                     </td>
                   </tr>
                 </template>
                 <template x-if="filteredUsers.length === 0">
-                  <tr><td :colspan="roleFilter === 'travel_agent' ? 9 : (roleFilter === 'freelance' ? 8 : 9)" class="p-8 text-center text-muted-foreground">Tidak ada user ditemukan</td></tr>
+                  <tr>
+                    <td
+                      :colspan="roleFilter === 'travel_agent' ? 14 : (roleFilter === 'affiliate' ? 8 : (roleFilter === 'freelance' ? 8 : 9))"
+                      class="p-8 text-center text-muted-foreground">Tidak ada user ditemukan</td>
+                  </tr>
                 </template>
               </tbody>
             </table>
@@ -437,12 +544,9 @@
               item.
             </div>
             <div class="flex items-center gap-2">
-              <button
-                @click="changePage(currentPage - 1)"
-                :disabled="currentPage === 1"
+              <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1"
                 :class="currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-muted'"
-                class="inline-flex items-center justify-center rounded-md border bg-transparent h-8 px-3 text-sm transition-colors"
-              >
+                class="inline-flex items-center justify-center rounded-md border bg-transparent h-8 px-3 text-sm transition-colors">
                 Previous
               </button>
               <div class="flex gap-1">
@@ -452,26 +556,19 @@
                     @click="changePage(page)"
                     :class="page === currentPage ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'"
                     class="inline-flex items-center justify-center rounded-md border h-8 w-8 text-sm transition-colors"
-                    x-text="page"
-                  ></button>
+                    x-text="page"></button>
                 </template>
               </div>
-              <button
-                @click="changePage(currentPage + 1)"
-                :disabled="currentPage === totalPages"
+              <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages"
                 :class="currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-muted'"
-                class="inline-flex items-center justify-center rounded-md border bg-transparent h-8 px-3 text-sm transition-colors"
-              >
+                class="inline-flex items-center justify-center rounded-md border bg-transparent h-8 px-3 text-sm transition-colors">
                 Next
               </button>
             </div>
             <div class="flex items-center gap-2 text-sm text-muted-foreground">
               <span>Menampilkan</span>
-              <select
-                @change="setItemsPerPage($event.target.value)"
-                :value="itemsPerPage"
-                class="h-8 rounded-md border border-input bg-background px-2 py-1 text-sm"
-              >
+              <select @change="setItemsPerPage($event.target.value)" :value="itemsPerPage"
+                class="h-8 rounded-md border border-input bg-background px-2 py-1 text-sm">
                 <option value="20">20</option>
                 <option value="40">40</option>
                 <option value="60">60</option>
@@ -508,20 +605,26 @@
       <div x-transition class="relative z-10 w-full max-w-md rounded-lg bg-white shadow-lg p-6">
         <h3 class="text-lg font-semibold text-slate-900">Approve User</h3>
         <p class="mt-2 text-sm text-muted-foreground">Buat Link Referral untuk user ini.</p>
-        
+
         <div class="mt-4">
-            <label class="block text-sm font-medium text-slate-700 mb-1">Link Referral</label>
-            <div class="flex rounded-md shadow-sm">
-                <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-muted text-muted-foreground text-sm" x-text="referralBaseUrl"></span>
-                <input type="text" x-model="referralSlugInput" class="flex-1 block w-full min-w-0 rounded-none rounded-r-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
-            </div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Link Referral</label>
+          <div class="flex rounded-md shadow-sm">
+            <span
+              class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-muted text-muted-foreground text-sm"
+              x-text="referralBaseUrl"></span>
+            <input type="text" x-model="referralSlugInput"
+              class="flex-1 block w-full min-w-0 rounded-none rounded-r-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+          </div>
         </div>
 
         <div class="mt-6 flex items-center justify-end gap-3">
-          <button @click="closeApproveModal()" class="h-9 px-4 rounded-md border text-sm font-medium text-slate-700 hover:bg-muted transition-colors">
+          <button @click="closeApproveModal()"
+            class="h-9 px-4 rounded-md border text-sm font-medium text-slate-700 hover:bg-muted transition-colors">
             Batal
           </button>
-          <button @click="submitApprove()" class="h-9 px-4 rounded-md bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors" :disabled="!referralSlugInput">
+          <button @click="submitApprove()"
+            class="h-9 px-4 rounded-md bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors"
+            :disabled="!referralSlugInput">
             Approve
           </button>
         </div>
@@ -535,16 +638,694 @@
         <h3 class="text-lg font-semibold text-slate-900">Nonaktifkan User?</h3>
         <p class="mt-2 text-sm text-muted-foreground">User akan dinonaktifkan dan statusnya menjadi ditolak.</p>
         <div class="mt-6 flex items-center justify-end gap-3">
-          <button @click="closeDeactivateModal()" class="h-9 px-4 rounded-md border text-sm font-medium text-slate-700 hover:bg-muted transition-colors">
+          <button @click="closeDeactivateModal()"
+            class="h-9 px-4 rounded-md border text-sm font-medium text-slate-700 hover:bg-muted transition-colors">
             Batal
           </button>
-          <button @click="confirmDeactivate()" class="h-9 px-4 rounded-md bg-destructive text-white text-sm font-medium hover:bg-destructive/90 transition-colors">
+          <button @click="confirmDeactivate()"
+            class="h-9 px-4 rounded-md bg-destructive text-white text-sm font-medium hover:bg-destructive/90 transition-colors">
             Nonaktifkan
           </button>
         </div>
       </div>
     </div>
 
+    <!-- Add Affiliate Modal -->
+    <div x-show="addAffiliateModalOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center"
+      x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
+      x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
+      x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+      <div class="absolute inset-0 bg-black/40" @click="closeAddAffiliateModal()"></div>
+      <div class="relative z-10 w-full max-w-2xl rounded-lg bg-white shadow-lg p-6 max-h-[90vh] overflow-y-auto"
+        x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform scale-95"
+        x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="opacity-100 transform scale-100"
+        x-transition:leave-end="opacity-0 transform scale-95">
+        <h3 class="text-lg font-semibold text-slate-900">Tambah Affiliate Baru</h3>
+        <p class="mt-2 text-sm text-muted-foreground">Isi form di bawah untuk menambahkan affiliate baru.</p>
+
+        <form @submit.prevent="submitAddAffiliate()" class="mt-6 space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Nama -->
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">Nama <span
+                  class="text-red-500">*</span></label>
+              <input type="text" x-model="newAffiliate.nama" required
+                class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+            </div>
+
+            <!-- Email -->
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">Email <span
+                  class="text-red-500">*</span></label>
+              <input type="email" x-model="newAffiliate.email" required
+                class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+            </div>
+
+            <!-- No. WA -->
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">No. WhatsApp (+62) <span
+                  class="text-red-500">*</span></label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                  <span class="text-sm text-muted-foreground">+62</span>
+                </div>
+                <input type="tel" x-model="newAffiliate.no_wa"
+                  @input="newAffiliate.no_wa = newAffiliate.no_wa.replace(/[^0-9]/g, '')" required placeholder="81xxx"
+                  class="flex h-10 w-full rounded-md border border-input bg-background pl-12 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+              </div>
+              <p class="text-xs text-muted-foreground mt-1">Format: 81xxxxxxxx (tanpa 0 atau +62)</p>
+            </div>
+
+            <!-- Link Referral -->
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">Link Referral <span
+                  class="text-red-500">*</span></label>
+              <input type="text" x-model="newAffiliate.link_referral" required placeholder="john123"
+                class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+            </div>
+
+            <!-- Provinsi -->
+            <div x-data="{ provinceDropdownOpen: false, provinceSearch: '' }"
+              x-init="$watch('provinceDropdownOpen', value => { if (value) $nextTick(() => $refs.provinceSearchInput.focus()) })">
+              <label class="block text-sm font-medium text-slate-700 mb-1">Provinsi <span
+                  class="text-red-500">*</span></label>
+              <div class="relative" @click.away="provinceDropdownOpen = false">
+                <button type="button" @click="provinceDropdownOpen = !provinceDropdownOpen"
+                  class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                  <span :class="!newAffiliate.provinsi && 'text-muted-foreground'"
+                    x-text="newAffiliate.provinsi || 'Pilih provinsi'"></span>
+                  <svg class="h-4 w-4 transition-transform" :class="provinceDropdownOpen && 'rotate-180'" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                <div x-show="provinceDropdownOpen" x-transition
+                  class="absolute z-50 mt-1 w-full rounded-md border border-input bg-white shadow-lg"
+                  style="display: none;">
+                  <div class="p-2 border-b"><input type="text" x-ref="provinceSearchInput" x-model="provinceSearch"
+                      @click.stop placeholder="Cari provinsi..."
+                      class="w-full rounded-md border border-input px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                  </div>
+                  <div class="max-h-60 overflow-y-auto">
+                    <template
+                      x-for="province in provinces.filter(p => p.toLowerCase().includes(provinceSearch.toLowerCase()))"
+                      :key="province">
+                      <button type="button"
+                        @click="newAffiliate.provinsi = province; handleProvinceChange(); provinceDropdownOpen = false; provinceSearch = ''"
+                        class="w-full px-3 py-2 text-left text-sm hover:bg-muted transition-colors"
+                        :class="newAffiliate.provinsi === province && 'bg-muted'" x-text="province"></button>
+                    </template>
+                    <div
+                      x-show="provinces.filter(p => p.toLowerCase().includes(provinceSearch.toLowerCase())).length === 0"
+                      class="px-3 py-2 text-sm text-muted-foreground">Tidak ada provinsi ditemukan</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Kab/Kota -->
+            <div x-data="{ cityDropdownOpen: false, citySearch: '' }"
+              x-init="$watch('cityDropdownOpen', value => { if (value) $nextTick(() => $refs.citySearchInput.focus()) })">
+              <label class="block text-sm font-medium text-slate-700 mb-1">Kabupaten/Kota <span
+                  class="text-red-500">*</span></label>
+              <div class="relative" @click.away="cityDropdownOpen = false">
+                <button type="button" @click="cityDropdownOpen = !cityDropdownOpen"
+                  class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                  <span :class="!newAffiliate.kab_kota && 'text-muted-foreground'"
+                    x-text="newAffiliate.kab_kota || 'Pilih kota/kabupaten'"></span>
+                  <svg class="h-4 w-4 transition-transform" :class="cityDropdownOpen && 'rotate-180'" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                <div x-show="cityDropdownOpen" x-transition
+                  class="absolute z-50 mt-1 w-full rounded-md border border-input bg-white shadow-lg"
+                  style="display: none;">
+                  <div class="p-2 border-b"><input type="text" x-ref="citySearchInput" x-model="citySearch" @click.stop
+                      placeholder="Cari kota/kabupaten..."
+                      class="w-full rounded-md border border-input px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                  </div>
+                  <div class="max-h-60 overflow-y-auto">
+                    <template x-for="city in cities.filter(c => c.toLowerCase().includes(citySearch.toLowerCase()))"
+                      :key="city">
+                      <button type="button"
+                        @click="newAffiliate.kab_kota = city; cityDropdownOpen = false; citySearch = ''"
+                        class="w-full px-3 py-2 text-left text-sm hover:bg-muted transition-colors"
+                        :class="newAffiliate.kab_kota === city && 'bg-muted'" x-text="city"></button>
+                    </template>
+                    <div x-show="cities.filter(c => c.toLowerCase().includes(citySearch.toLowerCase())).length === 0"
+                      class="px-3 py-2 text-sm text-muted-foreground">Tidak ada kota ditemukan</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Alamat Lengkap -->
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Alamat Lengkap <span
+                class="text-red-500">*</span></label>
+            <textarea x-model="newAffiliate.alamat_lengkap" required rows="3" placeholder="Jl. Contoh No. 123"
+              class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"></textarea>
+          </div>
+
+          <div class="flex items-center justify-end gap-3 pt-4">
+            <button type="button" @click="closeAddAffiliateModal()"
+              class="h-9 px-4 rounded-md border text-sm font-medium text-slate-700 hover:bg-muted transition-colors">
+              Batal
+            </button>
+            <button type="button" @click="openConfirmAddModal()"
+              class="h-9 px-4 rounded-md bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors">
+              Simpan
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Confirm Add Affiliate Modal -->
+    <div x-show="confirmAddModalOpen" x-cloak class="fixed inset-0 z-[60] flex items-center justify-center"
+      x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
+      x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
+      x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+      <div class="absolute inset-0 bg-black/40" @click="closeConfirmAddModal()"></div>
+      <div class="relative z-10 w-full max-w-md rounded-lg bg-white shadow-lg p-6"
+        x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform scale-95"
+        x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="opacity-100 transform scale-100"
+        x-transition:leave-end="opacity-0 transform scale-95">
+        <h3 class="text-lg font-semibold text-slate-900">Konfirmasi Tambah Affiliate</h3>
+        <p class="mt-2 text-sm text-muted-foreground">Apakah Anda yakin ingin menambahkan affiliate baru dengan data
+          yang telah diisi?</p>
+        <div class="mt-6 flex items-center justify-end gap-3">
+          <button @click="closeConfirmAddModal()"
+            class="h-9 px-4 rounded-md border text-sm font-medium text-slate-700 hover:bg-muted transition-colors">
+            Batal
+          </button>
+          <button @click="confirmAddAffiliate()"
+            class="h-9 px-4 rounded-md bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors">
+            Ya, Simpan
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Freelance Modal -->
+    <div x-show="addFreelanceModalOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center"
+      x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
+      x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
+      x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+      <div class="absolute inset-0 bg-black/40" @click="closeAddFreelanceModal()"></div>
+      <div class="relative z-10 w-full max-w-2xl rounded-lg bg-white shadow-lg p-6 max-h-[90vh] overflow-y-auto"
+        x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform scale-95"
+        x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="opacity-100 transform scale-100"
+        x-transition:leave-end="opacity-0 transform scale-95">
+        <h3 class="text-lg font-semibold text-slate-900">Tambah Freelance Baru</h3>
+        <p class="mt-2 text-sm text-muted-foreground">Isi form di bawah untuk menambahkan freelance baru.</p>
+
+        <form @submit.prevent="openConfirmAddFreelanceModal()" class="mt-6 space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Nama -->
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">Nama <span
+                  class="text-red-500">*</span></label>
+              <input type="text" x-model="newFreelance.nama" required
+                class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+            </div>
+
+            <!-- Email -->
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">Email <span
+                  class="text-red-500">*</span></label>
+              <input type="email" x-model="newFreelance.email" required
+                class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+            </div>
+
+            <!-- No. WA -->
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">No. WhatsApp (+62) <span
+                  class="text-red-500">*</span></label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                  <span class="text-sm text-muted-foreground">+62</span>
+                </div>
+                <input type="tel" x-model="newFreelance.no_wa"
+                  @input="newFreelance.no_wa = newFreelance.no_wa.replace(/[^0-9]/g, '')" required placeholder="81xxx"
+                  class="flex h-10 w-full rounded-md border border-input bg-background pl-12 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+              </div>
+              <p class="text-xs text-muted-foreground mt-1">Format: 81xxxxxxxx (tanpa 0 atau +62)</p>
+            </div>
+
+            <!-- Link Referral -->
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">Link Referral <span
+                  class="text-red-500">*</span></label>
+              <input type="text" x-model="newFreelance.link_referral" required placeholder="john123"
+                class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+            </div>
+
+            <!-- Provinsi -->
+            <div x-data="{ provinceDropdownOpen: false, provinceSearch: '' }"
+              x-init="$watch('provinceDropdownOpen', value => { if (value) $nextTick(() => $refs.provinceSearchInputFreelance.focus()) })">
+              <label class="block text-sm font-medium text-slate-700 mb-1">Provinsi <span
+                  class="text-red-500">*</span></label>
+              <div class="relative" @click.away="provinceDropdownOpen = false">
+                <button type="button" @click="provinceDropdownOpen = !provinceDropdownOpen"
+                  class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                  <span :class="!newFreelance.provinsi && 'text-muted-foreground'"
+                    x-text="newFreelance.provinsi || 'Pilih provinsi'"></span>
+                  <svg class="h-4 w-4 transition-transform" :class="provinceDropdownOpen && 'rotate-180'" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                <div x-show="provinceDropdownOpen" x-transition
+                  class="absolute z-50 mt-1 w-full rounded-md border border-input bg-white shadow-lg"
+                  style="display: none;">
+                  <div class="p-2 border-b"><input type="text" x-ref="provinceSearchInputFreelance"
+                      x-model="provinceSearch" @click.stop placeholder="Cari provinsi..."
+                      class="w-full rounded-md border border-input px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                  </div>
+                  <div class="max-h-60 overflow-y-auto">
+                    <template
+                      x-for="province in provinces.filter(p => p.toLowerCase().includes(provinceSearch.toLowerCase()))"
+                      :key="province">
+                      <button type="button"
+                        @click="newFreelance.provinsi = province; handleProvinceChangeFreelance(); provinceDropdownOpen = false; provinceSearch = ''"
+                        class="w-full px-3 py-2 text-left text-sm hover:bg-muted transition-colors"
+                        :class="newFreelance.provinsi === province && 'bg-muted'" x-text="province"></button>
+                    </template>
+                    <div
+                      x-show="provinces.filter(p => p.toLowerCase().includes(provinceSearch.toLowerCase())).length === 0"
+                      class="px-3 py-2 text-sm text-muted-foreground">Tidak ada provinsi ditemukan</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Kab/Kota -->
+            <div x-data="{ cityDropdownOpen: false, citySearch: '' }"
+              x-init="$watch('cityDropdownOpen', value => { if (value) $nextTick(() => $refs.citySearchInputFreelance.focus()) })">
+              <label class="block text-sm font-medium text-slate-700 mb-1">Kabupaten/Kota <span
+                  class="text-red-500">*</span></label>
+              <div class="relative" @click.away="cityDropdownOpen = false">
+                <button type="button" @click="cityDropdownOpen = !cityDropdownOpen"
+                  class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                  <span :class="!newFreelance.kab_kota && 'text-muted-foreground'"
+                    x-text="newFreelance.kab_kota || 'Pilih kota/kabupaten'"></span>
+                  <svg class="h-4 w-4 transition-transform" :class="cityDropdownOpen && 'rotate-180'" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                <div x-show="cityDropdownOpen" x-transition
+                  class="absolute z-50 mt-1 w-full rounded-md border border-input bg-white shadow-lg"
+                  style="display: none;">
+                  <div class="p-2 border-b"><input type="text" x-ref="citySearchInputFreelance" x-model="citySearch"
+                      @click.stop placeholder="Cari kota/kabupaten..."
+                      class="w-full rounded-md border border-input px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                  </div>
+                  <div class="max-h-60 overflow-y-auto">
+                    <template
+                      x-for="city in citiesFreelance.filter(c => c.toLowerCase().includes(citySearch.toLowerCase()))"
+                      :key="city">
+                      <button type="button"
+                        @click="newFreelance.kab_kota = city; cityDropdownOpen = false; citySearch = ''"
+                        class="w-full px-3 py-2 text-left text-sm hover:bg-muted transition-colors"
+                        :class="newFreelance.kab_kota === city && 'bg-muted'" x-text="city"></button>
+                    </template>
+                    <div
+                      x-show="citiesFreelance.filter(c => c.toLowerCase().includes(citySearch.toLowerCase())).length === 0"
+                      class="px-3 py-2 text-sm text-muted-foreground">Tidak ada kota ditemukan</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Alamat Lengkap -->
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Alamat Lengkap <span
+                class="text-red-500">*</span></label>
+            <textarea x-model="newFreelance.alamat_lengkap" required rows="3" placeholder="Jl. Contoh No. 123"
+              class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"></textarea>
+          </div>
+
+          <div class="flex items-center justify-end gap-3 pt-4">
+            <button type="button" @click="closeAddFreelanceModal()"
+              class="h-9 px-4 rounded-md border text-sm font-medium text-slate-700 hover:bg-muted transition-colors">
+              Batal
+            </button>
+            <button type="submit"
+              class="h-9 px-4 rounded-md bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors">
+              Simpan
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Confirm Add Freelance Modal -->
+    <div x-show="confirmAddFreelanceModalOpen" x-cloak class="fixed inset-0 z-[60] flex items-center justify-center"
+      x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
+      x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
+      x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+      <div class="absolute inset-0 bg-black/40" @click="closeConfirmAddFreelanceModal()"></div>
+      <div class="relative z-10 w-full max-w-md rounded-lg bg-white shadow-lg p-6"
+        x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform scale-95"
+        x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="opacity-100 transform scale-100"
+        x-transition:leave-end="opacity-0 transform scale-95">
+        <h3 class="text-lg font-semibold text-slate-900">Konfirmasi Tambah Freelance</h3>
+        <p class="mt-2 text-sm text-muted-foreground">Apakah Anda yakin ingin menambahkan freelance baru dengan data
+          yang telah diisi?</p>
+        <div class="mt-6 flex items-center justify-end gap-3">
+          <button @click="closeConfirmAddFreelanceModal()"
+            class="h-9 px-4 rounded-md border text-sm font-medium text-slate-700 hover:bg-muted transition-colors">
+            Batal
+          </button>
+          <button @click="confirmAddFreelance()"
+            class="h-9 px-4 rounded-md bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors">
+            Ya, Simpan
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- Add Travel Agent Modal -->
+    <div x-show="addTravelAgentModalOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center"
+      x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
+      x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
+      x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+      <div class="absolute inset-0 bg-black/40" @click="closeAddTravelAgentModal()"></div>
+      <div class="relative z-10 w-full max-w-4xl rounded-lg bg-white shadow-lg p-6 max-h-[90vh] overflow-y-auto"
+        x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform scale-95"
+        x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="opacity-100 transform scale-100"
+        x-transition:leave-end="opacity-0 transform scale-95">
+        <h3 class="text-lg font-semibold text-slate-900">Tambah Travel Agent Baru</h3>
+        <p class="mt-2 text-sm text-muted-foreground">Isi form di bawah untuk menambahkan travel agent baru.</p>
+
+        <form @submit.prevent="openConfirmAddTravelAgentModal()" class="mt-6 space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Left Column -->
+            <div class="space-y-4">
+              <h4 class="font-medium text-slate-900 border-b pb-2">Informasi Kontak</h4>
+
+              <!-- Nama PIC -->
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1">Nama PIC <span
+                    class="text-red-500">*</span></label>
+                <input type="text" x-model="newTravelAgent.full_name" required
+                  class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+              </div>
+
+              <!-- Email -->
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1">Email <span
+                    class="text-red-500">*</span></label>
+                <input type="email" x-model="newTravelAgent.email" required
+                  class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+              </div>
+
+              <!-- No. HP -->
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1">No. HP (+62) <span
+                    class="text-red-500">*</span></label>
+                <div class="relative">
+                  <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    <span class="text-sm text-muted-foreground">+62</span>
+                  </div>
+                  <input type="tel" x-model="newTravelAgent.phone"
+                    @input="newTravelAgent.phone = newTravelAgent.phone.replace(/[^0-9]/g, '')" required
+                    placeholder="81xxx"
+                    class="flex h-10 w-full rounded-md border border-input bg-background pl-12 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                </div>
+                <p class="text-xs text-muted-foreground mt-1">Format: 81xxxxxxxx (tanpa 0 atau +62)</p>
+              </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="space-y-4">
+              <h4 class="font-medium text-slate-900 border-b pb-2">Detail Travel</h4>
+
+              <!-- Nama Travel -->
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1">Nama Travel <span
+                    class="text-red-500">*</span></label>
+                <input type="text" x-model="newTravelAgent.travel_name" required
+                  class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+              </div>
+
+              <!-- Jenis Travel -->
+              <div x-data="{ travelTypeOpen: false }">
+                <label class="block text-sm font-medium text-slate-700 mb-1">Jenis Travel <span
+                    class="text-red-500">*</span></label>
+                <div class="relative" @click.away="travelTypeOpen = false">
+                  <button type="button" @click="travelTypeOpen = !travelTypeOpen"
+                    class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                    <span :class="!newTravelAgent.travel_type && 'text-muted-foreground'"
+                      x-text="newTravelAgent.travel_type || 'Pilih jenis travel'"></span>
+                    <svg class="h-4 w-4 transition-transform" :class="travelTypeOpen && 'rotate-180'" fill="none"
+                      stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                  <div x-show="travelTypeOpen" x-transition
+                    class="absolute z-50 mt-1 w-full rounded-md border border-input bg-white shadow-lg"
+                    style="display: none;">
+                    <div class="py-1">
+                      <button type="button" @click="newTravelAgent.travel_type = 'UMROH'; travelTypeOpen = false"
+                        class="w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors"
+                        :class="newTravelAgent.travel_type === 'UMROH' && 'bg-primary/10 text-primary'">UMROH</button>
+                      <button type="button" @click="newTravelAgent.travel_type = 'LEISURE'; travelTypeOpen = false"
+                        class="w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors"
+                        :class="newTravelAgent.travel_type === 'LEISURE' && 'bg-primary/10 text-primary'">LEISURE</button>
+                      <button type="button"
+                        @click="newTravelAgent.travel_type = 'UMROH LEISURE'; travelTypeOpen = false"
+                        class="w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors"
+                        :class="newTravelAgent.travel_type === 'UMROH LEISURE' && 'bg-primary/10 text-primary'">UMROH
+                        & LEISURE</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Total Traveller -->
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1">Total Traveller per Bulan <span
+                    class="text-red-500">*</span></label>
+                <input type="number" x-model="newTravelAgent.travel_member" required min="0"
+                  class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+              </div>
+            </div>
+          </div>
+
+          <!-- Kategori Agent & Downline -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4">
+            <!-- Kategori Agent -->
+            <div x-data="{ kategoriOpen: false }">
+              <label class="block text-sm font-medium text-slate-700 mb-1">Kategori Agent <span
+                  class="text-red-500">*</span></label>
+              <div class="relative" @click.away="kategoriOpen = false">
+                <button type="button" @click="kategoriOpen = !kategoriOpen"
+                  class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                  <span :class="!newTravelAgent.kategori_agent && 'text-muted-foreground'"
+                    x-text="newTravelAgent.kategori_agent || 'Pilih kategori'"></span>
+                  <svg class="h-4 w-4 transition-transform" :class="kategoriOpen && 'rotate-180'" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                <div x-show="kategoriOpen" x-transition
+                  class="absolute z-50 mt-1 w-full rounded-md border border-input bg-white shadow-lg"
+                  style="display: none;">
+                  <div class="py-1">
+                    <button type="button" @click="newTravelAgent.kategori_agent = 'Referral'; kategoriOpen = false"
+                      class="w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors"
+                      :class="newTravelAgent.kategori_agent === 'Referral' && 'bg-primary/10 text-primary'">Referral</button>
+                    <button type="button" @click="newTravelAgent.kategori_agent = 'Host'; kategoriOpen = false"
+                      class="w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors"
+                      :class="newTravelAgent.kategori_agent === 'Host' && 'bg-primary/10 text-primary'">Host</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Downline -->
+            <div x-data="{ downlineOpen: false, downlineSearch: '' }">
+              <label class="block text-sm font-medium text-slate-700 mb-1">Downline (Opsional)</label>
+              <div class="relative" @click.away="downlineOpen = false">
+                <button type="button" @click="downlineOpen = !downlineOpen; if(downlineOpen) loadDownlines()"
+                  class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                  <span :class="!selectedDownline && 'text-muted-foreground'"
+                    x-text="selectedDownline ? selectedDownline.name + ' (' + selectedDownline.type + ')' : 'Pilih downline'"></span>
+                  <svg class="h-4 w-4 transition-transform" :class="downlineOpen && 'rotate-180'" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                <div x-show="downlineOpen" x-transition
+                  class="absolute z-50 mt-1 w-full rounded-md border border-input bg-white shadow-lg"
+                  style="display: none;">
+                  <div class="p-2 border-b"><input type="text" x-model="downlineSearch" @click.stop
+                      placeholder="Cari downline..."
+                      class="w-full rounded-md border border-input px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                  </div>
+                  <div class="max-h-60 overflow-y-auto">
+                    <template
+                      x-for="downline in downlines.filter(d => d.name.toLowerCase().includes(downlineSearch.toLowerCase()))"
+                      :key="downline.id + '-' + downline.type">
+                      <button type="button" @click="selectDownline(downline); downlineOpen = false; downlineSearch = ''"
+                        class="w-full px-3 py-2 text-left text-sm hover:bg-muted transition-colors"
+                        :class="selectedDownline && selectedDownline.id === downline.id && selectedDownline.type === downline.type && 'bg-muted'">
+                        <div class="font-medium" x-text="downline.name"></div>
+                        <div class="text-xs text-muted-foreground" x-text="downline.type + ' - ' + downline.email">
+                        </div>
+                      </button>
+                    </template>
+                    <div
+                      x-show="downlines.filter(d => d.name.toLowerCase().includes(downlineSearch.toLowerCase())).length === 0"
+                      class="px-3 py-2 text-sm text-muted-foreground">Tidak ada downline ditemukan</div>
+                  </div>
+                </div>
+              </div>
+              <p class="text-xs text-muted-foreground mt-1">Pilih affiliate atau freelance sebagai downline</p>
+            </div>
+          </div>
+
+          <!-- Alamat -->
+          <div class="border-t pt-4">
+            <h4 class="font-medium text-slate-900 mb-4">Informasi Alamat</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Provinsi -->
+              <div x-data="{ provinceDropdownOpen: false, provinceSearch: '' }">
+                <label class="block text-sm font-medium text-slate-700 mb-1">Provinsi <span
+                    class="text-red-500">*</span></label>
+                <div class="relative" @click.away="provinceDropdownOpen = false">
+                  <button type="button" @click="provinceDropdownOpen = !provinceDropdownOpen"
+                    class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                    <span :class="!newTravelAgent.province && 'text-muted-foreground'"
+                      x-text="newTravelAgent.province || 'Pilih provinsi'"></span>
+                    <svg class="h-4 w-4 transition-transform" :class="provinceDropdownOpen && 'rotate-180'" fill="none"
+                      stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                  <div x-show="provinceDropdownOpen" x-transition
+                    class="absolute z-50 mt-1 w-full rounded-md border border-input bg-white shadow-lg"
+                    style="display: none;">
+                    <div class="p-2 border-b"><input type="text" x-ref="provinceSearchInputAgent"
+                        x-model="provinceSearch" @click.stop placeholder="Cari provinsi..."
+                        class="w-full rounded-md border border-input px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                    </div>
+                    <div class="max-h-60 overflow-y-auto">
+                      <template
+                        x-for="province in provinces.filter(p => p.toLowerCase().includes(provinceSearch.toLowerCase()))"
+                        :key="province">
+                        <button type="button"
+                          @click="newTravelAgent.province = province; handleProvinceChangeTravelAgent(); provinceDropdownOpen = false; provinceSearch = ''"
+                          class="w-full px-3 py-2 text-left text-sm hover:bg-muted transition-colors"
+                          :class="newTravelAgent.province === province && 'bg-muted'" x-text="province"></button>
+                      </template>
+                      <div
+                        x-show="provinces.filter(p => p.toLowerCase().includes(provinceSearch.toLowerCase())).length === 0"
+                        class="px-3 py-2 text-sm text-muted-foreground">Tidak ada provinsi ditemukan
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Kab/Kota -->
+              <div x-data="{ cityDropdownOpen: false, citySearch: '' }">
+                <label class="block text-sm font-medium text-slate-700 mb-1">Kabupaten/Kota <span
+                    class="text-red-500">*</span></label>
+                <div class="relative" @click.away="cityDropdownOpen = false">
+                  <button type="button" @click="cityDropdownOpen = !cityDropdownOpen"
+                    class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                    <span :class="!newTravelAgent.city && 'text-muted-foreground'"
+                      x-text="newTravelAgent.city || 'Pilih kota/kabupaten'"></span>
+                    <svg class="h-4 w-4 transition-transform" :class="cityDropdownOpen && 'rotate-180'" fill="none"
+                      stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                  <div x-show="cityDropdownOpen" x-transition
+                    class="absolute z-50 mt-1 w-full rounded-md border border-input bg-white shadow-lg"
+                    style="display: none;">
+                    <div class="p-2 border-b"><input type="text" x-ref="citySearchInputAgent" x-model="citySearch"
+                        @click.stop placeholder="Cari kota/kabupaten..."
+                        class="w-full rounded-md border border-input px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                    </div>
+                    <div class="max-h-60 overflow-y-auto">
+                      <template
+                        x-for="city in citiesTravelAgent.filter(c => c.toLowerCase().includes(citySearch.toLowerCase()))"
+                        :key="city">
+                        <button type="button"
+                          @click="newTravelAgent.city = city; cityDropdownOpen = false; citySearch = ''"
+                          class="w-full px-3 py-2 text-left text-sm hover:bg-muted transition-colors"
+                          :class="newTravelAgent.city === city && 'bg-muted'" x-text="city"></button>
+                      </template>
+                      <div
+                        x-show="citiesTravelAgent.filter(c => c.toLowerCase().includes(citySearch.toLowerCase())).length === 0"
+                        class="px-3 py-2 text-sm text-muted-foreground">Tidak ada kota ditemukan</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Alamat Lengkap -->
+            <div class="mt-4">
+              <label class="block text-sm font-medium text-slate-700 mb-1">Alamat Lengkap <span
+                  class="text-red-500">*</span></label>
+              <textarea x-model="newTravelAgent.address" required rows="3" placeholder="Jl. Contoh No. 123"
+                class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"></textarea>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-end gap-3 pt-4 border-t">
+            <button type="button" @click="closeAddTravelAgentModal()"
+              class="h-9 px-4 rounded-md border text-sm font-medium text-slate-700 hover:bg-muted transition-colors">
+              Batal
+            </button>
+            <button type="submit"
+              class="h-9 px-4 rounded-md bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors">
+              Simpan
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Confirm Add Travel Agent Modal -->
+    <div x-show="confirmAddTravelAgentModalOpen" x-cloak class="fixed inset-0 z-[60] flex items-center justify-center"
+      x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
+      x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
+      x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+      <div class="absolute inset-0 bg-black/40" @click="closeConfirmAddTravelAgentModal()"></div>
+      <div class="relative z-10 w-full max-w-md rounded-lg bg-white shadow-lg p-6"
+        x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform scale-95"
+        x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="opacity-100 transform scale-100"
+        x-transition:leave-end="opacity-0 transform scale-95">
+        <h3 class="text-lg font-semibold text-slate-900">Konfirmasi Tambah Travel Agent</h3>
+        <p class="mt-2 text-sm text-muted-foreground">Apakah Anda yakin ingin menambahkan travel agent baru dengan data
+          yang telah diisi?</p>
+        <div class="mt-6 flex items-center justify-end gap-3">
+          <button @click="closeConfirmAddTravelAgentModal()"
+            class="h-9 px-4 rounded-md border text-sm font-medium text-slate-700 hover:bg-muted transition-colors">
+            Batal
+          </button>
+          <button @click="confirmAddTravelAgent()"
+            class="h-9 px-4 rounded-md bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors">
+            Ya, Simpan
+          </button>
+        </div>
+      </div>
+    </div>
     <div x-show="toastVisible" x-transition class="toast">
       <div class="font-semibold mb-1" x-text="toastTitle"></div>
       <div class="text-sm text-muted-foreground" x-text="toastMessage"></div>
@@ -554,8 +1335,8 @@
   <script>
     function usersPage() {
       return {
-        search: '', roleFilter: 'agent', statusFilter: 'all',
-        users: [], stats: { agents: 0, travelAgents: 0, freelance: 0, agentsActiveThisMonth: 0, travelAgentsActiveThisMonth: 0, freelanceActiveThisMonth: 0, agentsBanned: 0, travelAgentsBanned: 0, freelanceBanned: 0 },
+        search: '', roleFilter: 'affiliate', statusFilter: 'all',
+        users: [], stats: { affiliates: 0, travelAgents: 0, freelance: 0, affiliatesActiveThisMonth: 0, travelAgentsActiveThisMonth: 0, freelanceActiveThisMonth: 0, affiliatesBanned: 0, travelAgentsBanned: 0, freelanceBanned: 0 },
         toastVisible: false, toastTitle: '', toastMessage: '',
         dateFrom: '',
         dateTo: '',
@@ -571,6 +1352,49 @@
         sortDirection: 'desc',
         currentPage: 1,
         itemsPerPage: 20,
+        addAffiliateModalOpen: false,
+        confirmAddModalOpen: false,
+        newAffiliate: {
+          nama: '',
+          email: '',
+          no_wa: '',
+          provinsi: '',
+          kab_kota: '',
+          alamat_lengkap: '',
+          link_referral: ''
+        },
+        provinces: [],
+        provinceCodes: new Map(),
+        cities: [],
+        addFreelanceModalOpen: false,
+        confirmAddFreelanceModalOpen: false,
+        newFreelance: {
+          nama: '',
+          email: '',
+          no_wa: '',
+          provinsi: '',
+          kab_kota: '',
+          alamat_lengkap: '',
+          link_referral: ''
+        },
+        citiesFreelance: [],
+        addTravelAgentModalOpen: false,
+        confirmAddTravelAgentModalOpen: false,
+        newTravelAgent: {
+          full_name: '',
+          email: '',
+          phone: '',
+          travel_name: '',
+          travel_type: '',
+          travel_member: '',
+          kategori_agent: '',
+          province: '',
+          city: '',
+          address: ''
+        },
+        citiesTravelAgent: [],
+        downlines: [],
+        selectedDownline: null,
 
         get filteredUsers() {
           return this.users.filter(u => {
@@ -685,305 +1509,734 @@
         },
 
         openFileModal(src) {
-            if (!src) return;
-            const extension = src.split('.').pop().toLowerCase();
-            this.fileModalType = extension === 'pdf' ? 'pdf' : 'image';
-            
-            // Handle full URL vs relative path
-            if (src.startsWith('http')) {
-                this.fileModalSrc = src;
-            } else {
-                // Assuming Laravel storage link is at /storage
-                // Remove 'public/' if it exists in the path as commonly stored in DB
-                const cleanPath = src.replace('public/', '');
-                this.fileModalSrc = `http://127.0.0.1:8000/storage/${cleanPath}`; 
-            }
-            this.fileModalOpen = true;
+          if (!src) return;
+          const extension = src.split('.').pop().toLowerCase();
+          this.fileModalType = extension === 'pdf' ? 'pdf' : 'image';
+
+          // Handle full URL vs relative path
+          if (src.startsWith('http')) {
+            this.fileModalSrc = src;
+          } else {
+            // Assuming Laravel storage link is at /storage
+            // Remove 'public/' if it exists in the path as commonly stored in DB
+            const cleanPath = src.replace('public/', '');
+            this.fileModalSrc = `http://127.0.0.1:8000/storage/${cleanPath}`;
+          }
+          this.fileModalOpen = true;
         },
 
         closeFileModal() {
-            this.fileModalOpen = false;
-            this.fileModalSrc = '';
+          this.fileModalOpen = false;
+          this.fileModalSrc = '';
         },
 
         openApproveModal(user) {
-            this.selectedUser = user;
-            this.referralSlugInput = ''; // Reset input
-            // Set base URL dynamically
-            this.referralBaseUrl = window.location.origin + '/';
-            this.approveModalOpen = true;
+          this.selectedUser = user;
+          this.referralSlugInput = ''; // Reset input
+          // Set base URL dynamically
+          this.referralBaseUrl = window.location.origin + '/';
+          this.approveModalOpen = true;
         },
 
         closeApproveModal() {
-            this.approveModalOpen = false;
-            this.selectedUser = null;
-            this.referralSlugInput = '';
+          this.approveModalOpen = false;
+          this.selectedUser = null;
+          this.referralSlugInput = '';
         },
 
         openDeactivateModal(user) {
-            this.selectedUser = user;
-            this.deactivateModalOpen = true;
+          this.selectedUser = user;
+          this.deactivateModalOpen = true;
         },
 
         closeDeactivateModal() {
-            this.deactivateModalOpen = false;
-            this.selectedUser = null;
+          this.deactivateModalOpen = false;
+          this.selectedUser = null;
+        },
+
+        openAddAffiliateModal() {
+          this.newAffiliate = {
+            nama: '',
+            email: '',
+            no_wa: '',
+            provinsi: '',
+            kab_kota: '',
+            alamat_lengkap: '',
+            link_referral: ''
+          };
+          this.addAffiliateModalOpen = true;
+        },
+
+        closeAddAffiliateModal() {
+          this.addAffiliateModalOpen = false;
+          this.newAffiliate = {
+            nama: '',
+            email: '',
+            no_wa: '',
+            provinsi: '',
+            kab_kota: '',
+            alamat_lengkap: '',
+            link_referral: ''
+          };
+        },
+
+        openConfirmAddModal() {
+          // Validasi form terlebih dahulu
+          if (!this.newAffiliate.nama || !this.newAffiliate.email || !this.newAffiliate.no_wa ||
+            !this.newAffiliate.provinsi || !this.newAffiliate.kab_kota ||
+            !this.newAffiliate.alamat_lengkap || !this.newAffiliate.link_referral) {
+            this.showToast('Error', 'Mohon lengkapi semua field yang wajib diisi');
+            return;
+          }
+          this.confirmAddModalOpen = true;
+        },
+
+        closeConfirmAddModal() {
+          this.confirmAddModalOpen = false;
+        },
+
+        async confirmAddAffiliate() {
+          try {
+            // Prepare data with 62 prefix for no_wa
+            const dataToSend = {
+              ...this.newAffiliate,
+              no_wa: '62' + this.newAffiliate.no_wa
+            };
+
+            console.log('Sending data:', dataToSend);
+
+            const response = await fetch('http://127.0.0.1:8000/api/affiliates', {
+              method: 'POST',
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(dataToSend)
+            });
+
+            const responseData = await response.json();
+            console.log('Response:', responseData);
+
+            if (!response.ok) {
+              // Handle validation errors
+              if (response.status === 422 && responseData.errors) {
+                const errorMessages = Object.values(responseData.errors).flat().join(', ');
+                throw new Error(errorMessages);
+              }
+              throw new Error(responseData.message || 'Gagal menambahkan affiliate');
+            }
+
+            this.showToast('Sukses', 'Affiliate berhasil ditambahkan');
+            this.closeConfirmAddModal();
+            this.closeAddAffiliateModal();
+            this.fetchUsers(); // Refresh data
+          } catch (error) {
+            console.error('Error adding affiliate:', error);
+            this.showToast('Error', error.message || 'Gagal menambahkan affiliate');
+            this.closeConfirmAddModal();
+          }
+        },
+
+        async loadProvinces() {
+          try {
+            const response = await fetch('../public/wilayah/provinces.json');
+            const data = await response.json();
+
+            if (data && data.data) {
+              this.provinces = data.data.map(p => p.name).sort();
+              data.data.forEach(p => {
+                this.provinceCodes.set(p.name, p.code);
+              });
+              console.log('Loaded', this.provinces.length, 'provinces');
+            }
+          } catch (error) {
+            console.error('Error loading provinces:', error);
+            this.showToast('Error', 'Gagal memuat data provinsi');
+          }
+        },
+
+        async loadCities(provinceCode) {
+          try {
+            const localPath = `../public/wilayah/regencies-${provinceCode}.json`;
+            let response;
+
+            try {
+              response = await fetch(localPath);
+              if (!response.ok) throw new Error('Not in cache');
+            } catch {
+              response = await fetch(`https://wilayah.id/api/regencies/${provinceCode}.json`);
+            }
+
+            const data = await response.json();
+
+            if (data && data.data) {
+              this.cities = data.data.map(c => c.name).sort();
+              console.log('Loaded', this.cities.length, 'cities for province', provinceCode);
+            }
+          } catch (error) {
+            console.error('Error loading cities:', error);
+            this.showToast('Error', 'Gagal memuat data kota/kabupaten');
+            this.cities = [];
+          }
+        },
+
+        async handleProvinceChange() {
+          this.newAffiliate.kab_kota = '';
+          this.cities = [];
+
+          const provinceCode = this.provinceCodes.get(this.newAffiliate.provinsi);
+          if (provinceCode) {
+            await this.loadCities(provinceCode);
+            console.log('Province changed to:', this.newAffiliate.provinsi, `(${provinceCode})`);
+          }
+        },
+
+        openAddFreelanceModal() {
+          this.newFreelance = {
+            nama: '',
+            email: '',
+            no_wa: '',
+            provinsi: '',
+            kab_kota: '',
+            alamat_lengkap: '',
+            link_referral: ''
+          };
+          this.addFreelanceModalOpen = true;
+        },
+
+        closeAddFreelanceModal() {
+          this.addFreelanceModalOpen = false;
+          this.newFreelance = {
+            nama: '',
+            email: '',
+            no_wa: '',
+            provinsi: '',
+            kab_kota: '',
+            alamat_lengkap: '',
+            link_referral: ''
+          };
+        },
+
+        openConfirmAddFreelanceModal() {
+          if (!this.newFreelance.nama || !this.newFreelance.email || !this.newFreelance.no_wa ||
+            !this.newFreelance.provinsi || !this.newFreelance.kab_kota ||
+            !this.newFreelance.alamat_lengkap || !this.newFreelance.link_referral) {
+            this.showToast('Error', 'Mohon lengkapi semua field yang wajib diisi');
+            return;
+          }
+          this.confirmAddFreelanceModalOpen = true;
+        },
+
+        closeConfirmAddFreelanceModal() {
+          this.confirmAddFreelanceModalOpen = false;
+        },
+
+        async confirmAddFreelance() {
+          try {
+            const dataToSend = {
+              ...this.newFreelance,
+              no_wa: '62' + this.newFreelance.no_wa
+            };
+
+            console.log('Sending freelance data:', dataToSend);
+
+            const response = await fetch('http://127.0.0.1:8000/api/freelances', {
+              method: 'POST',
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(dataToSend)
+            });
+
+            const responseData = await response.json();
+            console.log('Response:', responseData);
+
+            if (!response.ok) {
+              if (response.status === 422 && responseData.errors) {
+                const errorMessages = Object.values(responseData.errors).flat().join(', ');
+                throw new Error(errorMessages);
+              }
+              throw new Error(responseData.message || 'Gagal menambahkan freelance');
+            }
+
+            this.showToast('Sukses', 'Freelance berhasil ditambahkan');
+            this.closeConfirmAddFreelanceModal();
+            this.closeAddFreelanceModal();
+            this.fetchUsers();
+          } catch (error) {
+            console.error('Error adding freelance:', error);
+            this.showToast('Error', error.message || 'Gagal menambahkan freelance');
+            this.closeConfirmAddFreelanceModal();
+          }
+        },
+
+        async handleProvinceChangeFreelance() {
+          this.newFreelance.kab_kota = '';
+          this.citiesFreelance = [];
+
+          const provinceCode = this.provinceCodes.get(this.newFreelance.provinsi);
+          if (provinceCode) {
+            try {
+              const localPath = `../public/wilayah/regencies-${provinceCode}.json`;
+              let response;
+
+              try {
+                response = await fetch(localPath);
+                if (!response.ok) throw new Error('Not in cache');
+              } catch {
+                response = await fetch(`https://wilayah.id/api/regencies/${provinceCode}.json`);
+              }
+
+              const data = await response.json();
+
+              if (data && data.data) {
+                this.citiesFreelance = data.data.map(c => c.name).sort();
+                console.log('Loaded', this.citiesFreelance.length, 'cities for freelance province', provinceCode);
+              }
+            } catch (error) {
+              console.error('Error loading cities for freelance:', error);
+              this.showToast('Error', 'Gagal memuat data kota/kabupaten');
+              this.citiesFreelance = [];
+            }
+          }
+        },
+
+        openAddTravelAgentModal() {
+          this.newTravelAgent = {
+            full_name: '',
+            email: '',
+            phone: '',
+            travel_name: '',
+            travel_type: '',
+            travel_member: '',
+            kategori_agent: '',
+            province: '',
+            city: '',
+            address: ''
+          };
+          this.selectedDownline = null;
+          this.addTravelAgentModalOpen = true;
+        },
+
+        closeAddTravelAgentModal() {
+          this.addTravelAgentModalOpen = false;
+          this.newTravelAgent = {
+            full_name: '',
+            email: '',
+            phone: '',
+            travel_name: '',
+            travel_type: '',
+            travel_member: '',
+            kategori_agent: '',
+            province: '',
+            city: '',
+            address: ''
+          };
+          this.selectedDownline = null;
+        },
+
+        openConfirmAddTravelAgentModal() {
+          if (!this.newTravelAgent.full_name || !this.newTravelAgent.email || !this.newTravelAgent.phone ||
+            !this.newTravelAgent.travel_name || !this.newTravelAgent.travel_type || !this.newTravelAgent.travel_member ||
+            !this.newTravelAgent.kategori_agent || !this.newTravelAgent.province || !this.newTravelAgent.city || !this.newTravelAgent.address) {
+            this.showToast('Error', 'Mohon lengkapi semua field yang wajib diisi');
+            return;
+          }
+          this.confirmAddTravelAgentModalOpen = true;
+        },
+
+        closeConfirmAddTravelAgentModal() {
+          this.confirmAddTravelAgentModalOpen = false;
+        },
+
+        async confirmAddTravelAgent() {
+          try {
+            const dataToSend = {
+              nama_pic: this.newTravelAgent.full_name,
+              email: this.newTravelAgent.email,
+              no_hp: '62' + this.newTravelAgent.phone,
+              nama_travel: this.newTravelAgent.travel_name,
+              jenis_travel: this.newTravelAgent.travel_type,
+              total_traveller: this.newTravelAgent.travel_member,
+              kategori_agent: this.newTravelAgent.kategori_agent,
+              provinsi: this.newTravelAgent.province,
+              kabupaten_kota: this.newTravelAgent.city,
+              alamat_lengkap: this.newTravelAgent.address
+            };
+
+            // Add affiliate_id or freelance_id based on selected downline
+            if (this.selectedDownline) {
+              if (this.selectedDownline.type === 'Affiliate') {
+                dataToSend.affiliate_id = this.selectedDownline.id;
+              } else if (this.selectedDownline.type === 'Freelance') {
+                dataToSend.freelance_id = this.selectedDownline.id;
+              }
+            }
+
+            console.log('Sending travel agent data:', dataToSend);
+
+            const response = await fetch('http://127.0.0.1:8000/api/agents', {
+              method: 'POST',
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(dataToSend)
+            });
+
+            const responseData = await response.json();
+            console.log('Response:', responseData);
+
+            if (!response.ok) {
+              if (response.status === 422 && responseData.errors) {
+                const errorMessages = Object.values(responseData.errors).flat().join(', ');
+                throw new Error(errorMessages);
+              }
+              throw new Error(responseData.message || 'Gagal menambahkan travel agent');
+            }
+
+            this.showToast('Sukses', 'Travel agent berhasil ditambahkan');
+            this.closeConfirmAddTravelAgentModal();
+            this.closeAddTravelAgentModal();
+            this.fetchUsers();
+          } catch (error) {
+            console.error('Error adding travel agent:', error);
+            this.showToast('Error', error.message || 'Gagal menambahkan travel agent');
+            this.closeConfirmAddTravelAgentModal();
+          }
+        },
+
+        async handleProvinceChangeTravelAgent() {
+          this.newTravelAgent.city = '';
+          this.citiesTravelAgent = [];
+
+          const provinceCode = this.provinceCodes.get(this.newTravelAgent.province);
+          if (provinceCode) {
+            try {
+              const localPath = `../public/wilayah/regencies-${provinceCode}.json`;
+              let response;
+
+              try {
+                response = await fetch(localPath);
+                if (!response.ok) throw new Error('Not in cache');
+              } catch {
+                response = await fetch(`https://wilayah.id/api/regencies/${provinceCode}.json`);
+              }
+
+              const data = await response.json();
+
+              if (data && data.data) {
+                this.citiesTravelAgent = data.data.map(c => c.name).sort();
+                console.log('Loaded', this.citiesTravelAgent.length, 'cities for travel agent province', provinceCode);
+              }
+            } catch (error) {
+              console.error('Error loading cities for travel agent:', error);
+              this.showToast('Error', 'Gagal memuat data kota/kabupaten');
+              this.citiesTravelAgent = [];
+            }
+          }
+        },
+
+        async loadDownlines() {
+          try {
+            this.downlines = [];
+
+            // Fetch affiliates
+            const affiliatesResponse = await fetch('http://127.0.0.1:8000/api/affiliates');
+            if (affiliatesResponse.ok) {
+              const affiliatesData = await affiliatesResponse.json();
+              const affiliates = affiliatesData.data.map(a => ({
+                id: a.id,
+                name: a.nama,
+                email: a.email,
+                type: 'Affiliate'
+              }));
+              this.downlines.push(...affiliates);
+            }
+
+            // Fetch freelances
+            const freelancesResponse = await fetch('http://127.0.0.1:8000/api/freelances');
+            if (freelancesResponse.ok) {
+              const freelancesData = await freelancesResponse.json();
+              const freelances = freelancesData.data.map(f => ({
+                id: f.id,
+                name: f.nama,
+                email: f.email,
+                type: 'Freelance'
+              }));
+              this.downlines.push(...freelances);
+            }
+
+            console.log('Loaded', this.downlines.length, 'downlines');
+          } catch (error) {
+            console.error('Error loading downlines:', error);
+            this.showToast('Error', 'Gagal memuat data downline');
+          }
+        },
+
+        selectDownline(downline) {
+          this.selectedDownline = downline;
+          console.log('Selected downline:', downline);
         },
 
         async confirmDeactivate() {
-            if (!this.selectedUser) return;
-            const user = this.selectedUser;
-            try {
-                if (user.role === 'freelance') {
-                    const deactivateResponse = await fetch(`http://127.0.0.1:8000/api/freelances/${user.id}/deactivate`, {
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        },
-                        body: '{}'
-                    });
+          if (!this.selectedUser) return;
+          const user = this.selectedUser;
+          try {
+            if (user.role === 'freelance') {
+              const deactivateResponse = await fetch(`http://127.0.0.1:8000/api/freelances/${user.id}/deactivate`, {
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json',
+                  'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: '{}'
+              });
 
-                    if (!deactivateResponse.ok) {
-                        const deactivateErr = await deactivateResponse.text();
-                        console.error('Freelance deactivate failed:', deactivateResponse.status, deactivateErr);
-                        throw new Error('Gagal menonaktifkan user');
-                    }
+              if (!deactivateResponse.ok) {
+                const deactivateErr = await deactivateResponse.text();
+                console.error('Freelance deactivate failed:', deactivateResponse.status, deactivateErr);
+                throw new Error('Gagal menonaktifkan user');
+              }
 
-                    user.status = 'reject';
-                    this.showToast('Sukses', 'User berhasil dinonaktifkan');
-                    this.closeDeactivateModal();
-                    this.fetchUsers();
-                    return;
-                }
-
-                const rejectResponse = await fetch(`http://127.0.0.1:8000/api/agents/${user.id}/reject`, {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: '{}'
-                });
-
-                const deactivateResponse = await fetch(`http://127.0.0.1:8000/api/agents/${user.id}/deactivate`, {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: '{}'
-                });
-
-                if (rejectResponse.ok && deactivateResponse.ok) {
-                    user.status = 'reject';
-                    this.showToast('Sukses', 'User berhasil dinonaktifkan');
-                    this.closeDeactivateModal();
-                    this.fetchUsers();
-                } else {
-                    const rejectErr = rejectResponse.ok ? '' : await rejectResponse.text();
-                    const deactivateErr = deactivateResponse.ok ? '' : await deactivateResponse.text();
-                    if (!rejectResponse.ok) console.error('Reject failed:', rejectResponse.status, rejectErr);
-                    if (!deactivateResponse.ok) console.error('Deactivate failed:', deactivateResponse.status, deactivateErr);
-                    throw new Error('Gagal menonaktifkan user');
-                }
-            } catch (error) {
-                console.error('Error deactivating user:', error);
-                this.showToast('Error', 'Gagal menonaktifkan user');
+              user.status = 'reject';
+              this.showToast('Sukses', 'User berhasil dinonaktifkan');
+              this.closeDeactivateModal();
+              this.fetchUsers();
+              return;
             }
+
+            const rejectResponse = await fetch(`http://127.0.0.1:8000/api/agents/${user.id}/reject`, {
+              method: 'POST',
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+              },
+              body: '{}'
+            });
+
+            const deactivateResponse = await fetch(`http://127.0.0.1:8000/api/agents/${user.id}/deactivate`, {
+              method: 'POST',
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+              },
+              body: '{}'
+            });
+
+            if (rejectResponse.ok && deactivateResponse.ok) {
+              user.status = 'reject';
+              this.showToast('Sukses', 'User berhasil dinonaktifkan');
+              this.closeDeactivateModal();
+              this.fetchUsers();
+            } else {
+              const rejectErr = rejectResponse.ok ? '' : await rejectResponse.text();
+              const deactivateErr = deactivateResponse.ok ? '' : await deactivateResponse.text();
+              if (!rejectResponse.ok) console.error('Reject failed:', rejectResponse.status, rejectErr);
+              if (!deactivateResponse.ok) console.error('Deactivate failed:', deactivateResponse.status, deactivateErr);
+              throw new Error('Gagal menonaktifkan user');
+            }
+          } catch (error) {
+            console.error('Error deactivating user:', error);
+            this.showToast('Error', 'Gagal menonaktifkan user');
+          }
         },
 
         async activateUser(user) {
-            if (!confirm(`Aktifkan kembali user ${user.name}?`)) return;
+          if (!confirm(`Aktifkan kembali user ${user.name}?`)) return;
 
-            if (user.role === 'freelance') {
-                try {
-                    const activateResponse = await fetch(`http://127.0.0.1:8000/api/freelances/${user.id}/activate`, {
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        },
-                        body: '{}'
-                    });
-
-                    if (!activateResponse.ok) {
-                        const activateErr = await activateResponse.text();
-                        console.error('Freelance activate failed:', activateResponse.status, activateErr);
-                        throw new Error('Gagal mengaktifkan user');
-                    }
-
-                    user.status = 'active';
-                    this.showToast('Sukses', 'User berhasil diaktifkan');
-                    this.fetchUsers();
-                    return;
-                } catch (error) {
-                    console.error('Error activating freelance:', error);
-                    this.showToast('Error', 'Gagal mengaktifkan user');
-                    return;
-                }
-            }
-
-            if (!user.referralLink) {
-                this.openApproveModal(user);
-                return;
-            }
-
+          if (user.role === 'freelance') {
             try {
-                let approveResponse = await fetch(`http://127.0.0.1:8000/api/agents/${user.id}/approve`, {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: JSON.stringify({ link_referal: user.referralLink })
-                });
+              const activateResponse = await fetch(`http://127.0.0.1:8000/api/freelances/${user.id}/activate`, {
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json',
+                  'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: '{}'
+              });
 
-                if (!approveResponse.ok) {
-                    const formData = new FormData();
-                    formData.append('link_referal', user.referralLink);
-                    approveResponse = await fetch(`http://127.0.0.1:8000/api/agents/${user.id}/approve`, {
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        },
-                        body: formData
-                    });
-                }
+              if (!activateResponse.ok) {
+                const activateErr = await activateResponse.text();
+                console.error('Freelance activate failed:', activateResponse.status, activateErr);
+                throw new Error('Gagal mengaktifkan user');
+              }
 
-                const activateResponse = await fetch(`http://127.0.0.1:8000/api/agents/${user.id}/activate`, {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: '{}'
-                });
-
-                if (approveResponse.ok && activateResponse.ok) {
-                    user.status = 'active';
-                    this.showToast('Sukses', 'User berhasil diaktifkan');
-                    this.fetchUsers();
-                } else {
-                    const approveErr = approveResponse.ok ? '' : await approveResponse.text();
-                    const activateErr = activateResponse.ok ? '' : await activateResponse.text();
-                    if (!approveResponse.ok) console.error('Approve failed:', approveResponse.status, approveErr);
-                    if (!activateResponse.ok) console.error('Activate failed:', activateResponse.status, activateErr);
-                    throw new Error('Gagal mengaktifkan user');
-                }
+              user.status = 'active';
+              this.showToast('Sukses', 'User berhasil diaktifkan');
+              this.fetchUsers();
+              return;
             } catch (error) {
-                console.error('Error activating user:', error);
-                this.showToast('Error', 'Gagal mengaktifkan user');
+              console.error('Error activating freelance:', error);
+              this.showToast('Error', 'Gagal mengaktifkan user');
+              return;
             }
+          }
+
+          if (!user.referralLink) {
+            this.openApproveModal(user);
+            return;
+          }
+
+          try {
+            let approveResponse = await fetch(`http://127.0.0.1:8000/api/agents/${user.id}/approve`, {
+              method: 'POST',
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+              },
+              body: JSON.stringify({ link_referal: user.referralLink })
+            });
+
+            if (!approveResponse.ok) {
+              const formData = new FormData();
+              formData.append('link_referal', user.referralLink);
+              approveResponse = await fetch(`http://127.0.0.1:8000/api/agents/${user.id}/approve`, {
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json',
+                  'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+              });
+            }
+
+            const activateResponse = await fetch(`http://127.0.0.1:8000/api/agents/${user.id}/activate`, {
+              method: 'POST',
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+              },
+              body: '{}'
+            });
+
+            if (approveResponse.ok && activateResponse.ok) {
+              user.status = 'active';
+              this.showToast('Sukses', 'User berhasil diaktifkan');
+              this.fetchUsers();
+            } else {
+              const approveErr = approveResponse.ok ? '' : await approveResponse.text();
+              const activateErr = activateResponse.ok ? '' : await activateResponse.text();
+              if (!approveResponse.ok) console.error('Approve failed:', approveResponse.status, approveErr);
+              if (!activateResponse.ok) console.error('Activate failed:', activateResponse.status, activateErr);
+              throw new Error('Gagal mengaktifkan user');
+            }
+          } catch (error) {
+            console.error('Error activating user:', error);
+            this.showToast('Error', 'Gagal mengaktifkan user');
+          }
         },
 
         async submitApprove() {
-            if (!this.selectedUser || !this.referralSlugInput) return;
-            
-            const user = this.selectedUser;
-            // Construct full link
-            const fullLink = this.referralBaseUrl + this.referralSlugInput;
-            
-            try {
-                let approveResponse = await fetch(`http://127.0.0.1:8000/api/agents/${user.id}/approve`, {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ link_referal: fullLink })
-                });
+          if (!this.selectedUser || !this.referralSlugInput) return;
 
-                if (!approveResponse.ok) {
-                    const formData = new FormData();
-                    formData.append('link_referal', fullLink);
-                    approveResponse = await fetch(`http://127.0.0.1:8000/api/agents/${user.id}/approve`, {
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/json',
-                        },
-                        body: formData
-                    });
-                }
-                
-                if (!approveResponse.ok) {
-                    const errorText = await approveResponse.text();
-                    console.error('Approve Error:', errorText);
-                    throw new Error('Gagal menyetujui user');
-                }
+          const user = this.selectedUser;
+          // Construct full link
+          const fullLink = this.referralBaseUrl + this.referralSlugInput;
 
-                if (approveResponse.ok) {
-                    try {
-                        await fetch(`http://127.0.0.1:8000/api/agents/${user.id}/activate`, {
-                            method: 'POST',
-                            headers: { 'Accept': 'application/json' }
-                        });
-                    } catch (e) {
-                        console.error('Activate Error:', e);
-                    }
+          try {
+            let approveResponse = await fetch(`http://127.0.0.1:8000/api/agents/${user.id}/approve`, {
+              method: 'POST',
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ link_referal: fullLink })
+            });
 
-                    user.status = 'active'; // Backend sets 'approve', mapped to 'active' badge logic
-                    user.referralLink = fullLink;
-                    this.showToast('Sukses', `User ${user.name} berhasil disetujui`);
-                    this.closeApproveModal();
-                    // Refresh data to get canonical status from backend
-                    this.fetchUsers();
-                }
-            } catch (error) {
-                console.error('Error approving user:', error);
-                this.showToast('Error', 'Gagal memproses approval');
+            if (!approveResponse.ok) {
+              const formData = new FormData();
+              formData.append('link_referal', fullLink);
+              approveResponse = await fetch(`http://127.0.0.1:8000/api/agents/${user.id}/approve`, {
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json',
+                },
+                body: formData
+              });
             }
+
+            if (!approveResponse.ok) {
+              const errorText = await approveResponse.text();
+              console.error('Approve Error:', errorText);
+              throw new Error('Gagal menyetujui user');
+            }
+
+            if (approveResponse.ok) {
+              try {
+                await fetch(`http://127.0.0.1:8000/api/agents/${user.id}/activate`, {
+                  method: 'POST',
+                  headers: { 'Accept': 'application/json' }
+                });
+              } catch (e) {
+                console.error('Activate Error:', e);
+              }
+
+              user.status = 'active'; // Backend sets 'approve', mapped to 'active' badge logic
+              user.referralLink = fullLink;
+              this.showToast('Sukses', `User ${user.name} berhasil disetujui`);
+              this.closeApproveModal();
+              // Refresh data to get canonical status from backend
+              this.fetchUsers();
+            }
+          } catch (error) {
+            console.error('Error approving user:', error);
+            this.showToast('Error', 'Gagal memproses approval');
+          }
         },
 
         async rejectUser(user) {
-             if (!confirm(`Apakah Anda yakin ingin menolak user ${user.name}?`)) return;
+          if (!confirm(`Apakah Anda yakin ingin menolak user ${user.name}?`)) return;
 
-             try {
-                 const response = await fetch(`http://127.0.0.1:8000/api/agents/${user.id}/reject`, {
-                     method: 'POST',
-                     headers: {
-                         'Accept': 'application/json',
-                     }
-                 });
-                 
-                 if (response.ok) {
-                     try {
-                         await fetch(`http://127.0.0.1:8000/api/agents/${user.id}/deactivate`, {
-                             method: 'POST',
-                             headers: { 'Accept': 'application/json' }
-                         });
-                     } catch (e) {
-                         console.error('Deactivate Error:', e);
-                     }
+          try {
+            const response = await fetch(`http://127.0.0.1:8000/api/agents/${user.id}/reject`, {
+              method: 'POST',
+              headers: {
+                'Accept': 'application/json',
+              }
+            });
 
-                     user.status = 'reject';
-                     this.showToast('Sukses', `User ${user.name} berhasil ditolak`);
-                     this.fetchUsers();
-                 } else {
-                     throw new Error('Gagal menolak user');
-                 }
-             } catch (error) {
-                 console.error('Error rejecting user:', error);
-                 this.showToast('Error', 'Gagal menolak user');
-             }
+            if (response.ok) {
+              try {
+                await fetch(`http://127.0.0.1:8000/api/agents/${user.id}/deactivate`, {
+                  method: 'POST',
+                  headers: { 'Accept': 'application/json' }
+                });
+              } catch (e) {
+                console.error('Deactivate Error:', e);
+              }
+
+              user.status = 'reject';
+              this.showToast('Sukses', `User ${user.name} berhasil ditolak`);
+              this.fetchUsers();
+            } else {
+              throw new Error('Gagal menolak user');
+            }
+          } catch (error) {
+            console.error('Error rejecting user:', error);
+            this.showToast('Error', 'Gagal menolak user');
+          }
         },
 
         init() {
           if (!requireRole(['admin'], true)) return;
           renderHeader('users');
-          this.stats = { agents: 156, travelAgents: 45, freelance: 24, agentsActiveThisMonth: 48, travelAgentsActiveThisMonth: 21, freelanceActiveThisMonth: 9, agentsBanned: 2, travelAgentsBanned: 1, freelanceBanned: 1 };
+          this.stats = { affiliates: 0, travelAgents: 0, freelance: 0, affiliatesActiveThisMonth: 0, travelAgentsActiveThisMonth: 0, freelanceActiveThisMonth: 0, affiliatesBanned: 0, travelAgentsBanned: 0, freelanceBanned: 0 };
           // this.users = this.generateMockUsers();
 
           // Fetch real data from API
           this.fetchUsers();
-          
+
+          // Load provinces for affiliate form
+          this.loadProvinces();
+
           this.$nextTick(() => {
             flatpickr('#dateRangePicker', {
               mode: 'range',
@@ -1011,138 +2264,181 @@
           });
           this.$watch('search', () => { this.currentPage = 1; this.fetchUsers(); });
           this.$watch('statusFilter', () => { this.currentPage = 1; this.fetchUsers(); });
-          this.$watch('roleFilter', () => { 
-              this.currentPage = 1;
-              this.fetchUsers(); 
+          this.$watch('roleFilter', () => {
+            this.currentPage = 1;
+            this.fetchUsers();
           });
           this.$watch('dateFrom', () => { this.currentPage = 1; this.fetchUsers(); });
           this.$watch('dateTo', () => { this.currentPage = 1; this.fetchUsers(); });
-          
+
           // Initial fetch
           this.fetchUsers();
         },
-        
+
         async fetchUsers() {
-            try {
-                this.users = []; // Clear current users
-                
-                if (this.roleFilter === 'freelance') {
-                    const response = await fetch('http://127.0.0.1:8000/api/freelances');
-                    if (!response.ok) throw new Error('Network response was not ok');
+          try {
+            this.users = []; // Clear current users
 
-                    const result = await response.json();
-                    const data = Array.isArray(result) ? result : (result.data || []);
-                    this.users = data.map(u => this.mapFreelanceToTable(u));
-                    return;
-                }
+            if (this.roleFilter === 'affiliate') {
+              const response = await fetch('http://127.0.0.1:8000/api/affiliates');
+              if (!response.ok) throw new Error('Network response was not ok');
 
-                const response = await fetch('http://127.0.0.1:8000/api/agents');
-                if (!response.ok) throw new Error('Network response was not ok');
-                
-                const result = await response.json();
-                
-                // Handle different response structures (laravel resource vs plain array)
-                const data = Array.isArray(result) ? result : (result.data || []);
-                
-                this.users = data.map(u => this.mapApiUserToTable(u));
-                
-                // Update stats if available in response, otherwise keep defaults or calculate
-                if (result.stats) {
-                    this.stats = result.stats;
-                }
-                
-            } catch (error) {
-                console.error('Failed to fetch users:', error);
-                this.showToast('Error', 'Gagal memuat data user');
-                // Fallback to empty or mock if needed, but user asked to connect to DB
+              const result = await response.json();
+              const data = Array.isArray(result) ? result : (result.data || []);
+              this.users = data.map(u => this.mapAffiliateToTable(u));
+              return;
             }
+
+            if (this.roleFilter === 'freelance') {
+              const response = await fetch('http://127.0.0.1:8000/api/freelances');
+              if (!response.ok) throw new Error('Network response was not ok');
+
+              const result = await response.json();
+              const data = Array.isArray(result) ? result : (result.data || []);
+              this.users = data.map(u => this.mapFreelanceToTable(u));
+              return;
+            }
+
+            const response = await fetch('http://127.0.0.1:8000/api/agents');
+            if (!response.ok) throw new Error('Network response was not ok');
+
+            const result = await response.json();
+
+            // Handle different response structures (laravel resource vs plain array)
+            const data = Array.isArray(result) ? result : (result.data || []);
+
+            this.users = data.map(u => this.mapApiUserToTable(u));
+
+            // Update stats if available in response, otherwise keep defaults or calculate
+            if (result.stats) {
+              this.stats = result.stats;
+            }
+
+          } catch (error) {
+            console.error('Failed to fetch users:', error);
+            this.showToast('Error', 'Gagal memuat data user');
+            // Fallback to empty or mock if needed, but user asked to connect to DB
+          }
         },
 
         mapApiUserToTable(apiUser) {
-            let status = apiUser.status || 'pending';
-            if (status === 'approve') status = 'active';
+          let status = apiUser.status || 'pending';
+          if (status === 'approve') status = 'active';
 
-            const role = (apiUser.nama_travel || apiUser.jenis_travel || apiUser.total_traveller || apiUser.logo || apiUser.surat_ppiu)
-              ? 'travel_agent'
-              : 'agent';
+          const role = (apiUser.nama_travel || apiUser.jenis_travel || apiUser.total_traveller || apiUser.logo || apiUser.surat_ppiu)
+            ? 'travel_agent'
+            : 'agent';
 
-            return {
-                id: apiUser.id,
-                name: apiUser.nama_pic,
-                email: apiUser.email,
-                phone: apiUser.no_hp,
-                role,
-                joinDate: apiUser.created_at,
-                lastActiveDate: apiUser.updated_at,
-                revenue: 0, // Placeholder
-                agentOrderCount: 0, // Placeholder
-                affiliateOrderCount: 0, // Placeholder
-                status,
-                
-                // Travel Agent Specific
-                travelName: apiUser.nama_travel,
-                travelType: apiUser.jenis_travel,
-                monthlyTravellers: apiUser.total_traveller || 0,
-                province: apiUser.provinsi,
-                city: apiUser.kabupaten_kota,
-                address: apiUser.alamat_lengkap,
-                latitude: apiUser.lat,
-                longitude: apiUser.long,
-                logo: apiUser.logo,
-                ppiu: apiUser.surat_ppiu,
-                referralLink: apiUser.link_referal,
-                
-                // Freelance Specific
-                totalDownline: 0,
-                totalPoints: 0
-            };
+          return {
+            id: apiUser.id,
+            name: apiUser.nama_pic,
+            email: apiUser.email,
+            phone: apiUser.no_hp,
+            role,
+            joinDate: apiUser.created_at,
+            lastActiveDate: apiUser.updated_at,
+            revenue: 0, // Placeholder
+            agentOrderCount: 0, // Placeholder
+            affiliateOrderCount: 0, // Placeholder
+            status,
+
+            // Travel Agent Specific
+            travelName: apiUser.nama_travel,
+            travelType: apiUser.jenis_travel,
+            monthlyTravellers: apiUser.total_traveller || 0,
+            province: apiUser.provinsi,
+            city: apiUser.kabupaten_kota,
+            address: apiUser.alamat_lengkap,
+            latitude: apiUser.lat,
+            longitude: apiUser.long,
+            logo: apiUser.logo,
+            ppiu: apiUser.surat_ppiu,
+            referralLink: apiUser.link_referal,
+
+            // Freelance Specific
+            totalDownline: 0,
+            totalPoints: 0
+          };
+        },
+
+        mapAffiliateToTable(apiAffiliate) {
+          const status = apiAffiliate.is_active ? 'active' : 'reject';
+          const referralLink = apiAffiliate.link_referral;
+          const downlineCount = Array.isArray(apiAffiliate.agents) ? apiAffiliate.agents.length : 0;
+
+          return {
+            id: apiAffiliate.id,
+            name: apiAffiliate.nama,
+            email: apiAffiliate.email,
+            phone: apiAffiliate.no_wa,
+            role: 'affiliate',
+            joinDate: apiAffiliate.date_register || apiAffiliate.created_at,
+            lastActiveDate: apiAffiliate.updated_at || apiAffiliate.date_register || apiAffiliate.created_at,
+            revenue: 0,
+            agentOrderCount: 0,
+            affiliateOrderCount: 0,
+            status,
+            travelName: null,
+            travelType: null,
+            monthlyTravellers: 0,
+            province: apiAffiliate.provinsi,
+            city: apiAffiliate.kab_kota,
+            address: apiAffiliate.alamat_lengkap,
+            latitude: null,
+            longitude: null,
+            logo: null,
+            ppiu: null,
+            referralLink,
+            totalDownline: downlineCount,
+            totalPoints: 0
+          };
         },
 
         mapFreelanceToTable(apiFreelance) {
-            const status = apiFreelance.is_active ? 'active' : 'reject';
-            const downlineCount = Array.isArray(apiFreelance.agents) ? apiFreelance.agents.length : 0;
-            const referralLink = apiFreelance.link_referal || apiFreelance.link_referral;
+          const status = apiFreelance.is_active ? 'active' : 'reject';
+          const downlineCount = Array.isArray(apiFreelance.agents) ? apiFreelance.agents.length : 0;
+          const referralLink = apiFreelance.link_referal || apiFreelance.link_referral;
 
-            return {
-                id: apiFreelance.id,
-                name: apiFreelance.nama,
-                email: apiFreelance.email,
-                phone: apiFreelance.no_wa,
-                role: 'freelance',
-                joinDate: apiFreelance.date_register || apiFreelance.created_at,
-                lastActiveDate: apiFreelance.updated_at || apiFreelance.date_register || apiFreelance.created_at,
-                revenue: 0,
-                agentOrderCount: 0,
-                affiliateOrderCount: 0,
-                status,
-                travelName: null,
-                travelType: null,
-                monthlyTravellers: 0,
-                province: apiFreelance.provinsi,
-                city: apiFreelance.kab_kota,
-                address: apiFreelance.alamat_lengkap,
-                latitude: null,
-                longitude: null,
-                logo: null,
-                ppiu: null,
-                referralLink,
-                totalDownline: downlineCount,
-                totalPoints: 0
-            };
+          return {
+            id: apiFreelance.id,
+            name: apiFreelance.nama,
+            email: apiFreelance.email,
+            phone: apiFreelance.no_wa,
+            role: 'freelance',
+            joinDate: apiFreelance.date_register || apiFreelance.created_at,
+            lastActiveDate: apiFreelance.updated_at || apiFreelance.date_register || apiFreelance.created_at,
+            revenue: 0,
+            agentOrderCount: 0,
+            affiliateOrderCount: 0,
+            status,
+            travelName: null,
+            travelType: null,
+            monthlyTravellers: 0,
+            province: apiFreelance.provinsi,
+            city: apiFreelance.kab_kota,
+            address: apiFreelance.alamat_lengkap,
+            latitude: null,
+            longitude: null,
+            logo: null,
+            ppiu: null,
+            referralLink,
+            totalDownline: downlineCount,
+            totalPoints: 0
+          };
         },
 
         getReferralHref(user) {
-            if (!user) return '#';
-            const origin = window.location.origin;
-            if (user.role === 'freelance') return `${origin}/agent/?ref=${encodeURIComponent(`freelance:${user.id}`)}`;
-            if (user.role === 'affiliate') return `${origin}/agent/?ref=${encodeURIComponent(`affiliate:${user.id}`)}`;
-            return user.referralLink || '#';
+          if (!user) return '#';
+          const origin = window.location.origin;
+          if (user.role === 'freelance') return `${origin}/agent/?ref=${encodeURIComponent(`freelance:${user.id}`)}`;
+          if (user.role === 'affiliate') return `${origin}/agent/?ref=${encodeURIComponent(`affiliate:${user.id}`)}`;
+          return user.referralLink || '#';
         },
 
         getFreelanceDashboardHref(user) {
-            if (!user?.id) return '#';
-            const origin = window.location.origin;
-            return `${origin}/freelance/dashboard.html?id=${encodeURIComponent(String(user.id))}`;
+          if (!user?.id) return '#';
+          const origin = window.location.origin;
+          return `${origin}/freelance/dashboard.html?id=${encodeURIComponent(String(user.id))}`;
         },
 
         generateMockUsers() {
@@ -1186,7 +2482,7 @@
             const cities = ['Jakarta Selatan', 'Bandung', 'Surabaya', 'Medan', 'Makassar'];
             const provinces = ['DKI Jakarta', 'Jawa Barat', 'Jawa Timur', 'Sumatera Utara', 'Sulawesi Selatan'];
             const cityIndex = i % cities.length;
-            
+
             users.push({
               id: id++,
               name,
@@ -1195,11 +2491,11 @@
               role: 'travel_agent',
               joinDate: toIso(joinDate),
               lastActiveDate: toIso(lastActive),
-              revenue: Math.round(10000000 + Math.random() * 50000000), 
+              revenue: Math.round(10000000 + Math.random() * 50000000),
               agentOrderCount: Math.floor(50 + Math.random() * 300),
               affiliateOrderCount: Math.floor(20 + Math.random() * 150),
               status: i < this.stats.travelAgentsBanned ? 'banned' : 'active',
-              
+
               // New Fields for Travel Agent Mock
               travelName: travelNames[i % travelNames.length],
               travelType: travelTypes[i % travelTypes.length],
@@ -1238,4 +2534,5 @@
   </script>
 
 </body>
+
 </html>
