@@ -53,6 +53,13 @@ function renderHeader(currentPage = '') {
     else profileLink = 'agent/profile.html';
   }
 
+  const user = typeof getUser === 'function' ? getUser() : null;
+  const freelanceId = userRole === 'freelance' ? (user?.id || null) : null;
+  if (freelanceId && typeof appendQueryParam === 'function') {
+    dashboardLink = appendQueryParam(dashboardLink, 'id', freelanceId);
+    profileLink = appendQueryParam(profileLink, 'id', freelanceId);
+  }
+
   // Determine login link based on role
   let loginLink = '../login.html';
   if (isInSubdir) {

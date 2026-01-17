@@ -38,6 +38,8 @@
   <!-- Shared CSS -->
   <link rel="stylesheet" href="shared/styles.css">
 
+  <script src="shared/utils.js"></script>
+
   <!-- Leaflet.js CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
@@ -675,11 +677,15 @@
         isSearchingMap: false,
         isGeocodingAddress: false,
         mapSearchDebounce: null,
+        referralContext: null,
 
         async init() {
           // Get email from URL params (passed after Google auth)
           const urlParams = new URLSearchParams(window.location.search);
           const email = urlParams.get('email');
+          const ref = urlParams.get('ref');
+          const affiliateId = urlParams.get('affiliate_id');
+          const freelanceId = urlParams.get('freelance_id');
           
           if (email) {
             this.formData.email = email;
@@ -694,6 +700,28 @@
           
           // Load provinces from API
           await this.loadProvinces();
+
+          if (affiliateId) {
+            const id = parseInt(affiliateId, 10);
+            if (Number.isFinite(id)) {
+              setReferral({ source_type: 'affiliate', id });
+              setReferralContext({ source_type: 'affiliate', id, url: window.location.href });
+            }
+          } else if (freelanceId) {
+            const id = parseInt(freelanceId, 10);
+            if (Number.isFinite(id)) {
+              setReferral({ source_type: 'freelance', id });
+              setReferralContext({ source_type: 'freelance', id, url: window.location.href });
+            }
+          } else if (ref) {
+            const parsed = parseReferralString(ref);
+            if (parsed) {
+              setReferral(parsed);
+              setReferralContext({ ...parsed, url: window.location.href });
+            }
+          }
+
+          this.referralContext = getReferral();
           
           console.log('Signup form initialized with email:', this.formData.email);
         },
@@ -1154,6 +1182,15 @@
             // 'email' => 'required|email|unique:agents,email', 
             formDataToSend.append('email', this.formData.email);
 
+            const ref = this.referralContext;
+            if (ref && (ref.source_type === 'affiliate' || ref.source_type === 'freelance') && Number.isFinite(ref.id)) {
+              formDataToSend.append('kategori_agent', 'Referral');
+              if (ref.source_type === 'affiliate') formDataToSend.append('affiliate_id', String(ref.id));
+              if (ref.source_type === 'freelance') formDataToSend.append('freelance_id', String(ref.id));
+            } else {
+              formDataToSend.append('kategori_agent', 'Host');
+            }
+
             
 
             // 'nama_pic' => 'required|string', 
@@ -1202,7 +1239,7 @@
             }
 
             // Send to API
-            const response = await fetch('http://127.0.0.1:8000/api/agents', {
+            let response = await fetch('http://127.0.0.1:8000/api/agents', {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
@@ -1210,10 +1247,9 @@
                 body: formDataToSend
             });
 
-            const result = await response.json();
+            let result = await response.json();
 
             if (!response.ok) {
-                // Handle validation errors (e.g., Laravel 422)
                 if (response.status === 422 && result.errors) {
                     const errorMessages = Object.values(result.errors).flat().join(', ');
                     throw new Error(errorMessages);
@@ -1222,7 +1258,8 @@
             }
 
             console.log('Success:', result);
-            this.showToast('Berhasil!', 'Pendaftaran berhasil. Silakan cek email Anda untuk verifikasi.');
+            this.showToast('Berhasil!', 'Pendaftaran Travel Agent berhasil. Silakan cek email Anda untuk verifikasi.');
+            clearReferral();
             
             // Reset form and redirect to agent dashboard
             setTimeout(() => {

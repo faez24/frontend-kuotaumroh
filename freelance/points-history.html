@@ -129,6 +129,7 @@
 
         init() {
           if (!requireRole(['freelance'], true)) return;
+          syncFreelanceIdFromUrl();
           renderHeader('points-history');
           
           this.history = [

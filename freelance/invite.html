@@ -185,11 +185,14 @@
 
         init() {
           if (!requireRole(['freelance'], true)) return;
+
+          syncFreelanceIdFromUrl();
           renderHeader('invite');
 
           const user = getUser();
-          this.referralCode = user?.referralCode || 'AFF-DEMO-001';
-          this.referralLink = window.location.origin + '/signup.html?ref=' + this.referralCode;
+          this.referralCode = user?.referralCode || user?.link_referral || '';
+          const freelanceId = user?.id;
+          this.referralLink = freelanceId ? `${window.location.origin}/agent/?ref=${encodeURIComponent(`freelance:${freelanceId}`)}` : `${window.location.origin}/agent/`;
           this.shareText = 'Daftar sebagai Agent Kuotaumroh.id dan dapatkan penghasilan tambahan! Gunakan link: ' + this.referralLink;
           
           this.stats = { totalReferred: 15, totalPoints: 750, pointsPerReferral: 50 };

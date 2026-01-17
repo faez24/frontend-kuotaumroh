@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agent - Kuotaumroh.id</title>
+  <link rel="stylesheet" href="../shared/styles.css" />
+  <script src="../shared/utils.js"></script>
+</head>
+<body class="min-h-screen bg-background">
+  <main class="container mx-auto px-4 py-12">
+    <div class="rounded-lg border bg-white shadow-sm p-6">
+      <h1 id="title" class="text-lg font-semibold">Memproses…</h1>
+      <p id="desc" class="text-sm text-muted-foreground mt-2">Mohon tunggu sebentar.</p>
+      <div id="actions" class="mt-4 hidden">
+        <a href="../index.html" class="inline-flex items-center justify-center rounded-md bg-secondary text-secondary-foreground hover:bg-secondary/80 h-10 px-4 text-sm font-medium transition-colors">
+          Kembali ke Beranda
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    (async () => {
+      const titleEl = document.getElementById('title');
+      const descEl = document.getElementById('desc');
+      const actionsEl = document.getElementById('actions');
+
+      const params = new URLSearchParams(window.location.search);
+      const ref = params.get('ref');
+      const parsed = parseReferralString(ref);
+      if (parsed) {
+        setReferral(parsed);
+        setReferralContext({ ...parsed, url: window.location.href });
+        window.location.replace(`../login.html?ref=${encodeURIComponent(ref)}`);
+        return;
+      }
+
+      titleEl.textContent = 'Akses Agent';
+      descEl.textContent = 'Silakan login untuk melanjutkan.';
+      window.location.replace('../login.html');
+      actionsEl.classList.remove('hidden');
+    })();
+  </script>
+</body>
+</html>
+
