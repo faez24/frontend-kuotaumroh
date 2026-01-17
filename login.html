@@ -254,32 +254,20 @@
           this.loading = true;
 
           try {
-            // Simulate API call delay
-            await new Promise(resolve => setTimeout(resolve, 500));
-
-            // Mock login - in production, this would call the actual Google OAuth
-            const response = await login('user@example.com', 'password');
-
-            if (response.success) {
-              // Save user data with role to localStorage
-              saveUser({
-                ...response.user,
-                role: response.user.role || 'agent' // Default to agent if no role
-              });
-
-              // Show success message
-              this.toast.success('Login Berhasil', 'Selamat datang kembali!');
-
-              // Redirect to agent dashboard
-              setTimeout(() => {
-                window.location.href = 'agent/dashboard.html';
-              }, 500);
+            // Set intent so callback knows if we are logging in or signing up
+            sessionStorage.setItem('auth_intent', 'login');
+            
+            // Get Google URL from backend
+            const response = await getGoogleAuthUrl();
+            
+            if (response && response.url) {
+              window.location.href = response.url;
             } else {
-              throw new Error('Login failed');
+              throw new Error('Gagal mendapatkan URL login Google');
             }
           } catch (error) {
             this.loading = false;
-            this.toast.error('Login Gagal', 'Silakan coba lagi atau hubungi admin.');
+            this.toast.error('Login Gagal', error.message || 'Silakan coba lagi atau hubungi admin.');
             console.error('Login error:', error);
           }
         },
@@ -288,25 +276,20 @@
           this.loading = true;
 
           try {
-            // Simulate Google OAuth
-            await new Promise(resolve => setTimeout(resolve, 500));
-
-            // Mock Google auth response - in production, this would be actual Google OAuth
-            const mockGoogleUser = {
-              email: 'agent@example.com',
-              name: 'Agent Name'
-            };
-
-            // Redirect to signup page with email parameter
-            const referral = getReferral();
-            let refParams = '';
-            if (referral && (referral.source_type === 'affiliate' || referral.source_type === 'freelance') && Number.isFinite(referral.id)) {
-              refParams = `&ref=${encodeURIComponent(referral.source_type + ':' + referral.id)}`;
+            // Set intent
+            sessionStorage.setItem('auth_intent', 'signup');
+            
+            // Get Google URL from backend
+            const response = await getGoogleAuthUrl();
+            
+            if (response && response.url) {
+              window.location.href = response.url;
+            } else {
+              throw new Error('Gagal mendapatkan URL login Google');
             }
-            window.location.href = `signup.html?email=${encodeURIComponent(mockGoogleUser.email)}${refParams}`;
           } catch (error) {
             this.loading = false;
-            this.toast.error('Autentikasi Gagal', 'Silakan coba lagi.');
+            this.toast.error('Gagal', error.message || 'Silakan coba lagi.');
             console.error('Google signup error:', error);
           }
         }

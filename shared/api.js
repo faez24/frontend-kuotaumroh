@@ -8,10 +8,10 @@
    =========================== */
 
 // TODO: Replace with your actual API base URL
-const API_BASE = 'https://api.kuotaumroh.id';
+const API_BASE = 'http://127.0.0.1:8000/api';
 
 // Mock mode for development (set to false when API is ready)
-const USE_MOCK_DATA = true;
+const USE_MOCK_DATA = false;
 
 /* ===========================
    API Helper Functions
@@ -66,6 +66,43 @@ function getAuthToken() {
 /* ===========================
    Authentication API
    =========================== */
+
+/**
+ * Get Google Auth URL
+ * @returns {Promise<Object>} Object containing url
+ */
+async function getGoogleAuthUrl() {
+  if (USE_MOCK_DATA) {
+    return Promise.resolve({
+      url: 'callback.html?code=mock_google_code_123'
+    });
+  }
+  return apiFetch('/auth/google/url');
+}
+
+/**
+ * Handle Google Callback
+ * @param {string} code - Google Auth Code
+ * @returns {Promise<Object>} User data and token
+ */
+async function handleGoogleCallback(code) {
+  if (USE_MOCK_DATA) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({
+          success: true,
+          user: {
+            name: 'Mock Google User',
+            email: 'mock.google@gmail.com',
+            token: 'mock-token-xyz'
+          },
+          is_registered: true // Toggle this to test signup flow
+        });
+      }, 1000);
+    });
+  }
+  return apiFetch(`/auth/google/callback?code=${code}`);
+}
 
 /**
  * Login user
