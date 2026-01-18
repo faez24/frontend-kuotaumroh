@@ -97,7 +97,7 @@
           });
 
           if (role === 'agent') {
-            window.location.href = 'agent/dashboard.html';
+            window.location.href = `agent/dashboard.html?id=${user.id}`;
           } else {
             // For freelance/affiliate
             window.location.href = `freelance/dashboard.html?id=${user.id}&type=${type || role}`;
