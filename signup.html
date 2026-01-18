@@ -1129,7 +1129,8 @@
               if (ref.source_type === 'affiliate') formDataToSend.append('affiliate_id', String(ref.id));
               if (ref.source_type === 'freelance') formDataToSend.append('freelance_id', String(ref.id));
             } else {
-              formDataToSend.append('kategori_agent', 'Host');
+              formDataToSend.append('kategori_agent', 'Referral');
+              formDataToSend.append('affiliate_id', '1');
             }
 
 
