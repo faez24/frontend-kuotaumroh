@@ -368,7 +368,7 @@
                       </svg>
                     </button>
                   </th>
-                  <th x-show="roleFilter === 'freelance'"
+                  <!-- <th x-show="roleFilter === 'freelance'"
                     class="h-12 px-4 text-right align-middle font-medium text-muted-foreground">
                     <button @click="handleSort('totalDownline')" class="inline-flex items-center gap-2">
                       Total Downline
@@ -377,7 +377,7 @@
                           d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
                       </svg>
                     </button>
-                  </th>
+                  </th> -->
                   <th x-show="roleFilter === 'freelance'"
                     class="h-12 px-4 text-right align-middle font-medium text-muted-foreground">
                     <button @click="handleSort('totalDownline')" class="inline-flex items-center gap-2">
@@ -498,7 +498,7 @@
                     </td>
                     <td class="p-4 align-middle text-center">
                       <div class="flex items-center justify-center gap-2">
-                        <a x-show="roleFilter === 'travel_agent' && !isHostCategory(user.agentCategory)"
+                        <!-- <a x-show="roleFilter === 'travel_agent' && !isHostCategory(user.agentCategory)"
                           :href="getAgentDashboardHref(user)" target="_blank" rel="noopener noreferrer"
                           class="h-8 px-3 rounded text-xs font-medium border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors">
                           Dashboard
@@ -507,7 +507,7 @@
                           :href="getPartnerDashboardHref(user)" target="_blank" rel="noopener noreferrer"
                           class="h-8 px-3 rounded text-xs font-medium border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors">
                           Dashboard
-                        </a>
+                        </a> -->
                         <!-- Approve Button for Pending Users -->
                         <div class="flex gap-1" x-show="user.status === 'pending'">
                           <button @click="openApproveModal(user)"
