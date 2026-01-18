@@ -1,19 +1,26 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Referral - Kuotaumroh.id</title>
   <link rel="stylesheet" href="shared/styles.css">
+
+  <!-- ⚠️ PENTING: Load config.js PERTAMA sebelum script lain -->
+  <script src="shared/config.js"></script>
+
   <script src="shared/utils.js"></script>
 </head>
+
 <body class="min-h-screen bg-background">
   <main class="container mx-auto px-4 py-12">
     <div class="rounded-lg border bg-white shadow-sm p-6">
       <h1 id="title" class="text-lg font-semibold">Memproses referral…</h1>
       <p id="desc" class="text-sm text-muted-foreground mt-2">Mohon tunggu sebentar.</p>
       <div id="actions" class="mt-4 hidden">
-        <a href="index.html" class="inline-flex items-center justify-center rounded-md bg-secondary text-secondary-foreground hover:bg-secondary/80 h-10 px-4 text-sm font-medium transition-colors">
+        <a href="index.html"
+          class="inline-flex items-center justify-center rounded-md bg-secondary text-secondary-foreground hover:bg-secondary/80 h-10 px-4 text-sm font-medium transition-colors">
           Kembali ke Beranda
         </a>
       </div>
@@ -43,7 +50,8 @@
       const current = window.location.href;
 
       try {
-        const res = await fetch('http://127.0.0.1:8000/api/affiliates', { headers: { 'Accept': 'application/json' } });
+        // ✅ Menggunakan apiFetch() dan apiUrl() dari config.js
+        const res = await apiFetch(apiUrl('affiliates'));
         if (res.ok) {
           const json = await res.json();
           const data = Array.isArray(json) ? json : (json.data || []);
@@ -54,7 +62,8 @@
       }
 
       try {
-        const res = await fetch('http://127.0.0.1:8000/api/freelances', { headers: { 'Accept': 'application/json' } });
+        // ✅ Menggunakan apiFetch() dan apiUrl() dari config.js
+        const res = await apiFetch(apiUrl('freelances'));
         if (res.ok) {
           const json = await res.json();
           const data = Array.isArray(json) ? json : (json.data || []);
@@ -96,4 +105,5 @@
     })();
   </script>
 </body>
+
 </html>
