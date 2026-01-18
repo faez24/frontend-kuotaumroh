@@ -16,8 +16,8 @@
         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
       </svg>
     </div>
-    <h2 class="text-xl font-semibold text-slate-800 mb-2">Memproses Login</h2>
-    <p class="text-slate-500 text-sm" id="status-message">Mohon tunggu sebentar...</p>
+    <h2 class="text-xl font-semibold text-slate-800 mb-2">Memeriksa Akun</h2>
+    <p class="text-slate-500 text-sm" id="status-message">Mohon tunggu, sedang memverifikasi data...</p>
     <div id="error-container" class="hidden mt-4 p-3 bg-red-50 text-red-600 rounded text-sm text-left">
       <p class="font-bold">Login Gagal</p>
       <p id="error-message">Terjadi kesalahan.</p>
@@ -41,91 +41,123 @@
       }
 
       try {
-        statusEl.textContent = 'Menghubungkan ke server...';
+        statusEl.textContent = 'Menghubungkan ke Google...';
         
-        // Call backend to exchange code
+        // 1. Exchange code for user info
         const response = await handleGoogleCallback(code);
         
-        // Check intent (login vs signup)
-        const intent = sessionStorage.getItem('auth_intent') || 'login';
-        sessionStorage.removeItem('auth_intent'); // Clean up
+        const userEmail = response.user?.email || response.email;
+        const userName = response.user?.name || response.name;
+        
+        if (!userEmail) {
+            throw new Error('Gagal mendapatkan email dari Google.');
+        }
 
-        console.log('Auth Response:', response);
-        console.log('Intent:', intent);
+        console.log('Google Email:', userEmail);
+        statusEl.textContent = 'Mengecek status pendaftaran...';
 
-        if (response.user) {
-           // We have user data. 
-           // If the backend auto-creates users, response.user will exist.
-           // We need to decide where to go.
+        // Helper to check endpoint
+        async function checkEndpoint(endpoint, collectionName) {
+            try {
+                const searchUrl = `${endpoint}?search=${encodeURIComponent(userEmail)}`;
+                const res = await fetch(searchUrl, {
+                    headers: { 'Accept': 'application/json' }
+                });
+                
+                if (!res.ok) return null;
+                
+                const json = await res.json();
+                const data = Array.isArray(json) ? json : (json.data || []);
+                
+                return data.find(item => 
+                    item.email && item.email.toLowerCase() === userEmail.toLowerCase()
+                );
+            } catch (e) {
+                console.warn(`Check ${collectionName} failed:`, e);
+                return null;
+            }
+        }
 
-           // Scenario 1: User is fully registered (has ID, token, etc)
-           if (response.token) {
-             saveUser(response.user);
-             
-             // If intent was signup, but they are already registered (have token),
-             // we just send them to dashboard.
-             // If intent was login, send to dashboard.
-             
-             // However, Requirement 4 says: "if login & not registered -> Error".
-             // Requirement 2 says: "signup -> fill email".
-             
-             // If the backend auto-creates users, we can't easily distinguish "not registered" 
-             // unless the backend returns a flag like `is_new_user` or `created`.
-             
-             // Assuming the backend returns the user object.
-             // Let's look at the user requirements again.
-             // "Login -> check if email registered... if yes -> dashboard... if no -> error".
-             
-             // If the backend returns a token, it means the user IS registered (or auto-registered).
-             // If the backend returns 404 or "not registered", the `handleGoogleCallback` (apiFetch) would likely throw.
-             
-             window.location.href = 'agent/dashboard.html';
-             return;
-           } 
-           
-           // Scenario 2: Backend returns user info (email) but NO token (meaning not registered?)
-           // This depends on backend implementation.
-           if (intent === 'signup') {
-             // Redirect to signup with email
-             window.location.href = `signup.html?email=${encodeURIComponent(response.user.email)}`;
-           } else {
-             // Intent is login, but no token?
-             throw new Error('Akun anda belum terdaftar. Silakan daftar terlebih dahulu.');
-           }
+        // Helper for redirection
+        function redirectUser(user, role, type = null) {
+            saveUser({
+                id: user.id,
+                name: user.nama_pic || user.nama || userName,
+                email: user.email,
+                role: role,
+                agentCode: user.agent_code,
+                token: response.token
+            });
 
-        } else if (response.email) {
-            // Fallback if response structure is just { email: ... }
-             if (intent === 'signup') {
-               window.location.href = `signup.html?email=${encodeURIComponent(response.email)}`;
-             } else {
-               throw new Error('Akun anda belum terdaftar.');
-             }
+            if (role === 'agent') {
+                window.location.href = 'agent/dashboard.html';
+            } else {
+                // For freelance/affiliate
+                window.location.href = `freelance/dashboard.html?id=${user.id}&type=${type || role}`;
+            }
+        }
+
+        // 2. Check Agents Endpoint (Might contain all roles)
+        const agentData = await checkEndpoint('http://127.0.0.1:8000/api/agents', 'Agents');
+        if (agentData) {
+            console.log('Found in Agents API:', agentData);
+            const role = (agentData.jenis_agent || 'agent').toLowerCase();
+            
+            if (role.includes('freelance')) {
+                redirectUser(agentData, 'freelance', 'freelance');
+                return;
+            }
+            if (role.includes('affiliate')) {
+                redirectUser(agentData, 'affiliate', 'affiliate');
+                return;
+            }
+            // Default to Agent
+            redirectUser(agentData, 'agent');
+            return;
+        }
+
+        // 3. Check Affiliates Endpoint (Specific)
+        const affiliate = await checkEndpoint('http://127.0.0.1:8000/api/affiliates', 'Affiliates');
+        if (affiliate) {
+            console.log('Found as Affiliate:', affiliate);
+            redirectUser(affiliate, 'affiliate', 'affiliate');
+            return;
+        }
+
+        // 4. Check Freelance Endpoint (Specific)
+        // Note: Using plural 'freelances' based on dashboard code conventions and common REST patterns
+        let freelance = await checkEndpoint('http://127.0.0.1:8000/api/freelances', 'Freelance');
+        
+        // Fallback: try singular if plural failed (just in case)
+        if (!freelance) {
+             freelance = await checkEndpoint('http://127.0.0.1:8000/api/freelance', 'Freelance (Singular)');
+        }
+
+        if (freelance) {
+            console.log('Found as Freelance:', freelance);
+            // If the user wants to force "affiliate" type for users found in freelance table, we can't guess that.
+            // We assume table 'freelances' -> type 'freelance'.
+            // However, based on user input "apiipbackup@gmail.com ada ditable affiliate" (which is false in screenshot),
+            // maybe they expect the system to be smart. 
+            // We will redirect as 'freelance' type if found in freelances table.
+            redirectUser(freelance, 'freelance', 'freelance');
+            return;
+        }
+
+        // 5. Not Found -> Signup or Error
+        console.log('User not found in any list.');
+        const intent = sessionStorage.getItem('auth_intent');
+        
+        if (intent === 'login') {
+            throw new Error('Akun anda belum terdaftar sebagai Agent, Affiliate, atau Freelance.');
         } else {
-             // Success but no user data?
-             throw new Error('Respons server tidak valid.');
+            window.location.href = `signup.html?email=${encodeURIComponent(userEmail)}`;
         }
 
       } catch (error) {
         console.error('Callback Error:', error);
         statusEl.textContent = 'Terjadi kesalahan.';
-        
-        // Handle specific error messages if possible
-        // If the API throws 404/401 for unregistered users
-        const message = error.message || 'Gagal memproses login Google.';
-        
-        // Special handling for "Not Registered" case if the backend throws it
-        if (message.toLowerCase().includes('not found') || message.toLowerCase().includes('tidak ditemukan')) {
-            if (sessionStorage.getItem('auth_intent_backup') === 'signup') {
-                 // Try to recover email from error if possible, or just redirect to signup blank?
-                 // Without email, we can't autofill.
-                 window.location.href = 'signup.html';
-                 return;
-            }
-            errorMsg.textContent = 'Akun anda belum terdaftar. Silakan pilih "Daftar sebagai Agen".';
-        } else {
-            errorMsg.textContent = message;
-        }
-        
+        errorMsg.textContent = error.message || 'Gagal memproses login Google.';
         errorContainer.classList.remove('hidden');
       }
     });

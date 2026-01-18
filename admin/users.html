@@ -281,6 +281,8 @@
 
                   <!-- Travel Agent Specific Columns -->
                   <th x-show="roleFilter === 'travel_agent'"
+                    class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Kategori Agent</th>
+                  <th x-show="roleFilter === 'travel_agent'"
                     class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">No. HP</th>
                   <th x-show="roleFilter === 'travel_agent'"
                     class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Nama Travel</th>
@@ -412,6 +414,8 @@
                     <td class="p-4 align-middle text-muted-foreground" x-text="user.email"></td>
 
                     <!-- Travel Agent Columns -->
+                    <td x-show="roleFilter === 'travel_agent'" class="p-4 align-middle" x-text="user.agentCategory || '-'">
+                    </td>
                     <td x-show="roleFilter === 'travel_agent'" class="p-4 align-middle" x-text="user.phone || '-'"></td>
                     <td x-show="roleFilter === 'travel_agent'" class="p-4 align-middle" x-text="user.travelName || '-'">
                     </td>
@@ -489,8 +493,13 @@
                     </td>
                     <td class="p-4 align-middle text-center">
                       <div class="flex items-center justify-center gap-2">
-                        <a x-show="roleFilter === 'freelance'" :href="getFreelanceDashboardHref(user)" target="_blank"
+                        <a x-show="roleFilter === 'travel_agent' && !isHostCategory(user.agentCategory)" :href="getAgentDashboardHref(user)" target="_blank"
                           rel="noopener noreferrer"
+                          class="h-8 px-3 rounded text-xs font-medium border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors">
+                          Dashboard
+                        </a>
+                        <a x-show="roleFilter === 'freelance' || roleFilter === 'affiliate'"
+                          :href="getPartnerDashboardHref(user)" target="_blank" rel="noopener noreferrer"
                           class="h-8 px-3 rounded text-xs font-medium border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors">
                           Dashboard
                         </a>
@@ -524,7 +533,7 @@
                 <template x-if="filteredUsers.length === 0">
                   <tr>
                     <td
-                      :colspan="roleFilter === 'travel_agent' ? 14 : (roleFilter === 'affiliate' ? 8 : (roleFilter === 'freelance' ? 8 : 9))"
+                      :colspan="roleFilter === 'travel_agent' ? 15 : (roleFilter === 'affiliate' ? 8 : (roleFilter === 'freelance' ? 8 : 9))"
                       class="p-8 text-center text-muted-foreground">Tidak ada user ditemukan</td>
                   </tr>
                 </template>
@@ -2334,6 +2343,7 @@
             name: apiUser.nama_pic,
             email: apiUser.email,
             phone: apiUser.no_hp,
+            agentCategory: apiUser.kategori_agent || null,
             role,
             joinDate: apiUser.created_at,
             lastActiveDate: apiUser.updated_at,
@@ -2439,6 +2449,25 @@
           if (!user?.id) return '#';
           const origin = window.location.origin;
           return `${origin}/freelance/dashboard.html?id=${encodeURIComponent(String(user.id))}`;
+        },
+
+        getPartnerDashboardHref(user) {
+          if (!user?.id) return '#';
+          if (user.role !== 'freelance' && user.role !== 'affiliate') return '#';
+          const origin = window.location.origin;
+          const base = `${origin}/freelance/dashboard.html?id=${encodeURIComponent(String(user.id))}`;
+          return `${base}&type=${encodeURIComponent(String(user.role))}`;
+        },
+
+        isHostCategory(category) {
+          const v = String(category || '').trim().toLowerCase();
+          return v === 'host';
+        },
+
+        getAgentDashboardHref(user) {
+          if (!user?.id) return '#';
+          const origin = window.location.origin;
+          return `${origin}/agent/dashboard.html?id=${encodeURIComponent(String(user.id))}`;
         },
 
         generateMockUsers() {
