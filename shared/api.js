@@ -9,7 +9,7 @@
 
 // Import konfigurasi dari config.js
 // Pastikan config.js sudah di-load sebelum file ini
-const API_BASE = typeof API_URL !== 'undefined' ? API_URL : 'http://127.0.0.1:8000/api';
+const API_BASE = typeof API_URL !== 'undefined' ? API_URL : 'http://199.241.138.244/api';
 
 // Mock mode for development (set to false when API is ready)
 const USE_MOCK_DATA = false;
