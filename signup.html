@@ -1204,9 +1204,9 @@
             this.showToast('Berhasil!', 'Pendaftaran Travel Agent berhasil. Silakan cek email Anda untuk verifikasi.');
             clearReferral();
 
-            // Reset form and redirect to agent dashboard
+            // Reset form and redirect to login page
             setTimeout(() => {
-              window.location.href = 'agent/dashboard.html';
+              window.location.href = 'login.html';
             }, 2000);
 
           } catch (error) {
