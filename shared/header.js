@@ -27,7 +27,7 @@ function renderHeader(currentPage = '') {
     // We're in a subfolder, link to current role's dashboard
     if (userRole === 'admin') {
       dashboardLink = '../admin/dashboard.html';
-    } else if (userRole === 'freelance') {
+    } else if (userRole === 'freelance' || userRole === 'affiliate') {
       dashboardLink = '../freelance/dashboard.html';
     } else {
       dashboardLink = '../agent/dashboard.html';
@@ -36,7 +36,7 @@ function renderHeader(currentPage = '') {
     // We're at root, link to role-specific folder
     if (userRole === 'admin') {
       dashboardLink = 'admin/dashboard.html';
-    } else if (userRole === 'freelance') {
+    } else if (userRole === 'freelance' || userRole === 'affiliate') {
       dashboardLink = 'freelance/dashboard.html';
     } else {
       dashboardLink = 'agent/dashboard.html';
@@ -49,22 +49,26 @@ function renderHeader(currentPage = '') {
     profileLink = 'profile.html'; // Stay in same folder
   } else {
     if (userRole === 'admin') profileLink = 'admin/profile.html';
-    else if (userRole === 'freelance') profileLink = 'freelance/profile.html';
+    else if (userRole === 'freelance' || userRole === 'affiliate') profileLink = 'freelance/profile.html';
     else profileLink = 'agent/profile.html';
   }
 
   const user = typeof getUser === 'function' ? getUser() : null;
-  const idForRole = (userRole === 'freelance' || userRole === 'agent') ? (user?.id || null) : null;
+  const idForRole = (userRole === 'freelance' || userRole === 'affiliate' || userRole === 'agent') ? (user?.id || null) : null;
   if (idForRole && typeof appendQueryParam === 'function') {
     dashboardLink = appendQueryParam(dashboardLink, 'id', idForRole);
     profileLink = appendQueryParam(profileLink, 'id', idForRole);
+    if (userRole === 'affiliate') {
+      dashboardLink = appendQueryParam(dashboardLink, 'type', 'affiliate');
+      profileLink = appendQueryParam(profileLink, 'type', 'affiliate');
+    }
   }
 
   // Determine login link based on role
   let loginLink = '../login.html';
   if (isInSubdir) {
     if (userRole === 'admin') loginLink = 'login.html'; // admin/login.html
-    else if (userRole === 'freelance') loginLink = 'login.html'; // freelance/login.html
+    else if (userRole === 'freelance' || userRole === 'affiliate') loginLink = 'login.html'; // freelance/login.html
     else loginLink = '../login.html'; // root login.html for agent
   } else {
     loginLink = 'login.html';
@@ -90,14 +94,14 @@ function renderHeader(currentPage = '') {
             class="flex h-10 items-center gap-2 rounded-full px-3 hover:bg-muted transition-colors"
           >
             <span class="flex items-center gap-2 text-sm font-semibold">
-              <span x-show="headerUser.role === 'freelance'" class="inline-flex items-center gap-1">
+              <span x-show="headerUser.role === 'freelance' || headerUser.role === 'affiliate'" class="inline-flex items-center gap-1">
                 <span x-text="headerUser.points.toLocaleString('id-ID')"></span>
                 <svg class="h-4 w-4 text-amber-400" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                   <circle cx="12" cy="12" r="10"></circle>
                   <circle cx="12" cy="12" r="5" class="text-amber-200" fill="currentColor"></circle>
                 </svg>
               </span>
-              <span x-show="headerUser.role === 'freelance'" class="text-slate-400">|</span>
+              <span x-show="headerUser.role === 'freelance' || headerUser.role === 'affiliate'" class="text-slate-400">|</span>
               <span class="hidden sm:inline" x-text="headerUser.name"></span>
             </span>
             <div class="h-9 w-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium">

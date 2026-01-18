@@ -1,0 +1,177 @@
+<!-- 
+  TEMPLATE: Cara menambahkan config.js ke file HTML
+  Copy-paste bagian yang sesuai ke file HTML Anda
+-->
+
+<!-- ============================================ -->
+<!-- UNTUK FILE DI ROOT FOLDER (index.html, login.html, dll) -->
+<!-- ============================================ -->
+
+<head>
+    <!-- ... favicon, fonts, tailwind, alpine, dll ... -->
+
+    <!-- Shared CSS -->
+    <link rel="stylesheet" href="shared/styles.css">
+
+    <!-- ⚠️ PENTING: Load config.js PERTAMA sebelum script lain -->
+    <script src="shared/config.js"></script>
+
+    <!-- Shared JS -->
+    <script src="shared/utils.js"></script>
+    <script src="shared/api.js"></script>
+    <script src="shared/header.js"></script>
+
+    <!-- ... tailwind config, dll ... -->
+</head>
+
+
+<!-- ============================================ -->
+<!-- UNTUK FILE DI SUBFOLDER (admin/, agent/, freelance/) -->
+<!-- ============================================ -->
+
+<head>
+    <!-- ... favicon, fonts, tailwind, alpine, dll ... -->
+
+    <!-- Shared CSS -->
+    <link rel="stylesheet" href="../shared/styles.css">
+
+    <!-- ⚠️ PENTING: Load config.js PERTAMA sebelum script lain -->
+    <script src="../shared/config.js"></script>
+
+    <!-- Shared JS -->
+    <script src="../shared/utils.js"></script>
+    <script src="../shared/api.js"></script>
+    <script src="../shared/header.js"></script>
+
+    <!-- ... tailwind config, dll ... -->
+</head>
+
+
+<!-- ============================================ -->
+<!-- CONTOH PENGGUNAAN DI JAVASCRIPT -->
+<!-- ============================================ -->
+<script>
+    // ✅ BENAR: Menggunakan apiUrl()
+    async function loadData() {
+        const response = await fetch(apiUrl('agents'));
+        const data = await response.json();
+        return data;
+    }
+
+    // ✅ BENAR: Menggunakan apiFetch() (sudah include headers)
+    async function loadDataWithHelper() {
+        const response = await apiFetch(apiUrl('agents'));
+        const data = await response.json();
+        return data;
+    }
+
+    // ✅ BENAR: POST data
+    async function createAgent(agentData) {
+        const response = await apiFetch(apiUrl('agents'), {
+            method: 'POST',
+            body: JSON.stringify(agentData)
+        });
+        return await response.json();
+    }
+
+    // ✅ BENAR: Menggunakan storageUrl()
+    function displayImage(imagePath) {
+        const img = document.createElement('img');
+        img.src = storageUrl(imagePath);
+        document.body.appendChild(img);
+    }
+
+    // ❌ SALAH: Jangan hardcode URL
+    async function loadDataWrong() {
+        const response = await fetch('http://127.0.0.1:8000/api/agents'); // ❌
+        const data = await response.json();
+        return data;
+    }
+</script>
+
+
+<!-- ============================================ -->
+<!-- CONTOH LENGKAP: FILE HTML DENGAN CONFIG.JS -->
+<!-- ============================================ -->
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contoh Page</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="../public/favicon/favicon-32x32.png">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- Shared CSS -->
+    <link rel="stylesheet" href="../shared/styles.css">
+
+    <!-- ⚠️ PENTING: Load config.js PERTAMA sebelum script lain -->
+    <script src="../shared/config.js"></script>
+
+    <!-- Shared JS -->
+    <script src="../shared/utils.js"></script>
+    <script src="../shared/header.js"></script>
+
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        border: "hsl(var(--border))",
+                        primary: { DEFAULT: "hsl(var(--primary))" },
+                    },
+                    fontFamily: {
+                        sans: ['Figtree', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+
+<body class="min-h-screen bg-background">
+    <div x-data="myApp()">
+        <!-- Your content here -->
+    </div>
+
+    <script>
+        function myApp() {
+            return {
+                async init() {
+                    // ✅ Menggunakan apiUrl() dan apiFetch()
+                    const response = await apiFetch(apiUrl('agents'));
+                    const data = await response.json();
+                    console.log(data);
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>
+
+
+<!-- ============================================ -->
+<!-- CHECKLIST SEBELUM DEPLOY -->
+<!-- ============================================ -->
+<!--
+  ✅ 1. Pastikan config.js sudah di-load di semua file HTML
+  ✅ 2. Ganti semua hardcoded URL dengan apiUrl() / storageUrl()
+  ✅ 3. Test semua fungsi di development
+  ✅ 4. Edit shared/config.js dan ganti API_BASE_URL ke production URL
+  ✅ 5. Deploy ke production
+  ✅ 6. Test lagi di production
+-->
