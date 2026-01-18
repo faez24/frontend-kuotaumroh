@@ -26,6 +26,9 @@
   <!-- Shared CSS -->
   <link rel="stylesheet" href="../shared/styles.css">
 
+  <!-- ⚠️ PENTING: Load config.js PERTAMA sebelum script lain -->
+  <script src="../shared/config.js"></script>
+
   <!-- Shared JS -->
   <script src="../shared/utils.js"></script>
   <script src="../shared/header.js"></script>
@@ -387,7 +390,8 @@
           const savedUser = getUser();
           if (savedUser?.id) return savedUser.id;
 
-          const res = await fetch(`http://127.0.0.1:8000/api/${this.getCollectionName()}`, { headers: { 'Accept': 'application/json' } });
+          // ✅ Menggunakan apiFetch() dan apiUrl() dari config.js
+          const res = await apiFetch(apiUrl(this.getCollectionName()));
           if (!res.ok) return null;
           const json = await res.json();
           const data = Array.isArray(json) ? json : (json.data || []);
@@ -411,14 +415,16 @@
 
         async fetchFreelance() {
           const collection = this.getCollectionName();
-          const url = `http://127.0.0.1:8000/api/${collection}/${this.freelanceId}`;
-          const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+          const url = `${collection}/${this.freelanceId}`;
+          // ✅ Menggunakan apiFetch() dan apiUrl() dari config.js
+          const res = await apiFetch(apiUrl(url));
           if (res.ok) {
             const json = await res.json().catch(() => ({}));
             return json.data || null;
           }
 
-          const listRes = await fetch(`http://127.0.0.1:8000/api/${collection}`, { headers: { 'Accept': 'application/json' } });
+          // ✅ Menggunakan apiFetch() dan apiUrl() dari config.js
+          const listRes = await apiFetch(apiUrl(collection));
           if (!listRes.ok) throw new Error('Gagal memuat data');
           const listJson = await listRes.json().catch(() => ({}));
           const list = Array.isArray(listJson) ? listJson : (listJson.data || []);
@@ -428,8 +434,9 @@
 
         async fetchAgents() {
           const collection = this.getCollectionName();
-          const nestedUrl = `http://127.0.0.1:8000/api/${collection}/${this.freelanceId}/agents`;
-          const res = await fetch(nestedUrl, { headers: { 'Accept': 'application/json' } });
+          const nestedUrl = `${collection}/${this.freelanceId}/agents`;
+          // ✅ Menggunakan apiFetch() dan apiUrl() dari config.js
+          const res = await apiFetch(apiUrl(nestedUrl));
           if (res.ok) {
             const json = await res.json().catch(() => ({}));
             const data = Array.isArray(json) ? json : (json.data || []);
@@ -441,7 +448,8 @@
             if (partner && Array.isArray(partner.agents)) return partner.agents;
           } catch { }
 
-          const allRes = await fetch('http://127.0.0.1:8000/api/agents', { headers: { 'Accept': 'application/json' } });
+          // ✅ Menggunakan apiFetch() dan apiUrl() dari config.js
+          const allRes = await apiFetch(apiUrl('agents'));
           if (!allRes.ok) throw new Error('Gagal memuat daftar agent');
           const allJson = await allRes.json().catch(() => ({}));
           const all = Array.isArray(allJson) ? allJson : (allJson.data || []);

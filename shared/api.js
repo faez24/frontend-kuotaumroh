@@ -7,8 +7,9 @@
    Configuration
    =========================== */
 
-// TODO: Replace with your actual API base URL
-const API_BASE = 'http://127.0.0.1:8000/api';
+// Import konfigurasi dari config.js
+// Pastikan config.js sudah di-load sebelum file ini
+const API_BASE = typeof API_URL !== 'undefined' ? API_URL : 'https://api.roamer.id/api';
 
 // Mock mode for development (set to false when API is ready)
 const USE_MOCK_DATA = false;
@@ -162,9 +163,9 @@ async function fetchPackages(provider = null) {
     if (!response.ok) {
       throw new Error('Failed to fetch packages');
     }
-    
+
     const data = await response.json();
-    
+
     // Map API response to app format
     const packages = data
       .filter(pkg => pkg.is_active === '1') // Only include active packages
@@ -188,16 +189,16 @@ async function fetchPackages(provider = null) {
           promo: pkg.promo || null,
         };
       });
-    
+
     // Filter by provider if specified
     if (provider) {
       return packages.filter(pkg => pkg.provider === provider);
     }
-    
+
     return packages;
   } catch (error) {
     console.error('Error fetching packages:', error);
-    
+
     // Fallback to mock data if API fails
     return new Promise((resolve) => {
       setTimeout(() => {
