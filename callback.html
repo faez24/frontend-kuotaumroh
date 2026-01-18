@@ -105,7 +105,8 @@
         }
 
         // 2. Check Agents Endpoint (Might contain all roles)
-        const agentData = await checkEndpoint('http://127.0.0.1:8000/api/agents', 'Agents');
+        // Using API_BASE from shared/api.js which defaults to http://127.0.0.1:8000/api
+        const agentData = await checkEndpoint(`${API_BASE}/agents`, 'Agents');
         if (agentData) {
           console.log('Found in Agents API:', agentData);
           const role = (agentData.jenis_agent || 'agent').toLowerCase();
@@ -124,7 +125,7 @@
         }
 
         // 3. Check Affiliates Endpoint (Specific)
-        const affiliate = await checkEndpoint('http://127.0.0.1:8000/api/affiliates', 'Affiliates');
+        const affiliate = await checkEndpoint(`${API_BASE}/affiliates`, 'Affiliates');
         if (affiliate) {
           console.log('Found as Affiliate:', affiliate);
           redirectUser(affiliate, 'affiliate', 'affiliate');
@@ -133,11 +134,11 @@
 
         // 4. Check Freelance Endpoint (Specific)
         // Note: Using plural 'freelances' based on dashboard code conventions and common REST patterns
-        let freelance = await checkEndpoint('http://127.0.0.1:8000/api/freelances', 'Freelance');
+        let freelance = await checkEndpoint(`${API_BASE}/freelances`, 'Freelance');
 
         // Fallback: try singular if plural failed (just in case)
         if (!freelance) {
-          freelance = await checkEndpoint('http://127.0.0.1:8000/api/freelance', 'Freelance (Singular)');
+          freelance = await checkEndpoint(`${API_BASE}/freelance`, 'Freelance (Singular)');
         }
 
         if (freelance) {
