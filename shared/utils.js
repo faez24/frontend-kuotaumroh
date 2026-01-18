@@ -248,7 +248,7 @@ function setReferral(ref) {
     const d = new Date();
     d.setTime(d.getTime() + 30 * 24 * 60 * 60 * 1000);
     document.cookie = `kuotaumroh_ref=${encodeURIComponent(JSON.stringify(ref))};expires=${d.toUTCString()};path=/`;
-  } catch {}
+  } catch { }
 }
 
 function getReferral() {
@@ -257,7 +257,7 @@ function getReferral() {
     if (v) return JSON.parse(v);
     const m = document.cookie.match(/(?:^|; )kuotaumroh_ref=([^;]+)/);
     if (m) return JSON.parse(decodeURIComponent(m[1]));
-  } catch {}
+  } catch { }
   return null;
 }
 
@@ -327,7 +327,7 @@ function getQueryInt(key) {
     const params = new URLSearchParams(window.location.search);
     const v = parseInt(params.get(key), 10);
     if (Number.isFinite(v) && v > 0) return v;
-  } catch {}
+  } catch { }
   return null;
 }
 
@@ -345,11 +345,29 @@ function appendQueryParam(url, key, value) {
 function syncFreelanceIdFromUrl() {
   const id = getQueryInt('id');
   if (!id) return null;
+  let role = 'freelance';
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const hinted = params.get('type');
+    if (hinted === 'affiliate') role = 'affiliate';
+  } catch { }
   const current = getUser() || {};
   setUser({
     ...current,
     id,
-    role: 'freelance'
+    role
+  });
+  return id;
+}
+
+function syncAgentIdFromUrl() {
+  const id = getQueryInt('id');
+  if (!id) return null;
+  const current = getUser() || {};
+  setUser({
+    ...current,
+    id,
+    role: 'agent'
   });
   return id;
 }
@@ -361,10 +379,13 @@ function redirectToDashboard() {
   const role = getUserRole();
   const user = getUser();
   const freelanceId = role === 'freelance' ? (user?.id || null) : null;
+  const affiliateId = role === 'affiliate' ? (user?.id || null) : null;
+  const agentId = role === 'agent' ? (user?.id || null) : null;
   const dashboards = {
     'admin': '/admin/dashboard.html',
     'freelance': freelanceId ? appendQueryParam('/freelance/dashboard.html', 'id', freelanceId) : '/freelance/dashboard.html',
-    'agent': '/agent/dashboard.html'
+    'affiliate': affiliateId ? appendQueryParam(appendQueryParam('/freelance/dashboard.html', 'id', affiliateId), 'type', 'affiliate') : appendQueryParam('/freelance/dashboard.html', 'type', 'affiliate'),
+    'agent': agentId ? appendQueryParam('/agent/dashboard.html', 'id', agentId) : '/agent/dashboard.html'
   };
   window.location.href = dashboards[role] || '/login.html';
 }
@@ -376,29 +397,34 @@ function redirectToDashboard() {
  */
 function requireRole(allowedRoles, demoMode = false) {
   const isDemoMode = demoMode || window.location.search.includes('demo');
-  
+
   // In demo mode, auto-set or update user to the required role
   if (isDemoMode) {
     const currentRole = getUserRole();
     // If not logged in OR logged in with wrong role, set the demo user
     if (!isLoggedIn() || !allowedRoles.includes(currentRole)) {
-      const demoRole = allowedRoles[0];
+      let demoRole = allowedRoles[0];
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const hinted = params.get('type') || params.get('role');
+        if (hinted && allowedRoles.includes(hinted)) demoRole = hinted;
+      } catch { }
       saveUser({
-        name: demoRole === 'admin' ? 'Admin Demo' : (demoRole === 'freelance' ? 'Affiliate Demo' : 'Agent Demo'),
+        name: demoRole === 'admin' ? 'Admin Demo' : (demoRole === 'agent' ? 'Agent Demo' : 'Affiliate Demo'),
         email: `demo@${demoRole}.com`,
         role: demoRole,
-        referralCode: demoRole === 'freelance' ? 'demo-ref' : undefined,
+        referralCode: (demoRole === 'freelance' || demoRole === 'affiliate') ? 'demo-ref' : undefined,
         agentCode: demoRole === 'agent' ? 'AGT-DEMO' : undefined
       });
     }
     return true;
   }
-  
+
   if (!isLoggedIn()) {
     window.location.href = '/login.html';
     return false;
   }
-  
+
   const userRole = getUserRole();
   if (!allowedRoles.includes(userRole)) {
     // Redirect to their proper dashboard or login
@@ -418,8 +444,9 @@ function hasPermission(permission) {
   const permissions = {
     'admin': ['all'],
     'freelance': ['view_downlines', 'view_points', 'claim_rewards', 'view_profile'],
+    'affiliate': ['view_downlines', 'view_points', 'claim_rewards', 'view_profile'],
     'agent': ['create_orders', 'view_own_orders', 'manage_wallet', 'view_referrals', 'view_profile']
   };
-  
+
   return permissions[role]?.includes(permission) || permissions[role]?.includes('all');
 }

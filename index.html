@@ -39,7 +39,12 @@
     <!-- Shared CSS -->
     <link rel="stylesheet" href="shared/styles.css">
 
-    <!-- Tailwind Config -->
+    <!-- ⚠️ PENTING: Load config.js PERTAMA sebelum script lain -->
+    <script src="shared/config.js"></script>
+
+    <!-- Shared Scripts -->
+    <script src="shared/utils.js"></script>
+    <script src="shared/api.js"></script>
     <script>
         tailwind.config = {
             theme: {

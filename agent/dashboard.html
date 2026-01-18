@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -37,6 +38,9 @@
 
   <!-- Shared CSS -->
   <link rel="stylesheet" href="../shared/styles.css">
+
+  <!-- ⚠️ PENTING: Load config.js PERTAMA sebelum script lain -->
+  <script src="../shared/config.js"></script>
 
   <!-- Shared JS -->
   <script src="../shared/header.js"></script>
@@ -100,7 +104,9 @@
         <div>
           <div class="relative overflow-hidden rounded-2xl border-slate-200 bg-white shadow-sm h-full">
             <!-- Background Decoration -->
-            <div class="pointer-events-none absolute right-0 top-0 h-40 w-40 -translate-y-1/3 translate-x-1/3 rounded-full bg-primary/5"></div>
+            <div
+              class="pointer-events-none absolute right-0 top-0 h-40 w-40 -translate-y-1/3 translate-x-1/3 rounded-full bg-primary/5">
+            </div>
 
             <!-- Header -->
             <div class="relative z-10 flex flex-row items-center justify-between p-6 pb-4">
@@ -109,14 +115,16 @@
               </h3>
               <div class="rounded-lg p-2 bg-primary/10 text-primary">
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                 </svg>
               </div>
             </div>
 
             <!-- Content -->
             <div class="relative z-10 p-6 pt-0">
-              <div class="text-4xl font-extrabold text-primary tracking-tight" x-text="formatRupiah(stats.monthlyProfit)"></div>
+              <div class="text-4xl font-extrabold text-primary tracking-tight"
+                x-text="formatRupiah(stats.monthlyProfit)"></div>
 
               <!-- Summary Bar -->
               <div class="mt-6 flex items-center justify-between border-t border-slate-100 pt-4">
@@ -150,15 +158,15 @@
                 <div class="sm:w-24 sm:shrink-0">
                   <img
                     :src="'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(referralLink)"
-                    alt="QR Referral"
-                    class="w-full aspect-square rounded-lg border bg-white object-contain p-2"
-                  >
+                    alt="QR Referral" class="w-full aspect-square rounded-lg border bg-white object-contain p-2">
                 </div>
                 <div class="space-y-2 sm:flex-1">
                   <label class="text-xs font-medium text-muted-foreground">Link Pendaftaran</label>
                   <div class="flex flex-col gap-2 sm:flex-row">
-                    <input type="text" readonly :value="referralLink" class="flex h-9 w-full min-w-0 rounded-md border border-input bg-muted px-3 py-2 text-xs">
-                    <button @click="copyReferralLink()" class="h-9 w-full px-3 bg-primary text-white rounded-md text-xs font-medium hover:bg-primary/90 transition-colors sm:w-auto">
+                    <input type="text" readonly :value="referralLink"
+                      class="flex h-9 w-full min-w-0 rounded-md border border-input bg-muted px-3 py-2 text-xs">
+                    <button @click="copyReferralLink()"
+                      class="h-9 w-full px-3 bg-primary text-white rounded-md text-xs font-medium hover:bg-primary/90 transition-colors sm:w-auto">
                       Salin
                     </button>
                   </div>
@@ -182,13 +190,10 @@
             <!-- Content -->
             <div class="p-6 pt-0">
               <div class="flex items-center gap-3">
-                <img
-                  src="../public/images/wallet.png"
-                  alt="Wallet"
-                  class="h-12 w-12 object-contain"
-                  onerror="this.style.display='none'"
-                />
-                <div class="text-3xl font-bold text-slate-900 tracking-tight" x-text="formatRupiah(stats.walletBalance)"></div>
+                <img src="../public/images/wallet.png" alt="Wallet" class="h-12 w-12 object-contain"
+                  onerror="this.style.display='none'" />
+                <div class="text-3xl font-bold text-slate-900 tracking-tight"
+                  x-text="formatRupiah(stats.walletBalance)"></div>
               </div>
 
               <div class="mt-2 text-sm text-slate-500">
@@ -197,7 +202,8 @@
               </div>
 
               <!-- Action Button -->
-              <a href="withdraw.html" class="mt-6 inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground hover:bg-primary/90 w-full h-11 text-base font-medium transition-colors">
+              <a :href="withId('withdraw.html')"
+                class="mt-6 inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground hover:bg-primary/90 w-full h-11 text-base font-medium transition-colors">
                 Tarik Saldo
               </a>
             </div>
@@ -219,20 +225,14 @@
                 class="group flex h-48 cursor-pointer items-center justify-center rounded-2xl border shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
                 :class="item.variant === 'primary'
                   ? 'border-primary bg-primary text-primary-foreground hover:bg-primary/90'
-                  : 'border-slate-200 bg-white'"
-              >
+                  : 'border-slate-200 bg-white'">
                 <div class="flex flex-col items-center justify-center gap-3 p-6 text-center">
-                  <img
-                    :src="`../public/images/${item.icon}.png`"
-                    :alt="item.title"
+                  <img :src="`../public/images/${item.icon}.png`" :alt="item.title"
                     class="h-24 w-24 object-contain transition-transform group-hover:scale-110"
-                    onerror="this.src='../public/images/kabah.png'"
-                  />
-                  <h3
-                    class="text-xs font-bold uppercase tracking-wide leading-tight"
+                    onerror="this.src='../public/images/kabah.png'" />
+                  <h3 class="text-xs font-bold uppercase tracking-wide leading-tight"
                     :class="item.variant === 'primary' ? 'text-primary-foreground' : 'text-slate-700'"
-                    x-text="item.title"
-                  ></h3>
+                    x-text="item.title"></h3>
                 </div>
               </div>
             </a>
@@ -252,6 +252,7 @@
   <script>
     function dashboardApp() {
       return {
+        agentId: null,
         // User data
         user: {
           name: 'Ahmad Fauzi',
@@ -310,26 +311,13 @@
 
         // Lifecycle
         init() {
-          // Load user data from localStorage
+          if (!requireRole(['agent'], true)) return;
+          syncAgentIdFromUrl();
           const savedUser = getUser();
-          if (savedUser && savedUser.name) {
-            this.user = {
-              ...savedUser,
-              initials: this.getInitials(savedUser.name)
-            };
-          }
-          this.referralLink = 'https://kuotaumroh.id/signup.html?ref=' + (this.user.agentCode || 'AGN-DEMO');
-
-          // Check if user is logged in
-          if (!isLoggedIn()) {
-            window.location.href = '../login.html';
-          }
-
-          // Render shared header component
+          this.agentId = savedUser?.id || null;
           renderHeader('dashboard');
-
-          // Load stats from API (currently using mock data)
-          this.loadStats();
+          this.updateMenuLinks();
+          this.loadAgent();
         },
 
         // Methods
@@ -340,6 +328,57 @@
             .join('')
             .toUpperCase()
             .slice(0, 2);
+        },
+
+        withId(url) {
+          if (!this.agentId || typeof appendQueryParam !== 'function') return url;
+          return appendQueryParam(url, 'id', this.agentId);
+        },
+
+        updateMenuLinks() {
+          if (!this.agentId || typeof appendQueryParam !== 'function') return;
+          this.menuItems = this.menuItems.map(item => ({
+            ...item,
+            href: appendQueryParam(item.href, 'id', this.agentId)
+          }));
+        },
+
+        async loadAgent() {
+          if (!this.agentId) return;
+          try {
+            const savedUser = getUser();
+            // ✅ Menggunakan apiFetch() dan apiUrl() dari config.js
+            const res = await apiFetch(apiUrl(`agents/${this.agentId}`));
+            if (!res.ok) throw new Error('Gagal memuat data agent');
+            const json = await res.json();
+            const agent = json?.data || json;
+
+            const phoneRaw = String(agent?.no_hp || '');
+            const phone = phoneRaw.startsWith('62') ? phoneRaw.substring(2) : (phoneRaw.startsWith('0') ? phoneRaw.substring(1) : phoneRaw);
+
+            this.user = {
+              name: agent?.nama_pic || savedUser?.name || 'Agent',
+              email: agent?.email || savedUser?.email || '',
+              agentCode: agent?.agent_code || savedUser?.agentCode || '',
+              phone,
+              initials: this.getInitials(agent?.nama_pic || savedUser?.name || 'Agent')
+            };
+
+            setUser({
+              ...(getUser() || {}),
+              id: agent?.id || this.agentId,
+              role: 'agent',
+              name: this.user.name,
+              email: this.user.email,
+              agentCode: this.user.agentCode
+            });
+
+            renderHeader('dashboard');
+
+            this.referralLink = agent?.link_referal || agent?.link_referral || (window.location.origin + '/signup.html?ref=' + (this.user.agentCode || ''));
+          } catch (e) {
+            console.error(e);
+          }
         },
 
         async loadStats() {
@@ -364,4 +403,5 @@
     }
   </script>
 </body>
+
 </html>

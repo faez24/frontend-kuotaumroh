@@ -128,7 +128,7 @@
         },
 
         init() {
-          if (!requireRole(['freelance'], true)) return;
+          if (!requireRole(['freelance', 'affiliate'], true)) return;
           syncFreelanceIdFromUrl();
           renderHeader('points-history');
           

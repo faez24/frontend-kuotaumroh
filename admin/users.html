@@ -17,6 +17,10 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <link rel="stylesheet" href="../shared/styles.css">
+
+  <!-- ⚠️ PENTING: Load config.js PERTAMA sebelum script lain -->
+  <script src="../shared/config.js"></script>
+
   <script src="../shared/utils.js"></script>
   <script src="../shared/header.js"></script>
 
@@ -281,6 +285,8 @@
 
                   <!-- Travel Agent Specific Columns -->
                   <th x-show="roleFilter === 'travel_agent'"
+                    class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Kategori Agent</th>
+                  <th x-show="roleFilter === 'travel_agent'"
                     class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">No. HP</th>
                   <th x-show="roleFilter === 'travel_agent'"
                     class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Nama Travel</th>
@@ -412,6 +418,9 @@
                     <td class="p-4 align-middle text-muted-foreground" x-text="user.email"></td>
 
                     <!-- Travel Agent Columns -->
+                    <td x-show="roleFilter === 'travel_agent'" class="p-4 align-middle"
+                      x-text="user.agentCategory || '-'">
+                    </td>
                     <td x-show="roleFilter === 'travel_agent'" class="p-4 align-middle" x-text="user.phone || '-'"></td>
                     <td x-show="roleFilter === 'travel_agent'" class="p-4 align-middle" x-text="user.travelName || '-'">
                     </td>
@@ -489,8 +498,13 @@
                     </td>
                     <td class="p-4 align-middle text-center">
                       <div class="flex items-center justify-center gap-2">
-                        <a x-show="roleFilter === 'freelance'" :href="getFreelanceDashboardHref(user)" target="_blank"
-                          rel="noopener noreferrer"
+                        <a x-show="roleFilter === 'travel_agent' && !isHostCategory(user.agentCategory)"
+                          :href="getAgentDashboardHref(user)" target="_blank" rel="noopener noreferrer"
+                          class="h-8 px-3 rounded text-xs font-medium border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors">
+                          Dashboard
+                        </a>
+                        <a x-show="roleFilter === 'freelance' || roleFilter === 'affiliate'"
+                          :href="getPartnerDashboardHref(user)" target="_blank" rel="noopener noreferrer"
                           class="h-8 px-3 rounded text-xs font-medium border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors">
                           Dashboard
                         </a>
@@ -524,7 +538,7 @@
                 <template x-if="filteredUsers.length === 0">
                   <tr>
                     <td
-                      :colspan="roleFilter === 'travel_agent' ? 14 : (roleFilter === 'affiliate' ? 8 : (roleFilter === 'freelance' ? 8 : 9))"
+                      :colspan="roleFilter === 'travel_agent' ? 15 : (roleFilter === 'affiliate' ? 8 : (roleFilter === 'freelance' ? 8 : 9))"
                       class="p-8 text-center text-muted-foreground">Tidak ada user ditemukan</td>
                   </tr>
                 </template>
@@ -1520,7 +1534,8 @@
             // Assuming Laravel storage link is at /storage
             // Remove 'public/' if it exists in the path as commonly stored in DB
             const cleanPath = src.replace('public/', '');
-            this.fileModalSrc = `http://127.0.0.1:8000/storage/${cleanPath}`;
+            // ✅ Menggunakan storageUrl() dari config.js
+            this.fileModalSrc = storageUrl(cleanPath);
           }
           this.fileModalOpen = true;
         },
@@ -1605,12 +1620,9 @@
 
             console.log('Sending data:', dataToSend);
 
-            const response = await fetch('http://127.0.0.1:8000/api/affiliates', {
+            // ✅ Menggunakan apiFetch() dan apiUrl() dari config.js
+            const response = await apiFetch(apiUrl('affiliates'), {
               method: 'POST',
-              headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-              },
               body: JSON.stringify(dataToSend)
             });
 
@@ -1740,12 +1752,9 @@
 
             console.log('Sending freelance data:', dataToSend);
 
-            const response = await fetch('http://127.0.0.1:8000/api/freelances', {
+            // ✅ Menggunakan apiFetch() dan apiUrl() dari config.js
+            const response = await apiFetch(apiUrl('freelances'), {
               method: 'POST',
-              headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-              },
               body: JSON.stringify(dataToSend)
             });
 
@@ -1876,12 +1885,9 @@
 
             console.log('Sending travel agent data:', dataToSend);
 
-            const response = await fetch('http://127.0.0.1:8000/api/agents', {
+            // ✅ Menggunakan apiFetch() dan apiUrl() dari config.js
+            const response = await apiFetch(apiUrl('agents'), {
               method: 'POST',
-              headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-              },
               body: JSON.stringify(dataToSend)
             });
 
@@ -1943,7 +1949,8 @@
             this.downlines = [];
 
             // Fetch affiliates
-            const affiliatesResponse = await fetch('http://127.0.0.1:8000/api/affiliates');
+            // ✅ Menggunakan apiFetch() dan apiUrl() dari config.js
+            const affiliatesResponse = await apiFetch(apiUrl('affiliates'));
             if (affiliatesResponse.ok) {
               const affiliatesData = await affiliatesResponse.json();
               const affiliates = affiliatesData.data.map(a => ({
@@ -1956,7 +1963,8 @@
             }
 
             // Fetch freelances
-            const freelancesResponse = await fetch('http://127.0.0.1:8000/api/freelances');
+            // ✅ Menggunakan apiFetch() dan apiUrl() dari config.js
+            const freelancesResponse = await apiFetch(apiUrl('freelances'));
             if (freelancesResponse.ok) {
               const freelancesData = await freelancesResponse.json();
               const freelances = freelancesData.data.map(f => ({
@@ -1985,11 +1993,10 @@
           const user = this.selectedUser;
           try {
             if (user.role === 'freelance') {
-              const deactivateResponse = await fetch(`http://127.0.0.1:8000/api/freelances/${user.id}/deactivate`, {
+              // ✅ Menggunakan apiFetch() dan apiUrl() dari config.js
+              const deactivateResponse = await apiFetch(apiUrl(`freelances/${user.id}/deactivate`), {
                 method: 'POST',
                 headers: {
-                  'Accept': 'application/json',
-                  'Content-Type': 'application/json',
                   'X-Requested-With': 'XMLHttpRequest'
                 },
                 body: '{}'
@@ -2008,21 +2015,18 @@
               return;
             }
 
-            const rejectResponse = await fetch(`http://127.0.0.1:8000/api/agents/${user.id}/reject`, {
+            // ✅ Menggunakan apiFetch() dan apiUrl() dari config.js
+            const rejectResponse = await apiFetch(apiUrl(`agents/${user.id}/reject`), {
               method: 'POST',
               headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest'
               },
               body: '{}'
             });
 
-            const deactivateResponse = await fetch(`http://127.0.0.1:8000/api/agents/${user.id}/deactivate`, {
+            const deactivateResponse = await apiFetch(apiUrl(`agents/${user.id}/deactivate`), {
               method: 'POST',
               headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest'
               },
               body: '{}'
@@ -2051,11 +2055,10 @@
 
           if (user.role === 'freelance') {
             try {
-              const activateResponse = await fetch(`http://127.0.0.1:8000/api/freelances/${user.id}/activate`, {
+              // ✅ Menggunakan apiFetch() dan apiUrl() dari config.js
+              const activateResponse = await apiFetch(apiUrl(`freelances/${user.id}/activate`), {
                 method: 'POST',
                 headers: {
-                  'Accept': 'application/json',
-                  'Content-Type': 'application/json',
                   'X-Requested-With': 'XMLHttpRequest'
                 },
                 body: '{}'
@@ -2084,11 +2087,10 @@
           }
 
           try {
-            let approveResponse = await fetch(`http://127.0.0.1:8000/api/agents/${user.id}/approve`, {
+            // ✅ Menggunakan apiFetch() dan apiUrl() dari config.js
+            let approveResponse = await apiFetch(apiUrl(`agents/${user.id}/approve`), {
               method: 'POST',
               headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest'
               },
               body: JSON.stringify({ link_referal: user.referralLink })
@@ -2097,7 +2099,8 @@
             if (!approveResponse.ok) {
               const formData = new FormData();
               formData.append('link_referal', user.referralLink);
-              approveResponse = await fetch(`http://127.0.0.1:8000/api/agents/${user.id}/approve`, {
+              // Note: Using fetch() directly for FormData (not apiFetch)
+              approveResponse = await fetch(apiUrl(`agents/${user.id}/approve`), {
                 method: 'POST',
                 headers: {
                   'Accept': 'application/json',
@@ -2107,11 +2110,9 @@
               });
             }
 
-            const activateResponse = await fetch(`http://127.0.0.1:8000/api/agents/${user.id}/activate`, {
+            const activateResponse = await apiFetch(apiUrl(`agents/${user.id}/activate`), {
               method: 'POST',
               headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest'
               },
               body: '{}'
@@ -2142,19 +2143,17 @@
           const fullLink = this.referralBaseUrl + this.referralSlugInput;
 
           try {
-            let approveResponse = await fetch(`http://127.0.0.1:8000/api/agents/${user.id}/approve`, {
+            // ✅ Menggunakan apiFetch() dan apiUrl() dari config.js
+            let approveResponse = await apiFetch(apiUrl(`agents/${user.id}/approve`), {
               method: 'POST',
-              headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-              },
               body: JSON.stringify({ link_referal: fullLink })
             });
 
             if (!approveResponse.ok) {
               const formData = new FormData();
               formData.append('link_referal', fullLink);
-              approveResponse = await fetch(`http://127.0.0.1:8000/api/agents/${user.id}/approve`, {
+              // Note: Using fetch() directly for FormData (not apiFetch)
+              approveResponse = await fetch(apiUrl(`agents/${user.id}/approve`), {
                 method: 'POST',
                 headers: {
                   'Accept': 'application/json',
@@ -2171,9 +2170,9 @@
 
             if (approveResponse.ok) {
               try {
-                await fetch(`http://127.0.0.1:8000/api/agents/${user.id}/activate`, {
-                  method: 'POST',
-                  headers: { 'Accept': 'application/json' }
+                // ✅ Menggunakan apiFetch() dan apiUrl() dari config.js
+                await apiFetch(apiUrl(`agents/${user.id}/activate`), {
+                  method: 'POST'
                 });
               } catch (e) {
                 console.error('Activate Error:', e);
@@ -2196,18 +2195,15 @@
           if (!confirm(`Apakah Anda yakin ingin menolak user ${user.name}?`)) return;
 
           try {
-            const response = await fetch(`http://127.0.0.1:8000/api/agents/${user.id}/reject`, {
-              method: 'POST',
-              headers: {
-                'Accept': 'application/json',
-              }
+            // ✅ Menggunakan apiFetch() dan apiUrl() dari config.js
+            const response = await apiFetch(apiUrl(`agents/${user.id}/reject`), {
+              method: 'POST'
             });
 
             if (response.ok) {
               try {
-                await fetch(`http://127.0.0.1:8000/api/agents/${user.id}/deactivate`, {
-                  method: 'POST',
-                  headers: { 'Accept': 'application/json' }
+                await apiFetch(apiUrl(`agents/${user.id}/deactivate`), {
+                  method: 'POST'
                 });
               } catch (e) {
                 console.error('Deactivate Error:', e);
@@ -2280,7 +2276,8 @@
             this.users = []; // Clear current users
 
             if (this.roleFilter === 'affiliate') {
-              const response = await fetch('http://127.0.0.1:8000/api/affiliates');
+              // ✅ Menggunakan apiUrl() dari config.js
+              const response = await fetch(apiUrl('affiliates'));
               if (!response.ok) throw new Error('Network response was not ok');
 
               const result = await response.json();
@@ -2290,7 +2287,8 @@
             }
 
             if (this.roleFilter === 'freelance') {
-              const response = await fetch('http://127.0.0.1:8000/api/freelances');
+              // ✅ Menggunakan apiUrl() dari config.js
+              const response = await fetch(apiUrl('freelances'));
               if (!response.ok) throw new Error('Network response was not ok');
 
               const result = await response.json();
@@ -2299,7 +2297,8 @@
               return;
             }
 
-            const response = await fetch('http://127.0.0.1:8000/api/agents');
+            // ✅ Menggunakan apiUrl() dari config.js
+            const response = await fetch(apiUrl('agents'));
             if (!response.ok) throw new Error('Network response was not ok');
 
             const result = await response.json();
@@ -2334,6 +2333,7 @@
             name: apiUser.nama_pic,
             email: apiUser.email,
             phone: apiUser.no_hp,
+            agentCategory: apiUser.kategori_agent || null,
             role,
             joinDate: apiUser.created_at,
             lastActiveDate: apiUser.updated_at,
@@ -2439,6 +2439,25 @@
           if (!user?.id) return '#';
           const origin = window.location.origin;
           return `${origin}/freelance/dashboard.html?id=${encodeURIComponent(String(user.id))}`;
+        },
+
+        getPartnerDashboardHref(user) {
+          if (!user?.id) return '#';
+          if (user.role !== 'freelance' && user.role !== 'affiliate') return '#';
+          const origin = window.location.origin;
+          const base = `${origin}/freelance/dashboard.html?id=${encodeURIComponent(String(user.id))}`;
+          return `${base}&type=${encodeURIComponent(String(user.role))}`;
+        },
+
+        isHostCategory(category) {
+          const v = String(category || '').trim().toLowerCase();
+          return v === 'host';
+        },
+
+        getAgentDashboardHref(user) {
+          if (!user?.id) return '#';
+          const origin = window.location.origin;
+          return `${origin}/agent/dashboard.html?id=${encodeURIComponent(String(user.id))}`;
         },
 
         generateMockUsers() {
