@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,15 +17,21 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <link rel="stylesheet" href="../shared/styles.css">
+
+  <!-- ⚠️ PENTING: Load config.js PERTAMA sebelum script lain -->
+  <script src="../shared/config.js"></script>
+
   <script src="../shared/utils.js"></script>
   <script src="../shared/header.js"></script>
 
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
   <!-- Flatpickr CSS for date range picker -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  
+
   <!-- Flatpickr JS -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
@@ -160,30 +167,25 @@
           <div class="space-y-4 mb-6">
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <h3 class="text-lg font-semibold">Daftar Agent Terekrut</h3>
-              <button @click="openAddModal()" class="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 text-sm font-medium transition-colors">
+              <button @click="openAddModal()"
+                class="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 text-sm font-medium transition-colors">
                 Tambah Agent
               </button>
             </div>
-            
+
             <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:justify-end">
               <!-- Date Range Filter -->
               <div class="relative">
-                <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none"
+                  fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                <input
-                  type="text"
-                  id="dateRangePicker"
-                  placeholder="Pilih Rentang Tanggal"
+                <input type="text" id="dateRangePicker" placeholder="Pilih Rentang Tanggal"
                   class="flex h-10 rounded-md border border-input bg-background pl-9 pr-8 py-2 text-sm w-full sm:w-[250px]"
-                  readonly
-                >
-                <button
-                  type="button"
-                  x-show="dateFrom || dateTo"
-                  @click="clearDateFilter()"
-                  class="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground rounded-full hover:bg-muted transition-colors"
-                >
+                  readonly>
+                <button type="button" x-show="dateFrom || dateTo" @click="clearDateFilter()"
+                  class="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground rounded-full hover:bg-muted transition-colors">
                   <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                   </svg>
@@ -192,10 +194,13 @@
 
               <!-- Search -->
               <div class="relative flex-1 sm:flex-none">
-                <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" fill="none"
+                  stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
-                <input type="text" x-model="search" placeholder="Cari nama/email" class="flex h-10 rounded-md border border-input bg-background pl-9 pr-3 py-2 text-sm w-full sm:w-[200px]">
+                <input type="text" x-model="search" placeholder="Cari nama/email"
+                  class="flex h-10 rounded-md border border-input bg-background pl-9 pr-3 py-2 text-sm w-full sm:w-[200px]">
               </div>
 
               <!-- Status Filter -->
@@ -212,43 +217,61 @@
             <table class="w-full">
               <thead>
                 <tr class="border-b">
-                  <th @click="sortBy('name')" class="h-12 px-4 text-left align-middle font-medium text-muted-foreground cursor-pointer hover:text-foreground transition-colors">
+                  <th @click="sortBy('name')"
+                    class="h-12 px-4 text-left align-middle font-medium text-muted-foreground cursor-pointer hover:text-foreground transition-colors">
                     <div class="flex items-center gap-2">
                       <span>Nama</span>
-                      <svg class="h-4 w-4" :class="sortColumn === 'name' ? 'text-primary' : 'text-muted-foreground/50'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="sortColumn === 'name' && sortDirection === 'asc' ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'" />
+                      <svg class="h-4 w-4" :class="sortColumn === 'name' ? 'text-primary' : 'text-muted-foreground/50'"
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          :d="sortColumn === 'name' && sortDirection === 'asc' ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'" />
                       </svg>
                     </div>
                   </th>
-                  <th @click="sortBy('email')" class="h-12 px-4 text-left align-middle font-medium text-muted-foreground cursor-pointer hover:text-foreground transition-colors">
+                  <th @click="sortBy('email')"
+                    class="h-12 px-4 text-left align-middle font-medium text-muted-foreground cursor-pointer hover:text-foreground transition-colors">
                     <div class="flex items-center gap-2">
                       <span>Email</span>
-                      <svg class="h-4 w-4" :class="sortColumn === 'email' ? 'text-primary' : 'text-muted-foreground/50'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="sortColumn === 'email' && sortDirection === 'asc' ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'" />
+                      <svg class="h-4 w-4" :class="sortColumn === 'email' ? 'text-primary' : 'text-muted-foreground/50'"
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          :d="sortColumn === 'email' && sortDirection === 'asc' ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'" />
                       </svg>
                     </div>
                   </th>
-                  <th @click="sortBy('joinDate')" class="h-12 px-4 text-left align-middle font-medium text-muted-foreground cursor-pointer hover:text-foreground transition-colors">
+                  <th @click="sortBy('joinDate')"
+                    class="h-12 px-4 text-left align-middle font-medium text-muted-foreground cursor-pointer hover:text-foreground transition-colors">
                     <div class="flex items-center gap-2">
                       <span>Tanggal Daftar</span>
-                      <svg class="h-4 w-4" :class="sortColumn === 'joinDate' ? 'text-primary' : 'text-muted-foreground/50'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="sortColumn === 'joinDate' && sortDirection === 'asc' ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'" />
+                      <svg class="h-4 w-4"
+                        :class="sortColumn === 'joinDate' ? 'text-primary' : 'text-muted-foreground/50'" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          :d="sortColumn === 'joinDate' && sortDirection === 'asc' ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'" />
                       </svg>
                     </div>
                   </th>
-                  <th @click="sortBy('totalOrders')" class="h-12 px-4 text-center align-middle font-medium text-muted-foreground cursor-pointer hover:text-foreground transition-colors">
+                  <th @click="sortBy('totalOrders')"
+                    class="h-12 px-4 text-center align-middle font-medium text-muted-foreground cursor-pointer hover:text-foreground transition-colors">
                     <div class="flex items-center justify-center gap-2">
                       <span>Total Order</span>
-                      <svg class="h-4 w-4" :class="sortColumn === 'totalOrders' ? 'text-primary' : 'text-muted-foreground/50'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="sortColumn === 'totalOrders' && sortDirection === 'asc' ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'" />
+                      <svg class="h-4 w-4"
+                        :class="sortColumn === 'totalOrders' ? 'text-primary' : 'text-muted-foreground/50'" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          :d="sortColumn === 'totalOrders' && sortDirection === 'asc' ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'" />
                       </svg>
                     </div>
                   </th>
-                  <th @click="sortBy('status')" class="h-12 px-4 text-center align-middle font-medium text-muted-foreground cursor-pointer hover:text-foreground transition-colors">
+                  <th @click="sortBy('status')"
+                    class="h-12 px-4 text-center align-middle font-medium text-muted-foreground cursor-pointer hover:text-foreground transition-colors">
                     <div class="flex items-center justify-center gap-2">
                       <span>Status</span>
-                      <svg class="h-4 w-4" :class="sortColumn === 'status' ? 'text-primary' : 'text-muted-foreground/50'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="sortColumn === 'status' && sortDirection === 'asc' ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'" />
+                      <svg class="h-4 w-4"
+                        :class="sortColumn === 'status' ? 'text-primary' : 'text-muted-foreground/50'" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          :d="sortColumn === 'status' && sortDirection === 'asc' ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'" />
                       </svg>
                     </div>
                   </th>
@@ -262,7 +285,8 @@
                     <td class="p-4 align-middle" x-text="formatDate(agent.joinDate)"></td>
                     <td class="p-4 align-middle text-center" x-text="agent.totalOrders"></td>
                     <td class="p-4 align-middle text-center">
-                      <span class="badge" :class="agent.status === 'active' ? 'badge-success' : 'badge-secondary'" x-text="agent.status === 'active' ? 'Aktif' : 'Tidak Aktif'"></span>
+                      <span class="badge" :class="agent.status === 'active' ? 'badge-success' : 'badge-secondary'"
+                        x-text="agent.status === 'active' ? 'Aktif' : 'Tidak Aktif'"></span>
                     </td>
                   </tr>
                 </template>
@@ -288,249 +312,331 @@
       <div class="min-h-full w-full p-4 flex items-center justify-center">
         <div class="absolute inset-0 bg-black/50" @click="closeAddModal()"></div>
 
-        <div class="relative w-full max-w-6xl rounded-lg border bg-white shadow-lg overflow-hidden max-h-[calc(100dvh-2rem)] flex flex-col">
+        <div
+          class="relative w-full max-w-6xl rounded-lg border bg-white shadow-lg overflow-hidden max-h-[calc(100dvh-2rem)] flex flex-col">
           <div class="flex items-center justify-between border-b px-6 py-4 shrink-0">
-          <div>
-            <h3 class="text-lg font-semibold">Tambah Agent</h3>
-            <p class="text-sm text-muted-foreground">Form sama seperti signup, kategori agent otomatis: Host</p>
-          </div>
-          <button @click="closeAddModal()" class="h-9 w-9 inline-flex items-center justify-center rounded-md hover:bg-muted transition-colors">
-            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+            <div>
+              <h3 class="text-lg font-semibold">Tambah Agent</h3>
+              <p class="text-sm text-muted-foreground">Form sama seperti signup, kategori agent otomatis: Host</p>
+            </div>
+            <button @click="closeAddModal()"
+              class="h-9 w-9 inline-flex items-center justify-center rounded-md hover:bg-muted transition-colors">
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
           </div>
 
           <div class="px-6 py-6 overflow-y-auto flex-1">
             <form id="addAgentForm" @submit.prevent="submitAddAgent()" class="space-y-6">
-            <div class="grid gap-6 lg:grid-cols-2">
-              <div class="rounded-lg border bg-white shadow-sm p-6 space-y-4">
-                <h2 class="text-lg font-semibold border-b pb-2 flex items-center gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.938 18.938A10.5 10.5 0 1012 21a10.5 10.5 0 007.938-2.062z" />
-                  </svg>
-                  Data PIC
-                </h2>
-
-                <div class="space-y-2">
-                  <label class="text-sm font-medium">Email <span class="text-destructive">*</span></label>
-                  <input type="email" x-model="addFormData.email" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" :class="addErrors.email && 'border-destructive focus:ring-destructive'">
-                  <p x-show="addErrors.email" class="text-xs text-destructive" x-text="addErrors.email"></p>
-                </div>
-
-                <div class="space-y-2">
-                  <label class="text-sm font-medium">Nama PIC <span class="text-destructive">*</span></label>
-                  <input type="text" x-model="addFormData.full_name" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" :class="addErrors.full_name && 'border-destructive focus:ring-destructive'">
-                  <p x-show="addErrors.full_name" class="text-xs text-destructive" x-text="addErrors.full_name"></p>
-                </div>
-
-                <div class="space-y-2">
-                  <label class="text-sm font-medium">No. HP <span class="text-destructive">*</span></label>
-                  <div class="relative">
-                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">+62</span>
-                    <input type="tel" x-model="addFormData.phone" @input="addFormData.phone = addFormData.phone.replace(/[^0-9]/g, '')" placeholder="81xxx" class="flex h-10 w-full rounded-md border border-input bg-background pl-12 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" :class="addErrors.phone && 'border-destructive focus:ring-destructive'">
-                  </div>
-                  <p class="text-xs text-muted-foreground">Format: 81xxxxxxxx (tanpa 0 atau +62)</p>
-                  <p x-show="addErrors.phone" class="text-xs text-destructive" x-text="addErrors.phone"></p>
-                </div>
-              </div>
-
-              <div class="rounded-lg border bg-white shadow-sm p-6 space-y-4">
-                <h2 class="text-lg font-semibold border-b pb-2 flex items-center gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  Detail Travel
-                </h2>
-
-                <div class="space-y-2">
-                  <label class="text-sm font-medium">Nama Travel</label>
-                  <input type="text" x-model="addFormData.travel_name" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
-                </div>
-
-                <div class="space-y-2" x-data="{ travelTypeOpen: false }">
-                  <label class="text-sm font-medium">Jenis Travel</label>
-                  <div class="relative" @click.away="travelTypeOpen = false">
-                    <button
-                      type="button"
-                      @click="travelTypeOpen = !travelTypeOpen"
-                      class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                    >
-                      <span :class="!addFormData.travel_type && 'text-muted-foreground'" x-text="addFormData.travel_type || 'Pilih jenis travel'"></span>
-                      <svg class="h-4 w-4 transition-transform" :class="travelTypeOpen && 'rotate-180'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </button>
-                    <div x-show="travelTypeOpen" x-transition class="absolute z-50 mt-1 w-full rounded-md border border-input bg-white shadow-lg" style="display: none;">
-                      <div class="py-1">
-                        <button type="button" @click="addFormData.travel_type = 'UMROH'; travelTypeOpen = false" class="w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors" :class="addFormData.travel_type === 'UMROH' && 'bg-primary/10 text-primary'">UMROH</button>
-                        <button type="button" @click="addFormData.travel_type = 'LEISURE'; travelTypeOpen = false" class="w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors" :class="addFormData.travel_type === 'LEISURE' && 'bg-primary/10 text-primary'">LEISURE</button>
-                        <button type="button" @click="addFormData.travel_type = 'UMROH LEISURE'; travelTypeOpen = false" class="w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors" :class="addFormData.travel_type === 'UMROH LEISURE' && 'bg-primary/10 text-primary'">UMROH & LEISURE</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="space-y-2">
-                  <label class="text-sm font-medium">Total Traveller per Bulan</label>
-                  <input type="number" min="0" x-model="addFormData.travel_member" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
-                </div>
-
-                <div class="space-y-2">
-                  <label class="text-sm font-medium">Logo Travel (Opsional)</label>
-                  <input type="file" @change="handleFileUpload($event)" accept="image/png,image/jpeg,image/jpg,image/gif" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium file:cursor-pointer hover:file:text-primary transition-colors cursor-pointer" :class="addErrors.logo && 'border-destructive focus:ring-destructive'">
-                  <p x-show="addErrors.logo" class="text-xs text-destructive" x-text="addErrors.logo"></p>
-                  <p class="text-xs text-muted-foreground">Format: PNG, JPG, GIF. Maksimal 2MB</p>
-                  <div x-show="addLogoPreview" class="mt-2">
-                    <img :src="addLogoPreview" alt="Logo preview" class="h-24 w-24 object-contain border rounded-md">
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="rounded-lg border bg-white shadow-sm p-6 space-y-4">
-              <h2 class="text-lg font-semibold border-b pb-2 flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                Lokasi
-              </h2>
-
-              <div class="grid gap-4 md:grid-cols-2">
-                <div class="space-y-2" x-data="{ provinceDropdownOpen: false, provinceSearch: '' }" x-init="$watch('provinceDropdownOpen', value => { if (value) $nextTick(() => $refs.provinceSearchInput.focus()) })">
-                  <label class="text-sm font-medium">Pilih Provinsi <span class="text-destructive">*</span></label>
-                  <div class="relative" @click.away="provinceDropdownOpen = false">
-                    <button type="button" @click="provinceDropdownOpen = !provinceDropdownOpen" class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" :class="addErrors.province && 'border-destructive focus:ring-destructive'">
-                      <span :class="!addFormData.province && 'text-muted-foreground'" x-text="addFormData.province || 'Pilih provinsi'"></span>
-                      <svg class="h-4 w-4 transition-transform" :class="provinceDropdownOpen && 'rotate-180'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </button>
-
-                    <div x-show="provinceDropdownOpen" x-transition class="absolute z-50 mt-1 w-full rounded-md border border-input bg-white shadow-lg" style="display:none;">
-                      <div class="p-2 border-b">
-                        <input type="text" x-ref="provinceSearchInput" x-model="provinceSearch" @click.stop placeholder="Cari provinsi..." class="w-full rounded-md border border-input px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
-                      </div>
-                      <div class="max-h-60 overflow-y-auto">
-                        <template x-for="province in provinces.filter(p => p.toLowerCase().includes(provinceSearch.toLowerCase()))" :key="province">
-                          <button type="button" @click="addFormData.province = province; handleProvinceChange(); provinceDropdownOpen = false; provinceSearch = ''" class="w-full px-3 py-2 text-left text-sm hover:bg-muted transition-colors" :class="addFormData.province === province && 'bg-muted'" x-text="province"></button>
-                        </template>
-                        <div x-show="provinces.filter(p => p.toLowerCase().includes(provinceSearch.toLowerCase())).length === 0" class="px-3 py-2 text-sm text-muted-foreground">Tidak ada provinsi ditemukan</div>
-                      </div>
-                    </div>
-                  </div>
-                  <p x-show="addErrors.province" class="text-xs text-destructive" x-text="addErrors.province"></p>
-                </div>
-
-                <div class="space-y-2" x-data="{ cityDropdownOpen: false, citySearch: '' }" x-init="$watch('cityDropdownOpen', value => { if (value) $nextTick(() => $refs.citySearchInput.focus()) })">
-                  <label class="text-sm font-medium">Pilih Kota/Kab <span class="text-destructive">*</span></label>
-                  <div class="relative" @click.away="cityDropdownOpen = false">
-                    <button type="button" @click="cityDropdownOpen = !cityDropdownOpen" class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" :class="addErrors.city && 'border-destructive focus:ring-destructive'">
-                      <span :class="!addFormData.city && 'text-muted-foreground'" x-text="addFormData.city || 'Pilih kota/kabupaten'"></span>
-                      <svg class="h-4 w-4 transition-transform" :class="cityDropdownOpen && 'rotate-180'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </button>
-
-                    <div x-show="cityDropdownOpen" x-transition class="absolute z-50 mt-1 w-full rounded-md border border-input bg-white shadow-lg" style="display:none;">
-                      <div class="p-2 border-b">
-                        <input type="text" x-ref="citySearchInput" x-model="citySearch" @click.stop placeholder="Cari kota/kabupaten..." class="flex h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
-                      </div>
-                      <div class="max-h-60 overflow-y-auto p-1">
-                        <template x-for="city in filteredCities(citySearch)" :key="city">
-                          <button type="button" @click="addFormData.city = city; handleCityChange(); cityDropdownOpen = false; citySearch = ''" :class="addFormData.city === city && 'bg-primary/10 text-primary'" class="w-full text-left px-3 py-2 text-sm rounded hover:bg-accent transition-colors" x-text="city"></button>
-                        </template>
-                        <div x-show="filteredCities(citySearch).length === 0" class="px-3 py-6 text-center text-sm text-muted-foreground">Tidak ada hasil ditemukan</div>
-                      </div>
-                    </div>
-                  </div>
-                  <p x-show="addErrors.city" class="text-xs text-destructive" x-text="addErrors.city"></p>
-                </div>
-              </div>
-
-              <div class="space-y-2">
-                <div class="flex items-center justify-between">
-                  <label class="text-sm font-medium">Alamat Lengkap <span class="text-destructive">*</span></label>
-                  <div x-show="isGeocodingAddress" class="flex items-center gap-2 text-xs text-muted-foreground">
-                    <svg class="animate-spin h-4 w-4 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              <div class="grid gap-6 lg:grid-cols-2">
+                <div class="rounded-lg border bg-white shadow-sm p-6 space-y-4">
+                  <h2 class="text-lg font-semibold border-b pb-2 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24"
+                      stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19.938 18.938A10.5 10.5 0 1012 21a10.5 10.5 0 007.938-2.062z" />
                     </svg>
-                    Mencari lokasi...
+                    Data PIC
+                  </h2>
+
+                  <div class="space-y-2">
+                    <label class="text-sm font-medium">Email <span class="text-destructive">*</span></label>
+                    <input type="email" x-model="addFormData.email"
+                      class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                      :class="addErrors.email && 'border-destructive focus:ring-destructive'">
+                    <p x-show="addErrors.email" class="text-xs text-destructive" x-text="addErrors.email"></p>
+                  </div>
+
+                  <div class="space-y-2">
+                    <label class="text-sm font-medium">Nama PIC <span class="text-destructive">*</span></label>
+                    <input type="text" x-model="addFormData.full_name"
+                      class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                      :class="addErrors.full_name && 'border-destructive focus:ring-destructive'">
+                    <p x-show="addErrors.full_name" class="text-xs text-destructive" x-text="addErrors.full_name"></p>
+                  </div>
+
+                  <div class="space-y-2">
+                    <label class="text-sm font-medium">No. HP <span class="text-destructive">*</span></label>
+                    <div class="relative">
+                      <span class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">+62</span>
+                      <input type="tel" x-model="addFormData.phone"
+                        @input="addFormData.phone = addFormData.phone.replace(/[^0-9]/g, '')" placeholder="81xxx"
+                        class="flex h-10 w-full rounded-md border border-input bg-background pl-12 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                        :class="addErrors.phone && 'border-destructive focus:ring-destructive'">
+                    </div>
+                    <p class="text-xs text-muted-foreground">Format: 81xxxxxxxx (tanpa 0 atau +62)</p>
+                    <p x-show="addErrors.phone" class="text-xs text-destructive" x-text="addErrors.phone"></p>
                   </div>
                 </div>
-                <textarea x-model="addFormData.address" @blur="geocodeAddress()" rows="4" class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" :class="addErrors.address && 'border-destructive focus:ring-destructive'"></textarea>
-                <p x-show="addErrors.address" class="text-xs text-destructive" x-text="addErrors.address"></p>
+
+                <div class="rounded-lg border bg-white shadow-sm p-6 space-y-4">
+                  <h2 class="text-lg font-semibold border-b pb-2 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24"
+                      stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Detail Travel
+                  </h2>
+
+                  <div class="space-y-2">
+                    <label class="text-sm font-medium">Nama Travel</label>
+                    <input type="text" x-model="addFormData.travel_name"
+                      class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                  </div>
+
+                  <div class="space-y-2" x-data="{ travelTypeOpen: false }">
+                    <label class="text-sm font-medium">Jenis Travel</label>
+                    <div class="relative" @click.away="travelTypeOpen = false">
+                      <button type="button" @click="travelTypeOpen = !travelTypeOpen"
+                        class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                        <span :class="!addFormData.travel_type && 'text-muted-foreground'"
+                          x-text="addFormData.travel_type || 'Pilih jenis travel'"></span>
+                        <svg class="h-4 w-4 transition-transform" :class="travelTypeOpen && 'rotate-180'" fill="none"
+                          stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+                      <div x-show="travelTypeOpen" x-transition
+                        class="absolute z-50 mt-1 w-full rounded-md border border-input bg-white shadow-lg"
+                        style="display: none;">
+                        <div class="py-1">
+                          <button type="button" @click="addFormData.travel_type = 'UMROH'; travelTypeOpen = false"
+                            class="w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors"
+                            :class="addFormData.travel_type === 'UMROH' && 'bg-primary/10 text-primary'">UMROH</button>
+                          <button type="button" @click="addFormData.travel_type = 'LEISURE'; travelTypeOpen = false"
+                            class="w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors"
+                            :class="addFormData.travel_type === 'LEISURE' && 'bg-primary/10 text-primary'">LEISURE</button>
+                          <button type="button"
+                            @click="addFormData.travel_type = 'UMROH LEISURE'; travelTypeOpen = false"
+                            class="w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors"
+                            :class="addFormData.travel_type === 'UMROH LEISURE' && 'bg-primary/10 text-primary'">UMROH &
+                            LEISURE</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="space-y-2">
+                    <label class="text-sm font-medium">Total Traveller per Bulan</label>
+                    <input type="number" min="0" x-model="addFormData.travel_member"
+                      class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                  </div>
+
+                  <div class="space-y-2">
+                    <label class="text-sm font-medium">Logo Travel (Opsional)</label>
+                    <input type="file" @change="handleFileUpload($event)"
+                      accept="image/png,image/jpeg,image/jpg,image/gif"
+                      class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium file:cursor-pointer hover:file:text-primary transition-colors cursor-pointer"
+                      :class="addErrors.logo && 'border-destructive focus:ring-destructive'">
+                    <p x-show="addErrors.logo" class="text-xs text-destructive" x-text="addErrors.logo"></p>
+                    <p class="text-xs text-muted-foreground">Format: PNG, JPG, GIF. Maksimal 2MB</p>
+                    <div x-show="addLogoPreview" class="mt-2">
+                      <img :src="addLogoPreview" alt="Logo preview" class="h-24 w-24 object-contain border rounded-md">
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <div class="space-y-2" x-show="addFormData.city">
-                <label class="text-sm font-medium">Tandai Lokasi di Peta</label>
-                <p class="text-xs text-muted-foreground">Klik pada peta untuk menandai lokasi Anda</p>
+              <div class="rounded-lg border bg-white shadow-sm p-6 space-y-4">
+                <h2 class="text-lg font-semibold border-b pb-2 flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  Lokasi
+                </h2>
 
-                <div class="relative mb-2">
-                  <div class="relative">
-                    <input
-                      type="text"
-                      x-model="mapSearchQuery"
-                      @input="handleMapSearch()"
-                      @keydown.enter.prevent="handleMapEnter()"
-                      placeholder="Cari lokasi (contoh: Monas, Jalan Sudirman)"
-                      class="flex h-10 w-full rounded-md border border-input bg-background pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                    >
-                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-muted-foreground">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                      </svg>
+                <div class="grid gap-4 md:grid-cols-2">
+                  <div class="space-y-2" x-data="{ provinceDropdownOpen: false, provinceSearch: '' }"
+                    x-init="$watch('provinceDropdownOpen', value => { if (value) $nextTick(() => $refs.provinceSearchInput.focus()) })">
+                    <label class="text-sm font-medium">Pilih Provinsi <span class="text-destructive">*</span></label>
+                    <div class="relative" @click.away="provinceDropdownOpen = false">
+                      <button type="button" @click="provinceDropdownOpen = !provinceDropdownOpen"
+                        class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                        :class="addErrors.province && 'border-destructive focus:ring-destructive'">
+                        <span :class="!addFormData.province && 'text-muted-foreground'"
+                          x-text="addFormData.province || 'Pilih provinsi'"></span>
+                        <svg class="h-4 w-4 transition-transform" :class="provinceDropdownOpen && 'rotate-180'"
+                          fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+
+                      <div x-show="provinceDropdownOpen" x-transition
+                        class="absolute z-50 mt-1 w-full rounded-md border border-input bg-white shadow-lg"
+                        style="display:none;">
+                        <div class="p-2 border-b">
+                          <input type="text" x-ref="provinceSearchInput" x-model="provinceSearch" @click.stop
+                            placeholder="Cari provinsi..."
+                            class="w-full rounded-md border border-input px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                        </div>
+                        <div class="max-h-60 overflow-y-auto">
+                          <template
+                            x-for="province in provinces.filter(p => p.toLowerCase().includes(provinceSearch.toLowerCase()))"
+                            :key="province">
+                            <button type="button"
+                              @click="addFormData.province = province; handleProvinceChange(); provinceDropdownOpen = false; provinceSearch = ''"
+                              class="w-full px-3 py-2 text-left text-sm hover:bg-muted transition-colors"
+                              :class="addFormData.province === province && 'bg-muted'" x-text="province"></button>
+                          </template>
+                          <div
+                            x-show="provinces.filter(p => p.toLowerCase().includes(provinceSearch.toLowerCase())).length === 0"
+                            class="px-3 py-2 text-sm text-muted-foreground">Tidak ada provinsi ditemukan</div>
+                        </div>
+                      </div>
                     </div>
-                    <div class="absolute inset-y-0 right-0 flex items-center pr-3" x-show="isSearchingMap">
-                      <svg class="animate-spin h-4 w-4 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                    </div>
+                    <p x-show="addErrors.province" class="text-xs text-destructive" x-text="addErrors.province"></p>
                   </div>
 
-                  <div x-show="mapSearchResults.length > 0" @click.away="mapSearchResults = []" class="absolute z-10 w-full mt-1 bg-popover text-popover-foreground rounded-md border shadow-md max-h-60 overflow-y-auto" style="display: none;">
-                    <ul>
-                      <template x-for="(result, index) in mapSearchResults" :key="index">
-                        <li @click="selectMapLocation(result)" class="px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground cursor-pointer border-b last:border-0">
-                          <div class="font-medium" x-text="result.display_name.split(',')[0]"></div>
-                          <div class="text-xs text-muted-foreground truncate" x-text="result.display_name"></div>
-                        </li>
-                      </template>
-                    </ul>
+                  <div class="space-y-2" x-data="{ cityDropdownOpen: false, citySearch: '' }"
+                    x-init="$watch('cityDropdownOpen', value => { if (value) $nextTick(() => $refs.citySearchInput.focus()) })">
+                    <label class="text-sm font-medium">Pilih Kota/Kab <span class="text-destructive">*</span></label>
+                    <div class="relative" @click.away="cityDropdownOpen = false">
+                      <button type="button" @click="cityDropdownOpen = !cityDropdownOpen"
+                        class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                        :class="addErrors.city && 'border-destructive focus:ring-destructive'">
+                        <span :class="!addFormData.city && 'text-muted-foreground'"
+                          x-text="addFormData.city || 'Pilih kota/kabupaten'"></span>
+                        <svg class="h-4 w-4 transition-transform" :class="cityDropdownOpen && 'rotate-180'" fill="none"
+                          stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+
+                      <div x-show="cityDropdownOpen" x-transition
+                        class="absolute z-50 mt-1 w-full rounded-md border border-input bg-white shadow-lg"
+                        style="display:none;">
+                        <div class="p-2 border-b">
+                          <input type="text" x-ref="citySearchInput" x-model="citySearch" @click.stop
+                            placeholder="Cari kota/kabupaten..."
+                            class="flex h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                        </div>
+                        <div class="max-h-60 overflow-y-auto p-1">
+                          <template x-for="city in filteredCities(citySearch)" :key="city">
+                            <button type="button"
+                              @click="addFormData.city = city; handleCityChange(); cityDropdownOpen = false; citySearch = ''"
+                              :class="addFormData.city === city && 'bg-primary/10 text-primary'"
+                              class="w-full text-left px-3 py-2 text-sm rounded hover:bg-accent transition-colors"
+                              x-text="city"></button>
+                          </template>
+                          <div x-show="filteredCities(citySearch).length === 0"
+                            class="px-3 py-6 text-center text-sm text-muted-foreground">Tidak ada hasil ditemukan</div>
+                        </div>
+                      </div>
+                    </div>
+                    <p x-show="addErrors.city" class="text-xs text-destructive" x-text="addErrors.city"></p>
                   </div>
                 </div>
 
-                <div id="addAgentMap" class="w-full h-80 rounded-md border border-input overflow-hidden" x-init="$nextTick(() => { if (addFormData.city && !mapInitialized) initializeMap(); })"></div>
-
-                <div class="grid grid-cols-2 gap-4 pt-2">
-                  <div class="space-y-2">
-                    <label class="text-sm font-medium">Latitude</label>
-                    <input type="number" step="any" x-model.number="addFormData.latitude" @input="updateMapFromCoordinates()" placeholder="-6.xxxxx" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                <div class="space-y-2">
+                  <div class="flex items-center justify-between">
+                    <label class="text-sm font-medium">Alamat Lengkap <span class="text-destructive">*</span></label>
+                    <div x-show="isGeocodingAddress" class="flex items-center gap-2 text-xs text-muted-foreground">
+                      <svg class="animate-spin h-4 w-4 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none"
+                        viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                        </circle>
+                        <path class="opacity-75" fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                        </path>
+                      </svg>
+                      Mencari lokasi...
+                    </div>
                   </div>
-                  <div class="space-y-2">
-                    <label class="text-sm font-medium">Longitude</label>
-                    <input type="number" step="any" x-model.number="addFormData.longitude" @input="updateMapFromCoordinates()" placeholder="106.xxxxx" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                  <textarea x-model="addFormData.address" @blur="geocodeAddress()" rows="4"
+                    class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                    :class="addErrors.address && 'border-destructive focus:ring-destructive'"></textarea>
+                  <p x-show="addErrors.address" class="text-xs text-destructive" x-text="addErrors.address"></p>
+                </div>
+
+                <div class="space-y-2" x-show="addFormData.city">
+                  <label class="text-sm font-medium">Tandai Lokasi di Peta</label>
+                  <p class="text-xs text-muted-foreground">Klik pada peta untuk menandai lokasi Anda</p>
+
+                  <div class="relative mb-2">
+                    <div class="relative">
+                      <input type="text" x-model="mapSearchQuery" @input="handleMapSearch()"
+                        @keydown.enter.prevent="handleMapEnter()"
+                        placeholder="Cari lokasi (contoh: Monas, Jalan Sudirman)"
+                        class="flex h-10 w-full rounded-md border border-input bg-background pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                      <div
+                        class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-muted-foreground">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                          stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                      </div>
+                      <div class="absolute inset-y-0 right-0 flex items-center pr-3" x-show="isSearchingMap">
+                        <svg class="animate-spin h-4 w-4 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none"
+                          viewBox="0 0 24 24">
+                          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                          </circle>
+                          <path class="opacity-75" fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                          </path>
+                        </svg>
+                      </div>
+                    </div>
+
+                    <div x-show="mapSearchResults.length > 0" @click.away="mapSearchResults = []"
+                      class="absolute z-10 w-full mt-1 bg-popover text-popover-foreground rounded-md border shadow-md max-h-60 overflow-y-auto"
+                      style="display: none;">
+                      <ul>
+                        <template x-for="(result, index) in mapSearchResults" :key="index">
+                          <li @click="selectMapLocation(result)"
+                            class="px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground cursor-pointer border-b last:border-0">
+                            <div class="font-medium" x-text="result.display_name.split(',')[0]"></div>
+                            <div class="text-xs text-muted-foreground truncate" x-text="result.display_name"></div>
+                          </li>
+                        </template>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div id="addAgentMap" class="w-full h-80 rounded-md border border-input overflow-hidden"
+                    x-init="$nextTick(() => { if (addFormData.city && !mapInitialized) initializeMap(); })"></div>
+
+                  <div class="grid grid-cols-2 gap-4 pt-2">
+                    <div class="space-y-2">
+                      <label class="text-sm font-medium">Latitude</label>
+                      <input type="number" step="any" x-model.number="addFormData.latitude"
+                        @input="updateMapFromCoordinates()" placeholder="-6.xxxxx"
+                        class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                    </div>
+                    <div class="space-y-2">
+                      <label class="text-sm font-medium">Longitude</label>
+                      <input type="number" step="any" x-model.number="addFormData.longitude"
+                        @input="updateMapFromCoordinates()" placeholder="106.xxxxx"
+                        class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
             </form>
           </div>
 
           <div class="flex items-center justify-end gap-2 border-t bg-white px-6 py-4 shrink-0">
-            <button type="button" @click="closeAddModal()" class="inline-flex items-center justify-center rounded-md border bg-transparent hover:bg-muted h-10 px-4 text-sm font-medium transition-colors">
+            <button type="button" @click="closeAddModal()"
+              class="inline-flex items-center justify-center rounded-md border bg-transparent hover:bg-muted h-10 px-4 text-sm font-medium transition-colors">
               Batal
             </button>
-            <button type="submit" form="addAgentForm" :disabled="isSubmitting" class="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+            <button type="submit" form="addAgentForm" :disabled="isSubmitting"
+              class="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
               <span x-show="!isSubmitting">Simpan</span>
               <span x-show="isSubmitting" class="flex items-center gap-2">
                 <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <path class="opacity-75" fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                  </path>
                 </svg>
                 Menyimpan...
               </span>
@@ -643,7 +749,7 @@
             if (this.mapInstance) {
               this.mapInstance.remove();
             }
-          } catch {}
+          } catch { }
           this.mapInstance = null;
           this.marker = null;
           this.mapInitialized = false;
@@ -751,7 +857,7 @@
               const centerLng = parseFloat(data[0].lon);
               this.mapInstance.flyTo([centerLat, centerLng], 11, { duration: 1.5 });
             }
-          } catch {}
+          } catch { }
         },
 
         async initializeMap() {
@@ -774,7 +880,7 @@
                   centerLng = parseFloat(data[0].lon);
                   zoomLevel = 11;
                 }
-              } catch {}
+              } catch { }
             }
 
             this.mapInstance = L.map('addAgentMap').setView([centerLat, centerLng], zoomLevel);
@@ -796,7 +902,7 @@
             setTimeout(() => {
               try {
                 this.mapInstance.invalidateSize();
-              } catch {}
+              } catch { }
             }, 100);
           } catch (e) {
             console.error(e);
@@ -933,7 +1039,7 @@
             const params = new URLSearchParams(window.location.search);
             const hinted = params.get('type');
             if (hinted === 'affiliate' || hinted === 'freelance') return hinted;
-          } catch {}
+          } catch { }
           const role = getUserRole();
           if (role === 'affiliate' || role === 'freelance') return role;
           return 'freelance';
@@ -964,7 +1070,8 @@
           if (savedUser?.id) return savedUser.id;
           if (!savedUser?.email) return null;
 
-          const listRes = await fetch(`http://127.0.0.1:8000/api/${this.getCollectionName()}`, { headers: { 'Accept': 'application/json' } });
+          // ✅ Menggunakan apiFetch() dan apiUrl() dari config.js
+          const listRes = await apiFetch(apiUrl(this.getCollectionName()));
           if (!listRes.ok) return null;
           const listJson = await listRes.json();
           const list = Array.isArray(listJson) ? listJson : (listJson.data || []);
@@ -974,14 +1081,16 @@
 
         async loadAgents() {
           const collection = this.getCollectionName();
-          const nestedUrl = `http://127.0.0.1:8000/api/${collection}/${this.freelanceId}/agents`;
+          const nestedUrl = `${collection}/${this.freelanceId}/agents`;
           let data = [];
-          const res = await fetch(nestedUrl, { headers: { 'Accept': 'application/json' } });
+          // ✅ Menggunakan apiFetch() dan apiUrl() dari config.js
+          const res = await apiFetch(apiUrl(nestedUrl));
           if (res.ok) {
             const json = await res.json().catch(() => ({}));
             data = Array.isArray(json) ? json : (json.data || []);
           } else {
-            const partnerRes = await fetch(`http://127.0.0.1:8000/api/${collection}/${this.freelanceId}`, { headers: { 'Accept': 'application/json' } });
+            // ✅ Menggunakan apiFetch() dan apiUrl() dari config.js
+            const partnerRes = await apiFetch(apiUrl(`${collection}/${this.freelanceId}`));
             if (partnerRes.ok) {
               const partnerJson = await partnerRes.json().catch(() => ({}));
               const partner = partnerJson.data || null;
@@ -990,7 +1099,8 @@
           }
 
           if (!Array.isArray(data) || !data.length) {
-            const allRes = await fetch('http://127.0.0.1:8000/api/agents', { headers: { 'Accept': 'application/json' } });
+            // ✅ Menggunakan apiFetch() dan apiUrl() dari config.js
+            const allRes = await apiFetch(apiUrl('agents'));
             if (!allRes.ok) throw new Error('Gagal memuat daftar agent');
             const allJson = await allRes.json().catch(() => ({}));
             const all = Array.isArray(allJson) ? allJson : (allJson.data || []);
@@ -1085,13 +1195,15 @@
             };
 
             const collection = this.getCollectionName();
-            let res = await fetch(`http://127.0.0.1:8000/api/${collection}/${this.freelanceId}/agents`, {
+            // ✅ Menggunakan apiUrl() dari config.js (FormData requires direct fetch)
+            let res = await fetch(apiUrl(`${collection}/${this.freelanceId}/agents`), {
               method: 'POST',
               body: buildFormData()
             });
 
             if (res.status === 404 || res.status === 405) {
-              res = await fetch('http://127.0.0.1:8000/api/agents', {
+              // ✅ Menggunakan apiUrl() dari config.js (FormData requires direct fetch)
+              res = await fetch(apiUrl('agents'), {
                 method: 'POST',
                 body: buildFormData()
               });
@@ -1132,7 +1244,7 @@
           let filtered = this.agents.filter(a => {
             const matchSearch = !this.search || a.name.toLowerCase().includes(this.search.toLowerCase()) || a.email.toLowerCase().includes(this.search.toLowerCase());
             const matchStatus = this.statusFilter === 'all' || a.status === this.statusFilter;
-            
+
             // Date range filter
             let matchDate = true;
             if (this.dateFrom || this.dateTo) {
@@ -1144,7 +1256,7 @@
                 matchDate = matchDate && joinDate <= new Date(this.dateTo);
               }
             }
-            
+
             return matchSearch && matchStatus && matchDate;
           });
 
@@ -1152,22 +1264,22 @@
           return filtered.sort((a, b) => {
             let aVal = a[this.sortColumn];
             let bVal = b[this.sortColumn];
-            
+
             // Handle date sorting
             if (this.sortColumn === 'joinDate') {
               aVal = new Date(aVal);
               bVal = new Date(bVal);
             }
-            
+
             // Handle number sorting
             if (typeof aVal === 'number' && typeof bVal === 'number') {
               return this.sortDirection === 'asc' ? aVal - bVal : bVal - aVal;
             }
-            
+
             // Handle string sorting
             aVal = String(aVal).toLowerCase();
             bVal = String(bVal).toLowerCase();
-            
+
             if (this.sortDirection === 'asc') {
               return aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
             } else {
@@ -1210,7 +1322,7 @@
           this.portalType = this.getPortalType();
           if (!requireRole(['freelance', 'affiliate'], true)) return;
           renderHeader('downlines');
-          
+
           // Initialize Flatpickr for date range picker
           this.$nextTick(() => {
             flatpickr('#dateRangePicker', {
@@ -1240,7 +1352,7 @@
               }
             });
           });
-          
+
           (async () => {
             await this.loadProvinces();
             this.freelanceId = await this.resolveFreelanceId();
@@ -1261,4 +1373,5 @@
   </script>
 
 </body>
+
 </html>

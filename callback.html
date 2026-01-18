@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,12 +9,16 @@
   <script src="shared/utils.js"></script>
   <script src="shared/api.js"></script>
 </head>
+
 <body class="bg-slate-50 min-h-screen flex items-center justify-center">
   <div class="bg-white p-8 rounded-lg shadow-md max-w-md w-full text-center">
     <div class="mb-4 flex justify-center">
-      <svg class="animate-spin h-10 w-10 text-emerald-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <svg class="animate-spin h-10 w-10 text-emerald-500" xmlns="http://www.w3.org/2000/svg" fill="none"
+        viewBox="0 0 24 24">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        <path class="opacity-75" fill="currentColor"
+          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+        </path>
       </svg>
     </div>
     <h2 class="text-xl font-semibold text-slate-800 mb-2">Memeriksa Akun</h2>
@@ -21,7 +26,9 @@
     <div id="error-container" class="hidden mt-4 p-3 bg-red-50 text-red-600 rounded text-sm text-left">
       <p class="font-bold">Login Gagal</p>
       <p id="error-message">Terjadi kesalahan.</p>
-      <a href="login.html" class="block mt-3 text-center bg-red-600 text-white py-2 rounded hover:bg-red-700 transition">Kembali ke Login</a>
+      <a href="login.html"
+        class="block mt-3 text-center bg-red-600 text-white py-2 rounded hover:bg-red-700 transition">Kembali ke
+        Login</a>
     </div>
   </div>
 
@@ -32,7 +39,7 @@
       const statusEl = document.getElementById('status-message');
       const errorContainer = document.getElementById('error-container');
       const errorMsg = document.getElementById('error-message');
-      
+
       if (!code) {
         statusEl.textContent = 'Kode otentikasi tidak ditemukan.';
         errorMsg.textContent = 'Tidak ada kode otentikasi dari Google.';
@@ -42,15 +49,15 @@
 
       try {
         statusEl.textContent = 'Menghubungkan ke Google...';
-        
+
         // 1. Exchange code for user info
         const response = await handleGoogleCallback(code);
-        
+
         const userEmail = response.user?.email || response.email;
         const userName = response.user?.name || response.name;
-        
+
         if (!userEmail) {
-            throw new Error('Gagal mendapatkan email dari Google.');
+          throw new Error('Gagal mendapatkan email dari Google.');
         }
 
         console.log('Google Email:', userEmail);
@@ -58,100 +65,101 @@
 
         // Helper to check endpoint
         async function checkEndpoint(endpoint, collectionName) {
-            try {
-                const searchUrl = `${endpoint}?search=${encodeURIComponent(userEmail)}`;
-                const res = await fetch(searchUrl, {
-                    headers: { 'Accept': 'application/json' }
-                });
-                
-                if (!res.ok) return null;
-                
-                const json = await res.json();
-                const data = Array.isArray(json) ? json : (json.data || []);
-                
-                return data.find(item => 
-                    item.email && item.email.toLowerCase() === userEmail.toLowerCase()
-                );
-            } catch (e) {
-                console.warn(`Check ${collectionName} failed:`, e);
-                return null;
-            }
+          try {
+            const searchUrl = `${endpoint}?search=${encodeURIComponent(userEmail)}`;
+            const res = await fetch(searchUrl, {
+              headers: { 'Accept': 'application/json' }
+            });
+
+            if (!res.ok) return null;
+
+            const json = await res.json();
+            const data = Array.isArray(json) ? json : (json.data || []);
+
+            return data.find(item =>
+              item.email && item.email.toLowerCase() === userEmail.toLowerCase()
+            );
+          } catch (e) {
+            console.warn(`Check ${collectionName} failed:`, e);
+            return null;
+          }
         }
 
         // Helper for redirection
         function redirectUser(user, role, type = null) {
-            saveUser({
-                id: user.id,
-                name: user.nama_pic || user.nama || userName,
-                email: user.email,
-                role: role,
-                agentCode: user.agent_code,
-                token: response.token
-            });
+          saveUser({
+            id: user.id,
+            name: user.nama_pic || user.nama || userName,
+            email: user.email,
+            role: role,
+            agentCode: user.agent_code,
+            token: response.token
+          });
 
-            if (role === 'agent') {
-                window.location.href = 'agent/dashboard.html';
-            } else {
-                // For freelance/affiliate
-                window.location.href = `freelance/dashboard.html?id=${user.id}&type=${type || role}`;
-            }
+          if (role === 'agent') {
+            window.location.href = `agent/dashboard.html?id=${user.id}`;
+          } else {
+            // For freelance/affiliate
+            window.location.href = `freelance/dashboard.html?id=${user.id}&type=${type || role}`;
+          }
         }
 
         // 2. Check Agents Endpoint (Might contain all roles)
-        const agentData = await checkEndpoint('http://127.0.0.1:8000/api/agents', 'Agents');
+        // Using API_BASE from shared/api.js which defaults to http://127.0.0.1:8000/api
+        const agentData = await checkEndpoint(`${API_BASE}/agents`, 'Agents');
         if (agentData) {
-            console.log('Found in Agents API:', agentData);
-            const role = (agentData.jenis_agent || 'agent').toLowerCase();
-            
-            if (role.includes('freelance')) {
-                redirectUser(agentData, 'freelance', 'freelance');
-                return;
-            }
-            if (role.includes('affiliate')) {
-                redirectUser(agentData, 'affiliate', 'affiliate');
-                return;
-            }
-            // Default to Agent
-            redirectUser(agentData, 'agent');
+          console.log('Found in Agents API:', agentData);
+          const role = (agentData.jenis_agent || 'agent').toLowerCase();
+
+          if (role.includes('freelance')) {
+            redirectUser(agentData, 'freelance', 'freelance');
             return;
+          }
+          if (role.includes('affiliate')) {
+            redirectUser(agentData, 'affiliate', 'affiliate');
+            return;
+          }
+          // Default to Agent
+          redirectUser(agentData, 'agent');
+          return;
         }
 
         // 3. Check Affiliates Endpoint (Specific)
-        const affiliate = await checkEndpoint('http://127.0.0.1:8000/api/affiliates', 'Affiliates');
+        const affiliate = await checkEndpoint(`${API_BASE}/affiliates`, 'Affiliates');
         if (affiliate) {
-            console.log('Found as Affiliate:', affiliate);
-            redirectUser(affiliate, 'affiliate', 'affiliate');
-            return;
+          console.log('Found as Affiliate:', affiliate);
+          redirectUser(affiliate, 'affiliate', 'affiliate');
+          return;
         }
 
         // 4. Check Freelance Endpoint (Specific)
         // Note: Using plural 'freelances' based on dashboard code conventions and common REST patterns
-        let freelance = await checkEndpoint('http://127.0.0.1:8000/api/freelances', 'Freelance');
-        
+        let freelance = await checkEndpoint(`${API_BASE}/freelances`, 'Freelance');
+
         // Fallback: try singular if plural failed (just in case)
         if (!freelance) {
-             freelance = await checkEndpoint('http://127.0.0.1:8000/api/freelance', 'Freelance (Singular)');
+          freelance = await checkEndpoint(`${API_BASE}/freelance`, 'Freelance (Singular)');
         }
 
         if (freelance) {
-            console.log('Found as Freelance:', freelance);
-            // If the user wants to force "affiliate" type for users found in freelance table, we can't guess that.
-            // We assume table 'freelances' -> type 'freelance'.
-            // However, based on user input "apiipbackup@gmail.com ada ditable affiliate" (which is false in screenshot),
-            // maybe they expect the system to be smart. 
-            // We will redirect as 'freelance' type if found in freelances table.
-            redirectUser(freelance, 'freelance', 'freelance');
-            return;
+          console.log('Found as Freelance:', freelance);
+          // If the user wants to force "affiliate" type for users found in freelance table, we can't guess that.
+          // We assume table 'freelances' -> type 'freelance'.
+          // However, based on user input "apiipbackup@gmail.com ada ditable affiliate" (which is false in screenshot),
+          // maybe they expect the system to be smart. 
+          // We will redirect as 'freelance' type if found in freelances table.
+          redirectUser(freelance, 'freelance', 'freelance');
+          return;
         }
 
         // 5. Not Found -> Signup or Error
         console.log('User not found in any list.');
         const intent = sessionStorage.getItem('auth_intent');
-        
+
         if (intent === 'login') {
-            throw new Error('Akun anda belum terdaftar sebagai Agent, Affiliate, atau Freelance.');
+          throw new Error('Akun anda belum terdaftar sebagai Agent, Affiliate, atau Freelance.');
         } else {
-            window.location.href = `signup.html?email=${encodeURIComponent(userEmail)}`;
+          window.location.href = `signup.html?email=${encodeURIComponent(userEmail)}`;
         }
 
       } catch (error) {
@@ -163,4 +171,5 @@
     });
   </script>
 </body>
+
 </html>
